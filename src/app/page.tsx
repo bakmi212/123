@@ -82,44 +82,48 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   }
 
   const ProductCard = ({ product }: { product: any }) => (
-    <Link href={`/products/${product.slug}`} className="group block">
-      <Card className="h-full overflow-hidden">
-        <CardContent className="p-0">
-          <div className="aspect-[4/3] relative bg-slate-100 overflow-hidden">
-            {product.image_url ? (
-              <img src={product.image_url} alt={product.name} className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500" />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
-                <ShoppingBag className="h-12 w-12 text-slate-300" />
-              </div>
-            )}
-            {getStatusBadge(product.status)}
-            {getProductBadge(product)}
-          </div>
-          <div className="p-5">
-            <div className="flex items-center gap-2 mb-3">
-              <Badge variant="outline" className="text-xs border-indigo-200 bg-indigo-50 text-indigo-600">{categories?.find((c: any) => c.id === product.category_id)?.name || 'Digital'}</Badge>
+  <Link href={`/products/${product.slug}`} className="group block">
+    <Card className="h-full overflow-hidden">
+      <CardContent className="p-0">
+        <div className="aspect-[4/3] relative bg-slate-100 overflow-hidden">
+          {product.image_url ? (
+            <img
+              src={product.image_url}
+              alt={product.name}
+              className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
+              <ShoppingBag className="h-12 w-12 text-slate-300" />
             </div>
-            <h3 className="font-semibold text-[#111827] mb-2 group-hover:text-indigo-600 transition-colors line-clamp-1">{product.name}</h3>
-            <p className="text-sm text-[#64748B] line-clamp-2 mb-4">{product.short_description}</p>
-            <div className="flex items-center justify-between">
-              <div className="flex items-baseline gap-2">
-                <span className="text-xl font-bold text-[#0F172A]">${product.price}</span>
-                {product.compare_price && <span className="text-sm text-[#94A3B8] line-through">${product.compare_price}</span>}
-              </div>
-              {product.rating_count > 0 && (
-                <div className="flex items-center gap-1 text-sm">
-                  <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                  <span className="font-medium text-[#475569]">{product.rating_average?.toFixed(1)}</span>
-                  <span className="text-[#94A3B8]">({product.rating_count})</span>
-                </div>
-              )}
-            </div>
+          )}
+
+          {getStatusBadge(product.status)}
+          {getProductBadge(product)}
+        </div>
+
+        <div className="p-5">
+          <div className="flex items-center gap-2 mb-3">
+            <Badge
+              variant="outline"
+              className="text-xs border-indigo-200 bg-indigo-50 text-indigo-600"
+            >
+              {categories?.find((c: any) => c.id === product.category_id)?.name || "Digital"}
+            </Badge>
           </div>
-        </CardContent>
-      </Card>
-    </Link>
-  )
+
+          <h3 className="font-semibold text-[#111827] mb-2 group-hover:text-indigo-600 transition-colors line-clamp-1">
+            {product.name}
+          </h3>
+
+          <p className="text-sm text-[#64748B] line-clamp-3 leading-relaxed">
+            {product.short_description || "Belum ada deskripsi produk."}
+          </p>
+        </div>
+      </CardContent>
+    </Card>
+  </Link>
+)
 
   return (
     <div className="min-h-screen">
