@@ -506,26 +506,31 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
       </section>
 
       {/* CTA Section */}
-      <section className="py-14 gradient-primary text-white relative overflow-hidden">
-        <div className="absolute inset-0 opacity-20">
-          <div className="absolute top-0 left-0 w-[600px] h-[600px] bg-white/30 rounded-full blur-[100px]" />
-          <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-white/20 rounded-full blur-[80px]" />
+      <section className="relative overflow-hidden py-20 bg-gradient-to-br from-slate-900 via-indigo-900 to-purple-900 text-white">
+      
+        {/* Background Effect */}
+        <div className="absolute inset-0">
+          <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-violet-500/20 rounded-full blur-[120px]" />
+          <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-blue-500/20 rounded-full blur-[120px]" />
+          <div className="absolute inset-0 bg-black/25" />
         </div>
       
-        <div className="container mx-auto px-4 text-center relative">
-          <h2 className="text-3xl md:text-5xl font-bold mb-6">
+        <div className="container mx-auto px-4 text-center relative z-10">
+      
+          <h2 className="text-4xl md:text-5xl font-bold mb-6">
             Siap Untuk Memulai?
           </h2>
       
-          <p className="text-indigo-100 mb-10 max-w-xl mx-auto text-lg">
-            Bergabung dengan ribuan bisnis dan creator yang menggunakan platform kami
-            untuk berkembang.
+          <p className="text-white/90 text-lg leading-8 max-w-2xl mx-auto mb-10">
+            Bergabung dengan ribuan bisnis dan creator yang menggunakan platform
+            kami untuk berkembang.
           </p>
       
-          <div className="flex flex-wrap justify-center gap-4">
+          <div className="flex flex-wrap justify-center gap-5">
+      
             <Button
               size="lg"
-              className="bg-white text-indigo-700 hover:bg-slate-100 h-14 px-10 rounded-2xl font-semibold"
+              className="bg-white text-indigo-700 hover:bg-slate-100 h-14 px-10 rounded-2xl font-semibold shadow-xl"
               asChild
             >
               <Link href="/auth/register">
@@ -535,15 +540,19 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
       
             <Button
               size="lg"
-              className="bg-indigo-700 text-white hover:bg-indigo-800 h-14 px-10 rounded-2xl font-semibold border border-white/20"
+              variant="outline"
+              className="border-white text-white hover:bg-white hover:text-indigo-700 h-14 px-10 rounded-2xl font-semibold"
               asChild
             >
               <Link href="/products">
                 Lihat Produk
               </Link>
             </Button>
+      
           </div>
+      
         </div>
+      
       </section>
 
       {/* All Products Grid with Filter */}
