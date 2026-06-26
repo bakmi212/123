@@ -215,30 +215,29 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
 
             {/* Right Side - Dashboard Preview */}
             <div className="hidden lg:block relative">
-            
-              {/* Glow */}
+
               <div className="absolute -inset-8 bg-gradient-to-r from-violet-500/20 to-blue-500/20 blur-3xl rounded-[40px]" />
-            
-              {/* Browser Mockup */}
+
               <div className="relative bg-white rounded-[32px] overflow-hidden border border-slate-200 shadow-2xl">
-            
-                {/* Browser Top */}
+
                 <div className="flex items-center gap-2 px-6 py-4 border-b bg-slate-50">
                   <span className="w-3 h-3 rounded-full bg-red-400" />
                   <span className="w-3 h-3 rounded-full bg-yellow-400" />
                   <span className="w-3 h-3 rounded-full bg-green-400" />
                 </div>
-            
-                {/* Screenshot */}
+
                 <img
                   src="/images/dashboard-preview.png"
                   alt="Dashboard Preview"
                   className="w-full h-auto object-cover transition-transform duration-700 hover:scale-105"
                 />
-            
+
               </div>
-            
             </div>
+
+          </div>
+        </div>
+      </section>
 
       {/* Premium Features Section */}
       <section className="py-14 bg-[#F8FAFC] relative">
