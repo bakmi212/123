@@ -97,8 +97,8 @@ function RegisterForm() {
   return (
     <div className="min-h-screen flex items-center justify-center py-12 px-4 bg-muted/30">
       <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1 text-center">
-         <div className="flex justify-center mb-4">
+        <CardHeader className="space-y-2 text-center">
+          <div className="flex justify-center mb-4">
             <Image
               src="/logo.png"
               alt="Lumintusuite"
@@ -108,6 +108,15 @@ function RegisterForm() {
               className="object-contain"
             />
           </div>
+        
+          <CardTitle className="text-3xl font-bold">
+            Create an account
+          </CardTitle>
+        
+          <CardDescription className="text-base">
+            Enter your details to create your account.
+          </CardDescription>
+        
         </CardHeader>
         <form onSubmit={handleRegister}>
           <CardContent className="space-y-4">
