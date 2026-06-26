@@ -226,8 +226,8 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
                   <span className="w-3 h-3 rounded-full bg-green-400" />
                 </div>
 
-                <img
-                  src="/public/dashboard-preview.png"
+                <Image
+                  src="/dashboard-preview.png"
                   alt="Dashboard Preview"
                   className="w-full h-auto object-cover transition-transform duration-700 hover:scale-105"
                 />
