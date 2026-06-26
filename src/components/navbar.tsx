@@ -7,30 +7,39 @@ import { useEffect, useState } from 'react'
 import { createBrowserClient } from '@/lib/supabase/client'
 import { useI18n } from '@/lib/i18n'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Menu, X, ShoppingCart, User, LogOut, LayoutDashboard, Package, Globe, Sparkles } from 'lucide-react'
+import {
+  Menu,
+  X,
+  LogOut,
+  LayoutDashboard,
+  Globe,
+} from 'lucide-react'
 
 export function Navbar() {
   const pathname = usePathname()
   const { lang, t, setLang } = useI18n()
+
   const [user, setUser] = useState<{ id: string; email: string } | null>(null)
-  const [cartCount, setCartCount] = useState(0)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [langOpen, setLangOpen] = useState(false)
+
   const supabase = createBrowserClient()
 
   useEffect(() => {
     const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+
       setUser(user ? { id: user.id, email: user.email || '' } : null)
-      if (user) {
-        const { count } = await supabase.from('cart_items').select('id', { count: 'exact', head: true }).eq('user_id', user.id)
-        setCartCount(count || 0)
-      }
     }
+
     getUser()
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => getUser())
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(() => getUser())
+
     return () => subscription.unsubscribe()
   }, [])
 
@@ -45,14 +54,14 @@ export function Navbar() {
     { href: '/categories', label: 'Categories' },
   ]
 
-  const isActive = (href: string) => pathname === href || (href !== '/' && pathname.startsWith(href))
+  const isActive = (href: string) =>
+    pathname === href || (href !== '/' && pathname.startsWith(href))
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-slate-200/50 bg-white/80 backdrop-blur-xl supports-[backdrop-filter]:bg-white/70">
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           <Link href="/" className="flex items-center gap-0.5">
-
             <Image
               src="/logo.png"
               alt="Lumintusuite"
@@ -61,19 +70,22 @@ export function Navbar() {
               priority
               className="h-12 w-12 object-contain"
             />
-          
-            <span className="block text-base sm:text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent whitespace-nowrap">
+
+            <span className="block whitespace-nowrap bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-base font-bold text-transparent sm:text-xl">
               Lumintusuite
             </span>
-          
           </Link>
 
-          <nav className="hidden md:flex items-center gap-6">
+          <nav className="hidden items-center gap-6 md:flex">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className={`text-sm font-medium transition-colors hover:text-primary ${isActive(link.href) ? 'text-primary' : 'text-muted-foreground'}`}
+                className={`text-sm font-medium transition-colors hover:text-primary ${
+                  isActive(link.href)
+                    ? 'text-primary'
+                    : 'text-muted-foreground'
+                }`}
               >
                 {link.label}
               </Link>
@@ -81,70 +93,120 @@ export function Navbar() {
           </nav>
 
           <div className="flex items-center gap-2">
-            {/* Language Switcher */}
+            {/* Language */}
             <div className="relative">
-              <Button variant="ghost" size="sm" onClick={() => setLangOpen(!langOpen)} className="gap-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setLangOpen(!langOpen)}
+                className="gap-1"
+              >
                 <Globe className="h-4 w-4" />
-                <span className="uppercase text-xs font-medium">{lang}</span>
+                <span className="text-xs font-medium uppercase">{lang}</span>
               </Button>
+
               {langOpen && (
-                <div className="absolute right-0 top-full mt-1 bg-background border rounded-md shadow-lg py-1 z-50 min-w-[100px]">
-                  <button onClick={() => { setLang('en'); setLangOpen(false) }} className={`w-full text-left px-3 py-2 text-sm hover:bg-muted ${lang === 'en' ? 'bg-muted font-medium' : ''}`}>English</button>
-                  <button onClick={() => { setLang('id'); setLangOpen(false) }} className={`w-full text-left px-3 py-2 text-sm hover:bg-muted ${lang === 'id' ? 'bg-muted font-medium' : ''}`}>Indonesia</button>
+                <div className="absolute right-0 top-full z-50 mt-1 min-w-[100px] rounded-md border bg-background py-1 shadow-lg">
+                  <button
+                    onClick={() => {
+                      setLang('en')
+                      setLangOpen(false)
+                    }}
+                    className={`w-full px-3 py-2 text-left text-sm hover:bg-muted ${
+                      lang === 'en' ? 'bg-muted font-medium' : ''
+                    }`}
+                  >
+                    English
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setLang('id')
+                      setLangOpen(false)
+                    }}
+                    className={`w-full px-3 py-2 text-left text-sm hover:bg-muted ${
+                      lang === 'id' ? 'bg-muted font-medium' : ''
+                    }`}
+                  >
+                    Indonesia
+                  </button>
                 </div>
               )}
             </div>
 
             {user ? (
               <>
-                <Link href="/dashboard/cart" className="relative">
+                <Link href="/dashboard">
                   <Button variant="ghost" size="icon">
-                    <ShoppingCart className="h-5 w-5" />
-                    {cartCount > 0 && (
-                      <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs">
-                        {cartCount}
-                      </Badge>
-                    )}
+                    <LayoutDashboard className="h-5 w-5" />
                   </Button>
                 </Link>
-                <Link href="/dashboard/orders">
-                  <Button variant="ghost" size="icon"><Package className="h-5 w-5" /></Button>
-                </Link>
-                <Link href="/dashboard">
-                  <Button variant="ghost" size="icon"><LayoutDashboard className="h-5 w-5" /></Button>
-                </Link>
-                <Button variant="ghost" size="icon" onClick={handleLogout}>
+
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleLogout}
+                >
                   <LogOut className="h-5 w-5" />
                 </Button>
               </>
             ) : (
               <>
                 <Link href="/auth/login" className="hidden sm:inline-flex">
-                  <Button variant="ghost" size="sm">{t('nav_login', 'navbar')}</Button>
+                  <Button variant="ghost" size="sm">
+                    {t('nav_login', 'navbar')}
+                  </Button>
                 </Link>
+
                 <Link href="/auth/register">
-                  <Button size="sm">{t('nav_register', 'navbar')}</Button>
+                  <Button size="sm">
+                    {t('nav_register', 'navbar')}
+                  </Button>
                 </Link>
               </>
             )}
-            <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setMobileOpen(!mobileOpen)}>
-              {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+
+            <Button
+              variant="ghost"
+              size="icon"
+              className="md:hidden"
+              onClick={() => setMobileOpen(!mobileOpen)}
+            >
+              {mobileOpen ? (
+                <X className="h-5 w-5" />
+              ) : (
+                <Menu className="h-5 w-5" />
+              )}
             </Button>
           </div>
         </div>
 
         {mobileOpen && (
-          <nav className="md:hidden py-4 border-t">
+          <nav className="border-t py-4 md:hidden">
             <div className="flex flex-col gap-2">
               {navLinks.map((link) => (
-                <Link key={link.href} href={link.href} onClick={() => setMobileOpen(false)} className={`px-4 py-2 text-sm font-medium rounded-md ${isActive(link.href) ? 'bg-muted text-primary' : 'text-muted-foreground'}`}>
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setMobileOpen(false)}
+                  className={`rounded-md px-4 py-2 text-sm font-medium ${
+                    isActive(link.href)
+                      ? 'bg-muted text-primary'
+                      : 'text-muted-foreground'
+                  }`}
+                >
                   {link.label}
                 </Link>
               ))}
+
               {!user && (
-                <>
-                  <Link href="/auth/login" onClick={() => setMobileOpen(false)} className="px-4 py-2 text-sm font-medium text-muted-foreground">{t('nav_login', 'navbar')}</Link>
-                </>
+                <Link
+                  href="/auth/login"
+                  onClick={() => setMobileOpen(false)}
+                  className="px-4 py-2 text-sm font-medium text-muted-foreground"
+                >
+                  {t('nav_login', 'navbar')}
+                </Link>
               )}
             </div>
           </nav>
