@@ -213,52 +213,32 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
               </div>
             </div>
 
+            {/* Right Side - Dashboard Preview */}
             <div className="hidden lg:block relative">
-
+            
+              {/* Glow */}
               <div className="absolute -inset-6 bg-gradient-to-r from-violet-500/20 to-blue-500/20 blur-3xl rounded-3xl" />
             
-              <div className="relative overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl">
+              {/* Browser Mockup */}
+              <div className="relative bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden">
             
+                {/* Browser Header */}
+                <div className="flex items-center gap-2 px-6 py-4 border-b bg-slate-50">
+                  <span className="w-3 h-3 rounded-full bg-red-400" />
+                  <span className="w-3 h-3 rounded-full bg-yellow-400" />
+                  <span className="w-3 h-3 rounded-full bg-green-400" />
+                </div>
+            
+                {/* Screenshot */}
                 <img
                   src="/images/dashboard-preview.png"
                   alt="Dashboard Preview"
-                  className="w-full h-auto object-cover transition duration-700 hover:scale-105"
+                  className="w-full object-cover transition-transform duration-700 hover:scale-105"
                 />
             
               </div>
-
-                  <div className="h-10 bg-slate-100 rounded-xl w-3/4" />
-                  <div className="grid grid-cols-3 gap-4">
-                    <div className="h-28 bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-2xl border border-indigo-200/50 p-4">
-                      <div className="h-3 w-12 bg-indigo-300/50 rounded mb-2" />
-                      <div className="h-8 w-8 bg-indigo-400/40 rounded-lg mt-auto" />
-                    </div>
-                    <div className="h-28 bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-2xl border border-emerald-200/50 p-4">
-                      <div className="h-3 w-12 bg-emerald-300/50 rounded mb-2" />
-                      <div className="h-8 w-8 bg-emerald-400/40 rounded-lg mt-auto" />
-                    </div>
-                    <div className="h-28 bg-gradient-to-br from-violet-50 to-violet-100 rounded-2xl border border-violet-200/50 p-4">
-                      <div className="h-3 w-12 bg-violet-300/50 rounded mb-2" />
-                      <div className="h-8 w-8 bg-violet-400/40 rounded-lg mt-auto" />
-                    </div>
-                  </div>
-                  <div className="h-40 bg-slate-50 rounded-2xl border border-[#E5E7EB] p-4">
-                    <div className="flex justify-between mb-3">
-                      <div className="h-3 w-20 bg-slate-300 rounded" />
-                      <div className="h-3 w-16 bg-slate-300 rounded" />
-                    </div>
-                    <div className="h-24 bg-gradient-to-r from-indigo-200 via-violet-200 to-blue-200 rounded-xl" />
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="h-20 bg-slate-50 rounded-xl border border-[#E5E7EB]" />
-                    <div className="h-20 bg-slate-50 rounded-xl border border-[#E5E7EB]" />
-                  </div>
-                </div>
-              </div>
+            
             </div>
-          </div>
-        </div>
-      </section>
 
       {/* Premium Features Section */}
       <section className="py-14 bg-[#F8FAFC] relative">
