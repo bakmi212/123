@@ -527,28 +527,27 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
           </p>
       
           <div className="flex flex-wrap justify-center gap-5">
-      
+
             <Button
               size="lg"
-              className="bg-white text-indigo-700 hover:bg-slate-100 h-14 px-10 rounded-2xl font-semibold shadow-xl"
+              className="h-14 px-10 rounded-2xl bg-violet-600 hover:bg-violet-700 text-white shadow-xl border-0"
               asChild
             >
               <Link href="/auth/register">
                 Buat Akun Gratis
               </Link>
             </Button>
-      
+          
             <Button
               size="lg"
-              variant="outline"
-              className="border-white text-white hover:bg-white hover:text-indigo-700 h-14 px-10 rounded-2xl font-semibold"
+              className="h-14 px-10 rounded-2xl bg-transparent border border-white text-white hover:bg-white hover:text-violet-700"
               asChild
             >
               <Link href="/products">
                 Lihat Produk
               </Link>
             </Button>
-      
+          
           </div>
       
         </div>
