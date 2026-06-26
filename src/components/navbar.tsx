@@ -51,18 +51,18 @@ export function Navbar() {
     <header className="sticky top-0 z-50 w-full border-b border-slate-200/50 bg-white/80 backdrop-blur-xl supports-[backdrop-filter]:bg-white/70">
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
-          <Link href="/" className="flex items-center gap-3">
+          <Link href="/" className="flex items-center gap-1.5">
 
             <Image
               src="/logo.png"
               alt="Lumintusuite"
-              width={40}
-              height={40}
+              width={48}
+              height={48}
               priority
-              className="h-10 w-10 object-contain"
+              className="h-12 w-12 object-contain"
             />
           
-            <span className="hidden sm:block text-lg font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            <span className="hidden sm:block text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
               Lumintusuite
             </span>
           
