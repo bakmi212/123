@@ -136,7 +136,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-radial from-blue-500/5 to-transparent rounded-full" />
         </div>
 
-        <div className="container mx-auto px-4 py-20 md:py-32 relative">
+        <div className="container mx-auto px-4 py-12 md:py-32 relative">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             {/* Left Side - Content */}
             <div className="space-y-8">
@@ -257,7 +257,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
       </section>
 
       {/* Premium Features Section */}
-      <section className="py-24 bg-[#F8FAFC] relative">
+      <section className="py-14 bg-[#F8FAFC] relative">
         <div className="container mx-auto px-4 relative">
           <div className="text-center mb-14">
             <Badge variant="outline" className="mb-4 border-indigo-200 text-indigo-600 bg-indigo-50/50">Mengapa Memilih Kami</Badge>
@@ -308,7 +308,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
       </section>
 
       {/* Categories Section */}
-      <section className="py-20 bg-[#F8FAFC]">
+      <section className="py-12 bg-[#F8FAFC]">
         <div className="container mx-auto px-4">
           <div className="text-center mb-14">
             <Badge variant="outline" className="mb-4 border-indigo-200 text-indigo-600 bg-indigo-50/50">Kategori Populer</Badge>
@@ -348,7 +348,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
 
       {/* Featured Products */}
       {(featuredProducts || []).length > 0 && (
-        <section className="py-20 bg-white">
+        <section className="py-12 bg-white">
           <div className="container mx-auto px-4">
             <div className="flex items-center justify-between mb-12">
               <div>
@@ -367,7 +367,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
 
       {/* Best Sellers */}
       {(bestSellers || []).length > 0 && (
-        <section className="py-20 bg-[#F8FAFC]">
+        <section className="py-12 bg-[#F8FAFC]">
           <div className="container mx-auto px-4">
             <div className="flex items-center justify-between mb-12">
               <div>
@@ -386,7 +386,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
 
       {/* New Arrivals */}
       {(newProducts || []).length > 0 && (
-        <section className="py-20 bg-white">
+        <section className="py-12 bg-white">
           <div className="container mx-auto px-4">
             <div className="flex items-center justify-between mb-12">
               <div>
@@ -404,7 +404,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
       )}
 
       {/* Testimonials */}
-      <section className="py-24 bg-white relative">
+      <section className="py-14 bg-white relative">
         <div className="container mx-auto px-4 relative">
           <div className="text-center mb-14">
             <Badge variant="outline" className="mb-4 border-indigo-200 text-indigo-600 bg-indigo-50/50">Testimonials</Badge>
@@ -436,7 +436,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
       </section>
 
       {/* FAQ Section */}
-      <section className="py-24 bg-slate-50">
+      <section className="py-14 bg-slate-50">
         <div className="container mx-auto px-4">
           <div className="text-center mb-14">
             <Badge variant="outline" className="mb-4 border-indigo-200 text-indigo-600 bg-indigo-50/50">FAQ</Badge>
@@ -460,7 +460,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 gradient-primary text-white relative overflow-hidden">
+      <section className="py-14 gradient-primary text-white relative overflow-hidden">
         <div className="absolute inset-0 opacity-20">
           <div className="absolute top-0 left-0 w-[600px] h-[600px] bg-white/30 rounded-full blur-[100px]" />
           <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-white/20 rounded-full blur-[80px]" />
@@ -469,18 +469,24 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
           <h2 className="text-3xl md:text-5xl font-bold mb-6">Siap Untuk Memulai?</h2>
           <p className="text-indigo-100 mb-10 max-w-xl mx-auto text-lg">Bergabung dengan ribuan bisnis dan creator yang menggunakan platform kami untuk berkembang.</p>
           <div className="flex flex-wrap justify-center gap-4">
-            <Button size="lg" className="bg-white text-indigo-600 hover:bg-indigo-50 h-14 px-10 rounded-2xl shadow-xl text-base font-semibold" asChild>
-              <Link href="/auth/register">Create Free Account</Link>
+            <Button
+              size="lg"
+              className="bg-white text-indigo-700 hover:bg-slate-100 h-14 px-10 rounded-2xl font-semibold"
+              asChild
+            >
+              <Link href="/auth/register">Buat Akun Gratis</Link>
             </Button>
-            <Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10 h-14 px-10 rounded-2xl text-base font-semibold" asChild>
-              <Link href="/products">Browse Products</Link>
+            
+            <Button
+              size="lg"
+              className="bg-indigo-700 text-white hover:bg-indigo-800 h-14 px-10 rounded-2xl font-semibold border border-white/20"
+              asChild
+            >
+              <Link href="/products">Lihat Produk</Link>
             </Button>
-          </div>
-        </div>
-      </section>
 
       {/* All Products Grid with Filter */}
-      <section className="py-20 bg-white">
+      <section className="py-12 bg-white">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row md:items-center justify-between mb-12 gap-4">
             <div>
