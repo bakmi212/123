@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, Suspense } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
@@ -97,9 +98,16 @@ function RegisterForm() {
     <div className="min-h-screen flex items-center justify-center py-12 px-4 bg-muted/30">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1 text-center">
-          <div className="flex justify-center mb-4"><div className="h-12 w-12 rounded-xl bg-primary flex items-center justify-center"><span className="font-bold text-xl text-primary-foreground">S</span></div></div>
-          <CardTitle className="text-2xl">Create an account</CardTitle>
-          <CardDescription>Enter your details to get started</CardDescription>
+         <div className="flex justify-center mb-4">
+            <Image
+              src="/logo.png"
+              alt="Lumintusuite"
+              width={72}
+              height={72}
+              priority
+              className="object-contain"
+            />
+          </div>
         </CardHeader>
         <form onSubmit={handleRegister}>
           <CardContent className="space-y-4">
