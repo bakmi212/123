@@ -136,8 +136,8 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-radial from-blue-500/5 to-transparent rounded-full" />
         </div>
 
-        <div className="container mx-auto px-4 py-12 md:py-32 relative">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
+        <div className="container mx-auto px-4 py-12 md:py-16 relative">
+          <div className="grid lg:grid-cols-2 gap-10 items-center">
             {/* Left Side - Content */}
             <div className="space-y-8">
               {/* Trust Badge */}
@@ -259,7 +259,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
       {/* Premium Features Section */}
       <section className="py-14 bg-[#F8FAFC] relative">
         <div className="container mx-auto px-4 relative">
-          <div className="text-center mb-14">
+          <div className="text-center mb-8">
             <Badge variant="outline" className="mb-4 border-indigo-200 text-indigo-600 bg-indigo-50/50">Mengapa Memilih Kami</Badge>
             <h2 className="text-3xl md:text-4xl font-bold text-[#0F172A] mb-4">Keunggulan Platform Kami</h2>
             <p className="text-[#64748B] max-w-xl mx-auto">Pengalaman terbaik dengan fitur premium yang mendukung kesuksesan Anda</p>
@@ -310,7 +310,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
       {/* Categories Section */}
       <section className="py-12 bg-[#F8FAFC]">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-14">
+          <div className="text-center mb-8">
             <Badge variant="outline" className="mb-4 border-indigo-200 text-indigo-600 bg-indigo-50/50">Kategori Populer</Badge>
             <h2 className="text-3xl md:text-4xl font-bold text-[#0F172A] mb-4">Jelajahi Berdasarkan Kategori</h2>
             <p className="text-[#64748B] max-w-xl mx-auto">Temukan produk sesuai kebutuhan Anda dari berbagai kategori</p>
@@ -350,7 +350,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
       {(featuredProducts || []).length > 0 && (
         <section className="py-12 bg-white">
           <div className="container mx-auto px-4">
-            <div className="flex items-center justify-between mb-12">
+            <div className="flex items-center justify-between mb-8">
               <div>
                 <Badge variant="outline" className="mb-3 border-emerald-200 text-emerald-600"><Sparkles className="h-3 w-3 mr-1" />Editor's Pick</Badge>
                 <h2 className="text-3xl md:text-4xl font-bold text-[#0F172A]">Featured Products</h2>
@@ -369,7 +369,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
       {(bestSellers || []).length > 0 && (
         <section className="py-12 bg-[#F8FAFC]">
           <div className="container mx-auto px-4">
-            <div className="flex items-center justify-between mb-12">
+            <div className="flex items-center justify-between mb-8">
               <div>
                 <Badge variant="outline" className="mb-3 border-orange-200 text-orange-600 bg-orange-50/50"><TrendingUp className="h-3 w-3 mr-1" />Top Selling</Badge>
                 <h2 className="text-3xl md:text-4xl font-bold text-[#0F172A]">Best Sellers</h2>
@@ -388,7 +388,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
       {(newProducts || []).length > 0 && (
         <section className="py-12 bg-white">
           <div className="container mx-auto px-4">
-            <div className="flex items-center justify-between mb-12">
+            <div className="flex items-center justify-between mb-8">
               <div>
                 <Badge variant="outline" className="mb-3 border-blue-200 text-blue-600 bg-blue-50/50"><Sparkles className="h-3 w-3 mr-1" />New</Badge>
                 <h2 className="text-3xl md:text-4xl font-bold text-[#0F172A]">New Arrivals</h2>
@@ -406,7 +406,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
       {/* Testimonials */}
       <section className="py-14 bg-white relative">
         <div className="container mx-auto px-4 relative">
-          <div className="text-center mb-14">
+          <div className="text-center mb-8">
             <Badge variant="outline" className="mb-4 border-indigo-200 text-indigo-600 bg-indigo-50/50">Testimonials</Badge>
             <h2 className="text-3xl md:text-4xl font-bold text-[#0F172A] mb-4">Apa Kata Mereka?</h2>
             <p className="text-[#64748B] max-w-xl mx-auto">Dengarkan pengalaman pelanggan kami</p>
@@ -438,7 +438,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
       {/* FAQ Section */}
       <section className="py-14 bg-slate-50">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-14">
+          <div className="text-center mb-8">
             <Badge variant="outline" className="mb-4 border-indigo-200 text-indigo-600 bg-indigo-50/50">FAQ</Badge>
             <h2 className="text-3xl md:text-4xl font-bold text-[#0F172A] mb-4">Pertanyaan yang Sering Diajukan</h2>
             <p className="text-[#64748B] max-w-xl mx-auto">Temukan jawaban untuk pertanyaan umum</p>
@@ -465,25 +465,40 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
           <div className="absolute top-0 left-0 w-[600px] h-[600px] bg-white/30 rounded-full blur-[100px]" />
           <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-white/20 rounded-full blur-[80px]" />
         </div>
+      
         <div className="container mx-auto px-4 text-center relative">
-          <h2 className="text-3xl md:text-5xl font-bold mb-6">Siap Untuk Memulai?</h2>
-          <p className="text-indigo-100 mb-10 max-w-xl mx-auto text-lg">Bergabung dengan ribuan bisnis dan creator yang menggunakan platform kami untuk berkembang.</p>
+          <h2 className="text-3xl md:text-5xl font-bold mb-6">
+            Siap Untuk Memulai?
+          </h2>
+      
+          <p className="text-indigo-100 mb-10 max-w-xl mx-auto text-lg">
+            Bergabung dengan ribuan bisnis dan creator yang menggunakan platform kami
+            untuk berkembang.
+          </p>
+      
           <div className="flex flex-wrap justify-center gap-4">
             <Button
               size="lg"
               className="bg-white text-indigo-700 hover:bg-slate-100 h-14 px-10 rounded-2xl font-semibold"
               asChild
             >
-              <Link href="/auth/register">Buat Akun Gratis</Link>
+              <Link href="/auth/register">
+                Buat Akun Gratis
+              </Link>
             </Button>
-            
+      
             <Button
               size="lg"
               className="bg-indigo-700 text-white hover:bg-indigo-800 h-14 px-10 rounded-2xl font-semibold border border-white/20"
               asChild
             >
-              <Link href="/products">Lihat Produk</Link>
+              <Link href="/products">
+                Lihat Produk
+              </Link>
             </Button>
+          </div>
+        </div>
+      </section>
 
       {/* All Products Grid with Filter */}
       <section className="py-12 bg-white">
