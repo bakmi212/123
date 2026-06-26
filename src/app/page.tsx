@@ -310,39 +310,85 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
       {/* Categories Section */}
       <section className="py-12 bg-[#F8FAFC]">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-8">
-            <Badge variant="outline" className="mb-4 border-indigo-200 text-indigo-600 bg-indigo-50/50">Kategori Populer</Badge>
-            <h2 className="text-3xl md:text-4xl font-bold text-[#0F172A] mb-4">Jelajahi Berdasarkan Kategori</h2>
-            <p className="text-[#64748B] max-w-xl mx-auto">Temukan produk sesuai kebutuhan Anda dari berbagai kategori</p>
+      
+          {/* Header */}
+          <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-10">
+      
+            <div>
+              <Badge
+                variant="outline"
+                className="mb-4 border-indigo-200 text-indigo-600 bg-indigo-50/50"
+              >
+                Kategori Populer
+              </Badge>
+      
+              <h2 className="text-3xl md:text-4xl font-bold text-[#0F172A] mb-4">
+                Jelajahi Berdasarkan Kategori
+              </h2>
+      
+              <p className="text-[#64748B] max-w-2xl">
+                Temukan produk sesuai kebutuhan Anda dari berbagai kategori
+              </p>
+            </div>
+      
+            <Button
+              variant="outline"
+              className="rounded-full px-6 border-indigo-200 text-indigo-600 hover:bg-indigo-50 shrink-0"
+              asChild
+            >
+              <Link href="/categories">
+                View All Categories
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+      
           </div>
+      
+          {/* Category Grid */}
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
             {(categories || []).slice(0, 6).map((cat: any) => (
-              <Link key={cat.id} href={`/categories/${cat.slug}`} className="group">
-                <Card className="h-full overflow-hidden">
+              <Link
+                key={cat.id}
+                href={`/categories/${cat.slug}`}
+                className="group"
+              >
+                <Card className="h-full overflow-hidden rounded-2xl border hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+      
                   <CardContent className="p-0">
-                    <div className="aspect-square relative bg-gradient-to-br from-indigo-50 to-violet-100 overflow-hidden">
+      
+                    <div className="aspect-square overflow-hidden bg-gradient-to-br from-indigo-50 to-violet-100">
+      
                       {cat.image_url ? (
-                        <img src={cat.image_url} alt={cat.name} className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-500" />
+                        <img
+                          src={cat.image_url}
+                          alt={cat.name}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                        />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
                           <ShoppingBag className="h-10 w-10 text-indigo-300" />
                         </div>
                       )}
+      
                     </div>
+      
                     <div className="p-4">
-                      <h3 className="font-semibold text-[#111827] text-sm group-hover:text-indigo-600 transition-colors">{cat.name}</h3>
-                      <p className="text-xs text-[#64748B] mt-1">{countMap.get(cat.id) || 0} produk</p>
+                      <h3 className="font-semibold text-[#111827] group-hover:text-indigo-600 transition-colors">
+                        {cat.name}
+                      </h3>
+      
+                      <p className="text-sm text-[#64748B] mt-1">
+                        {countMap.get(cat.id) || 0} produk
+                      </p>
                     </div>
+      
                   </CardContent>
+      
                 </Card>
               </Link>
             ))}
           </div>
-          <div className="text-center mt-10">
-            <Button variant="outline" className="rounded-full px-6 border-indigo-200 text-indigo-600 hover:bg-indigo-50" asChild>
-              <Link href="/categories">View All Categories <ArrowRight className="ml-2 h-4 w-4" /></Link>
-            </Button>
-          </div>
+      
         </div>
       </section>
 
