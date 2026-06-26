@@ -51,7 +51,7 @@ export function Navbar() {
     <header className="sticky top-0 z-50 w-full border-b border-slate-200/50 bg-white/80 backdrop-blur-xl supports-[backdrop-filter]:bg-white/70">
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
-          <Link href="/" className="flex items-center gap-1.5">
+          <Link href="/" className="flex items-center gap-0.5">
 
             <Image
               src="/logo.png"
