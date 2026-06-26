@@ -83,35 +83,35 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
 
   const ProductCard = ({ product }: { product: any }) => (
     <Link href={`/products/${product.slug}`} className="group block">
-      <Card className="h-full hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-300 border-slate-200/60 overflow-hidden bg-white/80 backdrop-blur">
+      <Card className="h-full overflow-hidden">
         <CardContent className="p-0">
           <div className="aspect-[4/3] relative bg-slate-100 overflow-hidden">
             {product.image_url ? (
               <img src={product.image_url} alt={product.name} className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500" />
             ) : (
-              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200">
+              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
                 <ShoppingBag className="h-12 w-12 text-slate-300" />
               </div>
             )}
             {getStatusBadge(product.status)}
             {getProductBadge(product)}
           </div>
-          <div className="p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <Badge variant="outline" className="text-xs border-blue-200 text-blue-600">{categories?.find((c: any) => c.id === product.category_id)?.name || 'Digital'}</Badge>
+          <div className="p-5">
+            <div className="flex items-center gap-2 mb-3">
+              <Badge variant="outline" className="text-xs border-indigo-200 bg-indigo-50 text-indigo-600">{categories?.find((c: any) => c.id === product.category_id)?.name || 'Digital'}</Badge>
             </div>
-            <h3 className="font-semibold mb-1 group-hover:text-blue-600 transition-colors line-clamp-1">{product.name}</h3>
-            <p className="text-sm text-slate-500 line-clamp-2 mb-3">{product.short_description}</p>
+            <h3 className="font-semibold text-[#111827] mb-2 group-hover:text-indigo-600 transition-colors line-clamp-1">{product.name}</h3>
+            <p className="text-sm text-[#64748B] line-clamp-2 mb-4">{product.short_description}</p>
             <div className="flex items-center justify-between">
               <div className="flex items-baseline gap-2">
-                <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">${product.price}</span>
-                {product.compare_price && <span className="text-sm text-slate-400 line-through">${product.compare_price}</span>}
+                <span className="text-xl font-bold text-[#0F172A]">${product.price}</span>
+                {product.compare_price && <span className="text-sm text-[#94A3B8] line-through">${product.compare_price}</span>}
               </div>
               {product.rating_count > 0 && (
                 <div className="flex items-center gap-1 text-sm">
                   <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                  <span className="font-medium">{product.rating_average?.toFixed(1)}</span>
-                  <span className="text-slate-400">({product.rating_count})</span>
+                  <span className="font-medium text-[#475569]">{product.rating_average?.toFixed(1)}</span>
+                  <span className="text-[#94A3B8]">({product.rating_count})</span>
                 </div>
               )}
             </div>
@@ -123,13 +123,13 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
 
   return (
     <div className="min-h-screen">
-      {/* Hero Section - Premium SaaS Design */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-[#0F172A] via-[#1E1B4B] to-[#0F172A] text-white">
+      {/* Hero Section - Bright Premium SaaS Design */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-[#F8FAFC] via-white to-[#F8FAFC]">
         {/* Background Effects */}
         <div className="absolute inset-0">
-          <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-blue-500/20 rounded-full blur-[120px]" />
-          <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-purple-500/20 rounded-full blur-[100px]" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-radial from-blue-500/10 to-transparent rounded-full" />
+          <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-indigo-500/10 rounded-full blur-[120px]" />
+          <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-violet-500/10 rounded-full blur-[100px]" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-radial from-blue-500/5 to-transparent rounded-full" />
         </div>
 
         <div className="container mx-auto px-4 py-20 md:py-32 relative">
@@ -137,23 +137,23 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
             {/* Left Side - Content */}
             <div className="space-y-8">
               {/* Trust Badge */}
-              <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-full bg-white/10 border border-white/20 backdrop-blur-xl shadow-lg shadow-blue-500/10">
-                <div className="flex items-center justify-center w-6 h-6 rounded-full bg-gradient-to-r from-blue-400 to-purple-500">
+              <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-full bg-white border border-[#E5E7EB] shadow-card">
+                <div className="flex items-center justify-center w-6 h-6 rounded-full gradient-primary">
                   <CheckCircle className="h-4 w-4 text-white" />
                 </div>
-                <span className="text-sm font-medium text-blue-100">Dipercaya oleh 1.100+ pelanggan dari berbagai industri.</span>
+                <span className="text-sm font-medium text-[#475569]">Dipercaya oleh 1.100+ pelanggan dari berbagai industri.</span>
               </div>
 
               {/* Headline */}
               <div>
-                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight">
-                  <span className="text-white">Solusi Digital Cerdas</span>
-                  <span className="block mt-2 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400">
+                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight text-[#0F172A]">
+                  <span>Solusi Digital Cerdas</span>
+                  <span className="block mt-2 text-gradient">
                     untuk Kelola & Kembangkan
                   </span>
-                  <span className="block mt-2 text-white">Bisnis Anda</span>
+                  <span className="block mt-2">Bisnis Anda</span>
                 </h1>
-                <p className="text-lg md:text-xl text-slate-300 mt-8 max-w-xl leading-relaxed">
+                <p className="text-lg md:text-xl text-[#475569] mt-8 max-w-xl leading-relaxed">
                   Temukan template, software, AI tools, source code, dan berbagai aset digital berkualitas tinggi untuk membantu meningkatkan produktivitas dan mengembangkan bisnis Anda.
                 </p>
               </div>
@@ -162,17 +162,17 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
               <div className="max-w-xl">
                 <form className="flex gap-3">
                   <div className="relative flex-1">
-                    <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
-                    <Input name="q" defaultValue={searchQuery} placeholder="Cari template, software, AI tools, atau produk digital..." className="pl-14 h-14 bg-white/10 border-white/20 text-white placeholder:text-slate-400 text-base rounded-2xl backdrop-blur-xl focus:border-blue-400/50 focus:ring-blue-400/20" />
+                    <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-[#94A3B8]" />
+                    <Input name="q" defaultValue={searchQuery} placeholder="Cari template, software, AI tools, atau produk digital..." className="pl-14 h-14 bg-white border-[#E5E7EB] text-[#0F172A] placeholder:text-[#94A3B8] text-base rounded-2xl focus:border-indigo-400 focus:ring-indigo-400/20" />
                   </div>
-                  <Button type="submit" size="lg" className="h-14 px-8 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 rounded-2xl shadow-lg shadow-blue-500/25">
+                  <Button type="submit" size="lg" className="h-14 px-8 rounded-2xl">
                     Cari
                   </Button>
                 </form>
                 <div className="flex flex-wrap gap-3 mt-4">
-                  <span className="text-sm text-slate-400">Popular:</span>
+                  <span className="text-sm text-[#64748B]">Popular:</span>
                   {['Template Website', 'Landing Page', 'Dashboard', 'App Source Code'].map((term) => (
-                    <Link key={term} href={`/?q=${encodeURIComponent(term)}`} className="text-sm text-blue-300 hover:text-blue-200 transition-colors">
+                    <Link key={term} href={`/?q=${encodeURIComponent(term)}`} className="text-sm text-indigo-600 hover:text-indigo-700 transition-colors font-medium">
                       {term}
                     </Link>
                   ))}
@@ -181,10 +181,10 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
 
               {/* CTA Buttons */}
               <div className="flex flex-wrap gap-4 pt-2">
-                <Button size="lg" className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white h-14 px-8 rounded-2xl shadow-lg shadow-blue-500/25 transition-all hover:shadow-xl hover:shadow-blue-500/30 hover:scale-105" asChild>
+                <Button size="lg" className="h-14 px-8 rounded-2xl text-base font-semibold" asChild>
                   <Link href="/products">Jelajahi Produk <ArrowRight className="ml-2 h-5 w-5" /></Link>
                 </Button>
-                <Button size="lg" variant="outline" className="border-white/20 text-white hover:bg-white/10 h-14 px-8 rounded-2xl backdrop-blur-xl" asChild>
+                <Button size="lg" variant="outline" className="h-14 px-8 rounded-2xl text-base font-semibold" asChild>
                   <Link href="/categories">Lihat Kategori</Link>
                 </Button>
               </div>
@@ -193,7 +193,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
               <div className="flex items-center gap-8 pt-4">
                 <div className="flex -space-x-3">
                   {[1, 2, 3, 4, 5].map((i) => (
-                    <div key={i} className="w-11 h-11 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 border-2 border-[#0F172A] flex items-center justify-center text-sm font-bold shadow-lg">
+                    <div key={i} className="w-11 h-11 rounded-full gradient-primary border-2 border-white flex items-center justify-center text-sm font-bold shadow-md text-white">
                       {String.fromCharCode(65 + i)}
                     </div>
                   ))}
@@ -204,46 +204,46 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
                       <Star key={i} className="h-5 w-5 fill-yellow-400 text-yellow-400" />
                     ))}
                   </div>
-                  <p className="text-sm text-slate-400">4.9/5 dari 500+ review</p>
+                  <p className="text-sm text-[#64748B] font-medium">4.9/5 dari 500+ review</p>
                 </div>
               </div>
             </div>
 
             {/* Right Side - Dashboard Mockup */}
             <div className="hidden lg:block relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-500/30 to-purple-500/30 blur-[80px]" />
-              <div className="relative bg-white/5 border border-white/10 rounded-3xl p-8 backdrop-blur-2xl shadow-2xl">
+              <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-violet-500/10 blur-[80px]" />
+              <div className="relative bg-white border border-[#E5E7EB] rounded-[20px] p-8 shadow-card-hover">
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="w-4 h-4 rounded-full bg-red-400 shadow-lg shadow-red-400/50" />
-                  <div className="w-4 h-4 rounded-full bg-yellow-400 shadow-lg shadow-yellow-400/50" />
-                  <div className="w-4 h-4 rounded-full bg-green-400 shadow-lg shadow-green-400/50" />
+                  <div className="w-4 h-4 rounded-full bg-red-400" />
+                  <div className="w-4 h-4 rounded-full bg-yellow-400" />
+                  <div className="w-4 h-4 rounded-full bg-green-400" />
                 </div>
                 <div className="space-y-5">
-                  <div className="h-10 bg-white/10 rounded-xl w-3/4" />
+                  <div className="h-10 bg-slate-100 rounded-xl w-3/4" />
                   <div className="grid grid-cols-3 gap-4">
-                    <div className="h-28 bg-gradient-to-br from-blue-500/30 to-blue-600/30 rounded-2xl border border-blue-400/20 p-4">
-                      <div className="h-3 w-12 bg-blue-300/50 rounded mb-2" />
-                      <div className="h-8 w-8 bg-blue-400/30 rounded-lg mt-auto" />
+                    <div className="h-28 bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-2xl border border-indigo-200/50 p-4">
+                      <div className="h-3 w-12 bg-indigo-300/50 rounded mb-2" />
+                      <div className="h-8 w-8 bg-indigo-400/40 rounded-lg mt-auto" />
                     </div>
-                    <div className="h-28 bg-gradient-to-br from-emerald-500/30 to-emerald-600/30 rounded-2xl border border-emerald-400/20 p-4">
+                    <div className="h-28 bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-2xl border border-emerald-200/50 p-4">
                       <div className="h-3 w-12 bg-emerald-300/50 rounded mb-2" />
-                      <div className="h-8 w-8 bg-emerald-400/30 rounded-lg mt-auto" />
+                      <div className="h-8 w-8 bg-emerald-400/40 rounded-lg mt-auto" />
                     </div>
-                    <div className="h-28 bg-gradient-to-br from-purple-500/30 to-purple-600/30 rounded-2xl border border-purple-400/20 p-4">
-                      <div className="h-3 w-12 bg-purple-300/50 rounded mb-2" />
-                      <div className="h-8 w-8 bg-purple-400/30 rounded-lg mt-auto" />
+                    <div className="h-28 bg-gradient-to-br from-violet-50 to-violet-100 rounded-2xl border border-violet-200/50 p-4">
+                      <div className="h-3 w-12 bg-violet-300/50 rounded mb-2" />
+                      <div className="h-8 w-8 bg-violet-400/40 rounded-lg mt-auto" />
                     </div>
                   </div>
-                  <div className="h-40 bg-white/5 rounded-2xl border border-white/10 p-4">
+                  <div className="h-40 bg-slate-50 rounded-2xl border border-[#E5E7EB] p-4">
                     <div className="flex justify-between mb-3">
-                      <div className="h-3 w-20 bg-white/20 rounded" />
-                      <div className="h-3 w-16 bg-white/20 rounded" />
+                      <div className="h-3 w-20 bg-slate-300 rounded" />
+                      <div className="h-3 w-16 bg-slate-300 rounded" />
                     </div>
-                    <div className="h-24 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 rounded-xl" />
+                    <div className="h-24 bg-gradient-to-r from-indigo-200 via-violet-200 to-blue-200 rounded-xl" />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="h-20 bg-white/5 rounded-xl border border-white/10" />
-                    <div className="h-20 bg-white/5 rounded-xl border border-white/10" />
+                    <div className="h-20 bg-slate-50 rounded-xl border border-[#E5E7EB]" />
+                    <div className="h-20 bg-slate-50 rounded-xl border border-[#E5E7EB]" />
                   </div>
                 </div>
               </div>
@@ -253,28 +253,26 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
       </section>
 
       {/* Premium Features Section */}
-      <section className="py-24 bg-gradient-to-b from-[#0F172A] to-slate-50 relative">
-        <div className="absolute inset-0 opacity-30">
-          <div className="absolute top-1/2 left-1/4 w-[400px] h-[400px] bg-blue-500/20 rounded-full blur-[100px]" />
-          <div className="absolute top-1/2 right-1/4 w-[300px] h-[300px] bg-purple-500/20 rounded-full blur-[80px]" />
-        </div>
+      <section className="py-24 bg-[#F8FAFC] relative">
         <div className="container mx-auto px-4 relative">
+          <div className="text-center mb-14">
+            <Badge variant="outline" className="mb-4 border-indigo-200 text-indigo-600 bg-indigo-50/50">Mengapa Memilih Kami</Badge>
+            <h2 className="text-3xl md:text-4xl font-bold text-[#0F172A] mb-4">Keunggulan Platform Kami</h2>
+            <p className="text-[#64748B] max-w-xl mx-auto">Pengalaman terbaik dengan fitur premium yang mendukung kesuksesan Anda</p>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
-              { icon: Shield, title: 'Aman & Terpercaya', desc: 'Semua produk telah melalui proses kurasi.', gradient: 'from-blue-400 to-blue-600' },
-              { icon: Star, title: 'Kualitas Terbaik', desc: 'Produk premium dari kreator terpercaya.', gradient: 'from-yellow-400 to-orange-500' },
-              { icon: Zap, title: 'Cepat & Efisien', desc: 'Unduh instan dan akses kapan saja.', gradient: 'from-emerald-400 to-teal-600' },
-              { icon: HeadphonesIcon, title: 'Dukungan Profesional', desc: 'Tim support siap membantu Anda.', gradient: 'from-purple-400 to-pink-600' },
+              { icon: Shield, title: 'Aman & Terpercaya', desc: 'Semua produk telah melalui proses kurasi.', gradient: 'from-blue-500 to-blue-600', bg: 'bg-blue-50', text: 'text-blue-600' },
+              { icon: Star, title: 'Kualitas Terbaik', desc: 'Produk premium dari kreator terpercaya.', gradient: 'from-amber-400 to-orange-500', bg: 'bg-amber-50', text: 'text-amber-600' },
+              { icon: Zap, title: 'Cepat & Efisien', desc: 'Unduh instan dan akses kapan saja.', gradient: 'from-emerald-500 to-teal-600', bg: 'bg-emerald-50', text: 'text-emerald-600' },
+              { icon: HeadphonesIcon, title: 'Dukungan Profesional', desc: 'Tim support siap membantu Anda.', gradient: 'from-violet-500 to-purple-600', bg: 'bg-violet-50', text: 'text-violet-600' },
             ].map((f, i) => (
-              <div key={i} className="group relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                <div className="relative bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-8 transition-all duration-300 group-hover:bg-white/15 group-hover:border-white/30 group-hover:scale-105">
-                  <div className={`h-14 w-14 rounded-2xl bg-gradient-to-r ${f.gradient} flex items-center justify-center mb-6 shadow-lg`}>
-                    <f.icon className="h-7 w-7 text-white" />
-                  </div>
-                  <h3 className="text-xl font-semibold text-white mb-3">{f.title}</h3>
-                  <p className="text-slate-300 leading-relaxed">{f.desc}</p>
+              <div key={i} className="group bg-white border border-[#E5E7EB] rounded-[20px] p-8 shadow-card hover:shadow-card-hover hover:-translate-y-1 transition-all duration-300">
+                <div className={`h-14 w-14 rounded-2xl ${f.bg} flex items-center justify-center mb-6`}>
+                  <f.icon className={`h-7 w-7 ${f.text}`} />
                 </div>
+                <h3 className="text-xl font-semibold text-[#111827] mb-3">{f.title}</h3>
+                <p className="text-[#64748B] leading-relaxed">{f.desc}</p>
               </div>
             ))}
           </div>
@@ -306,31 +304,30 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
       </section>
 
       {/* Categories Section */}
-      <section className="py-20 bg-slate-50">
+      <section className="py-20 bg-[#F8FAFC]">
         <div className="container mx-auto px-4">
           <div className="text-center mb-14">
-            <Badge variant="outline" className="mb-4 border-blue-200 text-blue-600">Kategori Populer</Badge>
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Jelajahi Berdasarkan Kategori</h2>
-            <p className="text-slate-500 max-w-xl mx-auto">Temukan produk sesuai kebutuhan Anda dari berbagai kategori</p>
+            <Badge variant="outline" className="mb-4 border-indigo-200 text-indigo-600 bg-indigo-50/50">Kategori Populer</Badge>
+            <h2 className="text-3xl md:text-4xl font-bold text-[#0F172A] mb-4">Jelajahi Berdasarkan Kategori</h2>
+            <p className="text-[#64748B] max-w-xl mx-auto">Temukan produk sesuai kebutuhan Anda dari berbagai kategori</p>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
             {(categories || []).slice(0, 6).map((cat: any) => (
               <Link key={cat.id} href={`/categories/${cat.slug}`} className="group">
-                <Card className="h-full hover:shadow-xl hover:shadow-blue-500/10 transition-all border-slate-200/60 overflow-hidden bg-white/80 backdrop-blur">
+                <Card className="h-full overflow-hidden">
                   <CardContent className="p-0">
-                    <div className="aspect-square relative bg-gradient-to-br from-slate-100 to-slate-200 overflow-hidden">
+                    <div className="aspect-square relative bg-gradient-to-br from-indigo-50 to-violet-100 overflow-hidden">
                       {cat.image_url ? (
                         <img src={cat.image_url} alt={cat.name} className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-500" />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
-                          <ShoppingBag className="h-10 w-10 text-slate-300" />
+                          <ShoppingBag className="h-10 w-10 text-indigo-300" />
                         </div>
                       )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-                      <div className="absolute bottom-0 left-0 right-0 p-3">
-                        <h3 className="font-semibold text-white text-sm">{cat.name}</h3>
-                        <p className="text-xs text-white/70">{countMap.get(cat.id) || 0} produk</p>
-                      </div>
+                    </div>
+                    <div className="p-4">
+                      <h3 className="font-semibold text-[#111827] text-sm group-hover:text-indigo-600 transition-colors">{cat.name}</h3>
+                      <p className="text-xs text-[#64748B] mt-1">{countMap.get(cat.id) || 0} produk</p>
                     </div>
                   </CardContent>
                 </Card>
@@ -338,7 +335,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
             ))}
           </div>
           <div className="text-center mt-10">
-            <Button variant="outline" className="rounded-full px-6 border-blue-200 text-blue-600 hover:bg-blue-50" asChild>
+            <Button variant="outline" className="rounded-full px-6 border-indigo-200 text-indigo-600 hover:bg-indigo-50" asChild>
               <Link href="/categories">View All Categories <ArrowRight className="ml-2 h-4 w-4" /></Link>
             </Button>
           </div>
@@ -352,8 +349,8 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
             <div className="flex items-center justify-between mb-12">
               <div>
                 <Badge variant="outline" className="mb-3 border-emerald-200 text-emerald-600"><Sparkles className="h-3 w-3 mr-1" />Editor's Pick</Badge>
-                <h2 className="text-3xl md:text-4xl font-bold">Featured Products</h2>
-                <p className="text-slate-500 mt-2">Produk pilihan terbaik dari tim kami</p>
+                <h2 className="text-3xl md:text-4xl font-bold text-[#0F172A]">Featured Products</h2>
+                <p className="text-[#64748B] mt-2">Produk pilihan terbaik dari tim kami</p>
               </div>
               <Button variant="outline" className="rounded-xl border-slate-200" asChild><Link href="/products?featured=true">View All <ArrowRight className="ml-1 h-4 w-4" /></Link></Button>
             </div>
@@ -366,13 +363,13 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
 
       {/* Best Sellers */}
       {(bestSellers || []).length > 0 && (
-        <section className="py-20 bg-slate-50">
+        <section className="py-20 bg-[#F8FAFC]">
           <div className="container mx-auto px-4">
             <div className="flex items-center justify-between mb-12">
               <div>
-                <Badge variant="outline" className="mb-3 border-orange-200 text-orange-600"><TrendingUp className="h-3 w-3 mr-1" />Top Selling</Badge>
-                <h2 className="text-3xl md:text-4xl font-bold">Best Sellers</h2>
-                <p className="text-slate-500 mt-2">Produk terlaris yang paling diminati</p>
+                <Badge variant="outline" className="mb-3 border-orange-200 text-orange-600 bg-orange-50/50"><TrendingUp className="h-3 w-3 mr-1" />Top Selling</Badge>
+                <h2 className="text-3xl md:text-4xl font-bold text-[#0F172A]">Best Sellers</h2>
+                <p className="text-[#64748B] mt-2">Produk terlaris yang paling diminati</p>
               </div>
               <Button variant="outline" className="rounded-xl border-slate-200" asChild><Link href="/products?bestseller=true">View All <ArrowRight className="ml-1 h-4 w-4" /></Link></Button>
             </div>
@@ -389,9 +386,9 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
           <div className="container mx-auto px-4">
             <div className="flex items-center justify-between mb-12">
               <div>
-                <Badge variant="outline" className="mb-3 border-blue-200 text-blue-600"><Sparkles className="h-3 w-3 mr-1" />New</Badge>
-                <h2 className="text-3xl md:text-4xl font-bold">New Arrivals</h2>
-                <p className="text-slate-500 mt-2">Produk terbaru yang baru ditambahkan</p>
+                <Badge variant="outline" className="mb-3 border-blue-200 text-blue-600 bg-blue-50/50"><Sparkles className="h-3 w-3 mr-1" />New</Badge>
+                <h2 className="text-3xl md:text-4xl font-bold text-[#0F172A]">New Arrivals</h2>
+                <p className="text-[#64748B] mt-2">Produk terbaru yang baru ditambahkan</p>
               </div>
               <Button variant="outline" className="rounded-xl border-slate-200" asChild><Link href="/products?sort=newest">View All <ArrowRight className="ml-1 h-4 w-4" /></Link></Button>
             </div>
@@ -403,33 +400,29 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
       )}
 
       {/* Testimonials */}
-      <section className="py-24 bg-gradient-to-br from-[#0F172A] via-[#1E1B4B] to-[#0F172A] text-white">
-        <div className="absolute inset-0 opacity-30">
-          <div className="absolute top-0 left-1/3 w-[500px] h-[500px] bg-blue-500/20 rounded-full blur-[100px]" />
-          <div className="absolute bottom-0 right-1/3 w-[400px] h-[400px] bg-purple-500/20 rounded-full blur-[80px]" />
-        </div>
+      <section className="py-24 bg-white relative">
         <div className="container mx-auto px-4 relative">
           <div className="text-center mb-14">
-            <Badge variant="outline" className="mb-4 border-white/20 text-blue-300">Testimonials</Badge>
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Apa Kata Mereka?</h2>
-            <p className="text-slate-300 max-w-xl mx-auto">Dengarkan pengalaman pelanggan kami</p>
+            <Badge variant="outline" className="mb-4 border-indigo-200 text-indigo-600 bg-indigo-50/50">Testimonials</Badge>
+            <h2 className="text-3xl md:text-4xl font-bold text-[#0F172A] mb-4">Apa Kata Mereka?</h2>
+            <p className="text-[#64748B] max-w-xl mx-auto">Dengarkan pengalaman pelanggan kami</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
             {testimonials.map((t, i) => (
-              <div key={i} className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-8 hover:bg-white/10 transition-colors">
+              <div key={i} className="bg-white border border-[#E5E7EB] rounded-[20px] p-8 shadow-card hover:shadow-card-hover hover:-translate-y-1 transition-all duration-300">
                 <div className="flex items-center gap-1 mb-5">
                   {[1, 2, 3, 4, 5].map((s) => (
                     <Star key={s} className="h-5 w-5 fill-yellow-400 text-yellow-400" />
                   ))}
                 </div>
-                <p className="text-slate-300 mb-8 leading-relaxed">"{t.text}"</p>
+                <p className="text-[#475569] mb-8 leading-relaxed">"{t.text}"</p>
                 <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 rounded-full overflow-hidden bg-gradient-to-br from-blue-400 to-purple-500 p-0.5">
+                  <div className="w-14 h-14 rounded-full overflow-hidden bg-gradient-to-br from-indigo-400 to-violet-500 p-0.5">
                     <img src={t.avatar} alt={t.name} className="w-full h-full object-cover rounded-full" />
                   </div>
                   <div>
-                    <div className="font-semibold text-white">{t.name}</div>
-                    <div className="text-sm text-slate-400">{t.role} at {t.company}</div>
+                    <div className="font-semibold text-[#111827]">{t.name}</div>
+                    <div className="text-sm text-[#64748B]">{t.role} at {t.company}</div>
                   </div>
                 </div>
               </div>
@@ -442,18 +435,18 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
       <section className="py-24 bg-slate-50">
         <div className="container mx-auto px-4">
           <div className="text-center mb-14">
-            <Badge variant="outline" className="mb-4 border-blue-200 text-blue-600">FAQ</Badge>
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Pertanyaan yang Sering Diajukan</h2>
-            <p className="text-slate-500 max-w-xl mx-auto">Temukan jawaban untuk pertanyaan umum</p>
+            <Badge variant="outline" className="mb-4 border-indigo-200 text-indigo-600 bg-indigo-50/50">FAQ</Badge>
+            <h2 className="text-3xl md:text-4xl font-bold text-[#0F172A] mb-4">Pertanyaan yang Sering Diajukan</h2>
+            <p className="text-[#64748B] max-w-xl mx-auto">Temukan jawaban untuk pertanyaan umum</p>
           </div>
           <div className="max-w-3xl mx-auto space-y-4">
             {faqs.map((faq, i) => (
-              <details key={i} className="group bg-white rounded-2xl border border-slate-200 hover:shadow-lg hover:shadow-blue-500/5 transition-shadow">
-                <summary className="flex items-center justify-between cursor-pointer p-6 font-medium list-none">
+              <details key={i} className="group bg-white rounded-2xl border border-[#E5E7EB] hover:shadow-card-hover transition-shadow">
+                <summary className="flex items-center justify-between cursor-pointer p-6 font-medium text-[#111827] list-none">
                   {faq.q}
-                  <ChevronDown className="h-5 w-5 text-slate-400 group-open:rotate-180 transition-transform" />
+                  <ChevronDown className="h-5 w-5 text-[#94A3B8] group-open:rotate-180 transition-transform" />
                 </summary>
-                <div className="px-6 pb-6 text-slate-500">
+                <div className="px-6 pb-6 text-[#475569]">
                   {faq.a}
                 </div>
               </details>
@@ -463,16 +456,16 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white relative overflow-hidden">
-        <div className="absolute inset-0 opacity-30">
-          <div className="absolute top-0 left-0 w-[600px] h-[600px] bg-white/20 rounded-full blur-[100px]" />
-          <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-white/10 rounded-full blur-[80px]" />
+      <section className="py-24 gradient-primary text-white relative overflow-hidden">
+        <div className="absolute inset-0 opacity-20">
+          <div className="absolute top-0 left-0 w-[600px] h-[600px] bg-white/30 rounded-full blur-[100px]" />
+          <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-white/20 rounded-full blur-[80px]" />
         </div>
         <div className="container mx-auto px-4 text-center relative">
           <h2 className="text-3xl md:text-5xl font-bold mb-6">Siap Untuk Memulai?</h2>
-          <p className="text-blue-100 mb-10 max-w-xl mx-auto text-lg">Bergabung dengan ribuan bisnis dan creator yang menggunakan platform kami untuk berkembang.</p>
+          <p className="text-indigo-100 mb-10 max-w-xl mx-auto text-lg">Bergabung dengan ribuan bisnis dan creator yang menggunakan platform kami untuk berkembang.</p>
           <div className="flex flex-wrap justify-center gap-4">
-            <Button size="lg" className="bg-white text-blue-600 hover:bg-blue-50 h-14 px-10 rounded-2xl shadow-xl text-base font-semibold" asChild>
+            <Button size="lg" className="bg-white text-indigo-600 hover:bg-indigo-50 h-14 px-10 rounded-2xl shadow-xl text-base font-semibold" asChild>
               <Link href="/auth/register">Create Free Account</Link>
             </Button>
             <Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10 h-14 px-10 rounded-2xl text-base font-semibold" asChild>
@@ -487,8 +480,8 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row md:items-center justify-between mb-12 gap-4">
             <div>
-              <h2 className="text-3xl md:text-4xl font-bold mb-2">All Products</h2>
-              <p className="text-slate-500">{count || 0} products available</p>
+              <h2 className="text-3xl md:text-4xl font-bold text-[#0F172A] mb-2">All Products</h2>
+              <p className="text-[#64748B]">{count || 0} products available</p>
             </div>
             <div className="flex gap-2 flex-wrap">
               <Link href="/" className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all ${!categorySlug ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg shadow-blue-500/25' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>All</Link>
