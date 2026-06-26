@@ -213,15 +213,21 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
               </div>
             </div>
 
-            {/* Right Side - Dashboard Mockup */}
             <div className="hidden lg:block relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-violet-500/10 blur-[80px]" />
-              <div className="relative bg-white border border-[#E5E7EB] rounded-[20px] p-8 shadow-card-hover">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-4 h-4 rounded-full bg-red-400" />
-                  <div className="w-4 h-4 rounded-full bg-yellow-400" />
-                  <div className="w-4 h-4 rounded-full bg-green-400" />
-                </div>
+
+              <div className="absolute -inset-6 bg-gradient-to-r from-violet-500/20 to-blue-500/20 blur-3xl rounded-3xl" />
+            
+              <div className="relative overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl">
+            
+                <img
+                  src="/images/dashboard-preview.png"
+                  alt="Dashboard Preview"
+                  className="w-full h-auto object-cover transition duration-700 hover:scale-105"
+                />
+            
+              </div>
+            
+            </div>
                 <div className="space-y-5">
                   <div className="h-10 bg-slate-100 rounded-xl w-3/4" />
                   <div className="grid grid-cols-3 gap-4">
