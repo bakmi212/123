@@ -226,9 +226,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
                 />
             
               </div>
-            
-            </div>
-                <div className="space-y-5">
+
                   <div className="h-10 bg-slate-100 rounded-xl w-3/4" />
                   <div className="grid grid-cols-3 gap-4">
                     <div className="h-28 bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-2xl border border-indigo-200/50 p-4">
