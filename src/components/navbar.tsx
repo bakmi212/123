@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
@@ -50,11 +51,21 @@ export function Navbar() {
     <header className="sticky top-0 z-50 w-full border-b border-slate-200/50 bg-white/80 backdrop-blur-xl supports-[backdrop-filter]:bg-white/70">
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-              <Sparkles className="h-4 w-4 text-white" />
-            </div>
-            <span className="font-semibold hidden sm:inline bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Lumintusuite</span>
+          <Link href="/" className="flex items-center gap-3">
+
+            <Image
+              src="/logo.png"
+              alt="Lumintusuite"
+              width={40}
+              height={40}
+              priority
+              className="h-10 w-10 object-contain"
+            />
+          
+            <span className="hidden sm:block text-lg font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              Lumintusuite
+            </span>
+          
           </Link>
 
           <nav className="hidden md:flex items-center gap-6">
