@@ -10,9 +10,13 @@ const geistSans = Geist({ variable: "--font-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: { default: "SaaS Platform - Premium Digital Products", template: "%s | SaaS Platform" },
-  description: "Discover premium digital products, software licenses, and subscriptions.",
-};
+  title: {
+    default: "Lumintusuite",
+    template: "%s | Lumintusuite",
+  },
+  description:
+    "Marketplace produk digital, software, template, AI tools, dan solusi bisnis terpercaya.",
+}
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
