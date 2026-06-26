@@ -217,12 +217,12 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
             <div className="hidden lg:block relative">
             
               {/* Glow */}
-              <div className="absolute -inset-6 bg-gradient-to-r from-violet-500/20 to-blue-500/20 blur-3xl rounded-3xl" />
+              <div className="absolute -inset-8 bg-gradient-to-r from-violet-500/20 to-blue-500/20 blur-3xl rounded-[40px]" />
             
               {/* Browser Mockup */}
-              <div className="relative bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden">
+              <div className="relative bg-white rounded-[32px] overflow-hidden border border-slate-200 shadow-2xl">
             
-                {/* Browser Header */}
+                {/* Browser Top */}
                 <div className="flex items-center gap-2 px-6 py-4 border-b bg-slate-50">
                   <span className="w-3 h-3 rounded-full bg-red-400" />
                   <span className="w-3 h-3 rounded-full bg-yellow-400" />
@@ -233,7 +233,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
                 <img
                   src="/images/dashboard-preview.png"
                   alt="Dashboard Preview"
-                  className="w-full object-cover transition-transform duration-700 hover:scale-105"
+                  className="w-full h-auto object-cover transition-transform duration-700 hover:scale-105"
                 />
             
               </div>
