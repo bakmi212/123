@@ -8,12 +8,9 @@ const supabase = createClient(
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
+    const { license_key, hwid } = await req.json();
 
-    const licenseKey = body.license_key?.trim();
-    const hwid = body.hwid?.trim();
-
-    if (!licenseKey || !hwid) {
+    if (!license_key || !hwid) {
       return NextResponse.json(
         {
           success: false,
@@ -23,18 +20,11 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    console.log("================================");
-    console.log("LICENSE :", licenseKey);
-    console.log("HWID    :", hwid);
-
     const { data: license, error } = await supabase
       .from("licenses")
       .select("*")
-      .eq("license_key", licenseKey)
+      .eq("license_key", license_key.trim())
       .maybeSingle();
-
-    console.log("SUPABASE ERROR :", error);
-    console.log("LICENSE DATA :", license);
 
     if (error) {
       return NextResponse.json({
@@ -70,10 +60,11 @@ export async function POST(req: NextRequest) {
 
     // Aktivasi pertama
     if (!license.hwid) {
+
       const { error: updateError } = await supabase
         .from("licenses")
         .update({
-          hwid: hwid,
+          hwid: hwid.trim(),
           activated_at: new Date().toISOString(),
           last_used_at: new Date().toISOString()
         })
@@ -92,8 +83,9 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // HWID cocok
-    if (license.hwid === hwid) {
+    // PC yang sama
+    if (license.hwid === hwid.trim()) {
+
       await supabase
         .from("licenses")
         .update({
@@ -107,7 +99,7 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // HWID berbeda
+    // PC berbeda
     return NextResponse.json({
       success: false,
       message: "License sudah digunakan di perangkat lain."
@@ -115,16 +107,13 @@ export async function POST(req: NextRequest) {
 
   } catch (err: any) {
 
-    console.error(err);
-
     return NextResponse.json(
       {
         success: false,
         message: err.message
       },
-      {
-        status: 500
-      }
+      { status: 500 }
     );
+
   }
 }
