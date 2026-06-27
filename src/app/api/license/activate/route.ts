@@ -2,189 +2,129 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
 const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
 export async function POST(req: NextRequest) {
-
-    try {
-
-        const body = await req.json();
-
-        const {
-            license_key,
-            hwid,
-            product,
-            version
-        } = body;
-
-        if (!license_key || !hwid) {
-
-            return NextResponse.json({
-
-                success: false,
-
-                message: "License Key atau HWID kosong."
-
-            }, { status: 400 });
-
-        }
-
-        // ==========================
-        // CEK LICENSE
-        // ==========================
-
-        const { data: license, error } = await supabase
-
-            .from("licenses")
-
-            .select("*")
-
-            .eq("license_key", license_key)
-
-            .single();
-
-        if (error || !license) {
-
-            return NextResponse.json({
-
-                success: false,
-
-                message: "License tidak ditemukan."
-
-            });
-
-        }
-
-        // ==========================
-        // STATUS
-        // ==========================
-
-        if (license.status !== "active") {
-
-            return NextResponse.json({
-
-                success: false,
-
-                message: "License tidak aktif."
-
-            });
-
-        }
-
-        // ==========================
-        // EXPIRED
-        // ==========================
-
-        if (license.expires_at) {
-
-            const expired = new Date(
-                license.expires_at
-            );
-
-            if (expired < new Date()) {
-
-                return NextResponse.json({
-
-                    success: false,
-
-                    message: "License Expired."
-
-                });
-
-            }
-
-        }
-
-        // ==========================
-        // PERTAMA KALI AKTIVASI
-        // ==========================
-
-        if (!license.hwid) {
-
-            await supabase
-
-                .from("licenses")
-
-                .update({
-
-                    hwid,
-
-                    activated_at: new Date(),
-
-                    last_used_at: new Date()
-
-                })
-
-                .eq("id", license.id);
-
-            return NextResponse.json({
-
-                success: true,
-
-                message: "License Activated"
-
-            });
-
-        }
-
-        // ==========================
-        // HWID COCOK
-        // ==========================
-
-        if (license.hwid === hwid) {
-
-            await supabase
-
-                .from("licenses")
-
-                .update({
-
-                    last_used_at: new Date()
-
-                })
-
-                .eq("id", license.id);
-
-            return NextResponse.json({
-
-                success: true,
-
-                message: "Welcome Back"
-
-            });
-
-        }
-
-        // ==========================
-        // HWID BERBEDA
-        // ==========================
-
-        return NextResponse.json({
-
-            success: false,
-
-            message: "License sudah digunakan pada perangkat lain."
-
-        });
-
+  try {
+    const body = await req.json();
+
+    const licenseKey = body.license_key?.trim();
+    const hwid = body.hwid?.trim();
+
+    if (!licenseKey || !hwid) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "License Key atau HWID kosong."
+        },
+        { status: 400 }
+      );
     }
 
-    catch (err) {
+    console.log("================================");
+    console.log("LICENSE :", licenseKey);
+    console.log("HWID    :", hwid);
 
-        return NextResponse.json({
+    const { data: license, error } = await supabase
+      .from("licenses")
+      .select("*")
+      .eq("license_key", licenseKey)
+      .maybeSingle();
 
-            success: false,
+    console.log("SUPABASE ERROR :", error);
+    console.log("LICENSE DATA :", license);
 
-            message: "Server Error"
-
-        }, {
-
-            status: 500
-
-        });
-
+    if (error) {
+      return NextResponse.json({
+        success: false,
+        message: error.message
+      });
     }
 
+    if (!license) {
+      return NextResponse.json({
+        success: false,
+        message: "License tidak ditemukan."
+      });
+    }
+
+    if (license.status !== "active") {
+      return NextResponse.json({
+        success: false,
+        message: "License tidak aktif."
+      });
+    }
+
+    if (license.expires_at) {
+      const expired = new Date(license.expires_at);
+
+      if (expired < new Date()) {
+        return NextResponse.json({
+          success: false,
+          message: "License Expired."
+        });
+      }
+    }
+
+    // Aktivasi pertama
+    if (!license.hwid) {
+      const { error: updateError } = await supabase
+        .from("licenses")
+        .update({
+          hwid: hwid,
+          activated_at: new Date().toISOString(),
+          last_used_at: new Date().toISOString()
+        })
+        .eq("id", license.id);
+
+      if (updateError) {
+        return NextResponse.json({
+          success: false,
+          message: updateError.message
+        });
+      }
+
+      return NextResponse.json({
+        success: true,
+        message: "License Activated"
+      });
+    }
+
+    // HWID cocok
+    if (license.hwid === hwid) {
+      await supabase
+        .from("licenses")
+        .update({
+          last_used_at: new Date().toISOString()
+        })
+        .eq("id", license.id);
+
+      return NextResponse.json({
+        success: true,
+        message: "Welcome Back"
+      });
+    }
+
+    // HWID berbeda
+    return NextResponse.json({
+      success: false,
+      message: "License sudah digunakan di perangkat lain."
+    });
+
+  } catch (err: any) {
+
+    console.error(err);
+
+    return NextResponse.json(
+      {
+        success: false,
+        message: err.message
+      },
+      {
+        status: 500
+      }
+    );
+  }
 }
