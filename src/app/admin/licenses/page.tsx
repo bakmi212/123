@@ -201,61 +201,60 @@ export default function AdminLicensesPage() {
   })
   
     const fetchLicenses = async () => {
-    setLoading(true)
+  setLoading(true)
 
-    const { data, error } = await supabase
+  const [
+    { data: licenseData, error },
+    { data: profileData },
+    { data: productData },
+  ] = await Promise.all([
+    supabase
       .from('licenses')
-      .select(`
-        id,
-        license_key,
-        status,
-        user_id,
-        product_id,
-        activated_at,
-        expires_at,
-        created_at,
-        max_devices,
-        notes,
-        user:profiles(email),
-        product:products(name)
-      `)
-      .order('created_at', {
-        ascending: false,
-      })
+      .select('*')
+      .order('created_at', { ascending: false }),
 
-    if (error) {
-      toast.error(error.message)
-      setLoading(false)
-      return
-    }
+    supabase
+      .from('profiles')
+      .select('user_id,email'),
 
-    const rows: License[] =
-      (data as any[])?.map((item) => ({
-        id: item.id,
-        license_key: item.license_key,
-        status:
-          (item.status as LicenseStatus) ??
-          'available',
-        user_id: item.user_id,
-        product_id: item.product_id,
-        activated_at: item.activated_at,
-        expires_at: item.expires_at,
-        created_at: item.created_at,
-        max_devices:
-          item.max_devices ?? 1,
-        notes: item.notes,
-        user: Array.isArray(item.user)
-          ? item.user[0]
-          : item.user,
-        product: Array.isArray(item.product)
-          ? item.product[0]
-          : item.product,
-      })) ?? []
+    supabase
+      .from('products')
+      .select('id,name'),
+  ])
 
-    setLicenses(rows)
-
+  if (error) {
+    toast.error(error.message)
     setLoading(false)
+    return
   }
+
+  const rows: License[] = (licenseData ?? []).map((item: any) => ({
+    id: item.id,
+    license_key: item.license_key,
+    status: item.status,
+    user_id: item.user_id,
+    product_id: item.product_id,
+    activated_at: item.activated_at,
+    expires_at: item.expires_at ?? item.expiry_date,
+    created_at: item.created_at,
+    max_devices: item.max_devices ?? item.max_activations ?? 1,
+    notes: item.notes,
+
+    user:
+      profileData?.find(
+        p => p.user_id === item.user_id
+      ) ?? null,
+
+    product:
+      productData?.find(
+        p => p.id === item.product_id
+      ) ?? null,
+  }))
+
+  setLicenses(rows)
+
+  setLoading(false)
+}
 
   const fetchProfiles = async () => {
     const { data } = await supabase
@@ -408,9 +407,16 @@ export default function AdminLicensesPage() {
           ? new Date().toISOString()
           : null,
         expires_at: form.lifetime
-          ? null
-          : form.expires_at,
-        max_devices: form.max_devices,
+  ? null
+  : new Date(form.expires_at).toISOString(),
+
+expiry_date: form.lifetime
+  ? null
+  : new Date(form.expires_at).toISOString(),
+
+max_devices: form.max_devices,
+
+max_activations: form.max_devices,
         notes: form.notes,
         purchase_date:
           new Date().toISOString(),
@@ -434,19 +440,18 @@ export default function AdminLicensesPage() {
   ) => {
     setActionLoading(id)
 
-    const payload: {
-      status: LicenseStatus
-      updated_at: string
-      activated_at?: string | null
-    } = {
-      status,
-      updated_at: new Date().toISOString(),
-    }
-
-    if (status === 'active') {
-      payload.activated_at =
-        new Date().toISOString()
-    }
+    const payload = {
+	  status,
+	  updated_at: new Date().toISOString(),
+	  activated_at:
+	    status === 'active'
+	      ? new Date().toISOString()
+	      : null,
+	  last_used_at:
+	    status === 'active'
+	      ? new Date().toISOString()
+	      : null,
+	}
 
     const { error } = await supabase
       .from('licenses')
