@@ -89,6 +89,8 @@ export default function AdminBannerPage() {
 
   const [selectedBanner, setSelectedBanner] =
     useState<Banner | null>(null)
+  const [oldImageUrl, setOldImageUrl] =
+    useState('')
 
   const [form, setForm] = useState({
 
@@ -211,16 +213,6 @@ export default function AdminBannerPage() {
 
   async function removeImage() {
 
-    if (form.image_url) {
-
-      await deleteBannerImage(
-
-        form.image_url
-
-      )
-
-    }
-
     setForm({
 
       ...form,
@@ -232,54 +224,62 @@ export default function AdminBannerPage() {
   }
     async function handleAdd() {
 
-    if (!form.image_url) {
+    if (!form.image_url.trim()) {
 
-      toast.error('Banner image is required')
-
+      toast.error("Banner image is required.")
+    
       return
-
+    
     }
-
+    
     if (!form.button_url.trim()) {
-
-      toast.error('Button URL is required')
-
+    
+      toast.error("Button URL is required.")
+    
       return
-
+    
+    }
+    
+    if (form.duration < 1) {
+    
+      toast.error("Duration must be greater than zero.")
+    
+      return
+    
     }
 
     setSaving(true)
 
     const { error } = await supabase
 
-      .from('banners')
-
+      .from("banners")
+      
       .insert({
-
+      
         title:
-
+      
           form.title || null,
-
+      
         image_url:
-
+      
           form.image_url,
-
+      
         button_url:
-
+      
           form.button_url,
-
+      
         duration:
-
-          form.duration,
-
+      
+          Number(form.duration),
+      
         sort_order:
-
-          form.sort_order,
-
+      
+          Number(form.sort_order),
+      
         is_active:
-
+      
           form.is_active,
-
+      
       })
 
     if (error) {
@@ -290,17 +290,15 @@ export default function AdminBannerPage() {
 
     else {
 
-      toast.success(
+      await fetchBanners()
 
-        'Banner created.'
+            resetForm()
 
-      )
+      setOldImageUrl('')
 
       setAddDialogOpen(false)
 
-      resetForm()
-
-      fetchBanners()
+      toast.success("Banner created.")
 
     }
 
@@ -312,14 +310,6 @@ export default function AdminBannerPage() {
 
     if (!selectedBanner)
       return
-
-    if (!form.image_url) {
-
-      toast.error('Banner image is required')
-
-      return
-
-    }
 
     if (!form.button_url.trim()) {
 
@@ -349,13 +339,8 @@ export default function AdminBannerPage() {
 
           form.button_url,
 
-        duration:
-
-          form.duration,
-
-        sort_order:
-
-          form.sort_order,
+        duration: Number(form.duration),
+        sort_order: Number(form.sort_order),
 
         is_active:
 
@@ -379,19 +364,33 @@ export default function AdminBannerPage() {
 
     else {
 
-      toast.success(
+      await fetchBanners()
 
-        'Banner updated.'
+      if (
 
-      )
-
-      setEditDialogOpen(false)
+        oldImageUrl &&
+      
+        oldImageUrl !== form.image_url
+      
+      ) {
+      
+        await deleteBannerImage(
+      
+          oldImageUrl
+      
+        )
+      
+      }
 
       setSelectedBanner(null)
 
+      setOldImageUrl('')
+      
       resetForm()
-
-      fetchBanners()
+      
+      setEditDialogOpen(false)
+      
+      toast.success("Banner updated.")
 
     }
 
@@ -438,17 +437,15 @@ export default function AdminBannerPage() {
 
     else {
 
-      toast.success(
-
-        'Banner deleted.'
-
-      )
-
-      setDeleteDialogOpen(false)
+      await fetchBanners()
 
       setSelectedBanner(null)
 
-      fetchBanners()
+      setOldImageUrl('')
+      
+      setDeleteDialogOpen(false)
+      
+      toast.success("Banner deleted.")
 
     }
 
@@ -463,6 +460,10 @@ export default function AdminBannerPage() {
   ) {
 
     setSelectedBanner(banner)
+
+    setOldImageUrl(
+      banner.image_url
+    )
 
     setForm({
 
@@ -811,15 +812,15 @@ export default function AdminBannerPage() {
         </div>
 
         <Button
-
           onClick={() => {
-
+        
             resetForm()
-
+        
+            fileInputRef.current = null
+        
             setAddDialogOpen(true)
-
+        
           }}
-
         >
 
           <Plus className="mr-2 h-4 w-4"/>
@@ -1137,11 +1138,17 @@ export default function AdminBannerPage() {
 
               variant="outline"
 
-              onClick={()=>
+              onClick={()=> {
 
+                resetForm()
+
+                setSelectedBanner(null)
+              
+                setOldImageUrl('')
+              
                 setEditDialogOpen(false)
 
-              }
+              }}
 
             >
 
