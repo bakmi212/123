@@ -213,3 +213,166 @@ export function validateCategoryImage(file: File): { valid: boolean; error?: str
 
   return { valid: true }
 }
+
+// ==========================================
+// Banner Image
+// ==========================================
+
+const BANNERS_BUCKET = 'banner'
+
+export async function uploadBannerImage(
+  file: File,
+  bannerId: string
+): Promise<string | null> {
+
+  const supabase = createBrowserClient()
+
+  const ext = file.name
+    .split('.')
+    .pop()
+    ?.toLowerCase()
+
+  const fileName = `${bannerId}-${Date.now()}.${ext}`
+
+  const filePath = fileName
+
+  const { error } = await supabase.storage
+
+    .from(BANNERS_BUCKET)
+
+    .upload(
+
+      filePath,
+
+      file,
+
+      {
+
+        cacheControl: '3600',
+
+        upsert: false,
+
+      }
+
+    )
+
+  if (error) {
+
+    console.error(error)
+
+    return null
+
+  }
+
+  const {
+
+    data: {
+
+      publicUrl
+
+    }
+
+  } = supabase.storage
+
+    .from(BANNERS_BUCKET)
+
+    .getPublicUrl(filePath)
+
+  return publicUrl
+
+}
+
+export async function deleteBannerImage(
+  imageUrl: string
+): Promise<boolean> {
+
+  const supabase = createBrowserClient()
+
+  const url = new URL(imageUrl)
+
+  const path = url.pathname.split('/')
+
+  const index = path.indexOf(BANNERS_BUCKET)
+
+  if (index === -1)
+    return false
+
+  const filePath = path
+    .slice(index + 1)
+    .join('/')
+
+  const { error } = await supabase.storage
+
+    .from(BANNERS_BUCKET)
+
+    .remove([filePath])
+
+  if (error) {
+
+    console.error(error)
+
+    return false
+
+  }
+
+  return true
+
+}
+
+export function validateBannerImage(
+  file: File
+): {
+
+  valid: boolean
+
+  error?: string
+
+} {
+
+  const allowed = [
+
+    'image/jpeg',
+
+    'image/jpg',
+
+    'image/png',
+
+    'image/webp',
+
+    'image/gif'
+
+  ]
+
+  const max = 5 * 1024 * 1024
+
+  if (!allowed.includes(file.type)) {
+
+    return {
+
+      valid: false,
+
+      error: 'Only JPG, PNG, WEBP and GIF are allowed.'
+
+    }
+
+  }
+
+  if (file.size > max) {
+
+    return {
+
+      valid: false,
+
+      error: 'Maximum size is 5MB.'
+
+    }
+
+  }
+
+  return {
+
+    valid: true
+
+  }
+
+}
