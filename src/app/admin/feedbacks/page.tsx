@@ -1,11 +1,48 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+
+import {
+  Loader2,
+  Search,
+  Eye,
+} from 'lucide-react'
+
+import { toast } from 'sonner'
+
 import { createBrowserClient } from '@/lib/supabase/client'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
+
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
+
 import { Badge } from '@/components/ui/badge'
-import { Loader2, Search } from 'lucide-react'
+
+import { Button } from '@/components/ui/button'
+
+import { Input } from '@/components/ui/input'
+
+import { Label } from '@/components/ui/label'
+
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 
 interface Feedback {
 
@@ -33,31 +70,22 @@ export default function FeedbackPage() {
 
   const [loading, setLoading] = useState(true)
 
-  const [feedbacks, setFeedbacks] = useState<Feedback[]>([])
+  const [saving, setSaving] = useState(false)
 
-  const [search, setSearch] = useState('')
+  const [feedbacks, setFeedbacks] =
+    useState<Feedback[]>([])
 
-  async function fetchFeedbacks() {
+  const [search, setSearch] =
+    useState('')
 
-    setLoading(true)
+  const [selectedFeedback, setSelectedFeedback] =
+    useState<Feedback | null>(null)
 
-    const { data } = await supabase
+  const [dialogOpen, setDialogOpen] =
+    useState(false)
 
-      .from('feedbacks')
-
-      .select('*')
-
-      .order('created_at', {
-
-        ascending: false,
-
-      })
-
-    setFeedbacks(data ?? [])
-
-    setLoading(false)
-
-  }
+  const [status, setStatus] =
+    useState('Open')
 
   useEffect(() => {
 
@@ -65,15 +93,139 @@ export default function FeedbackPage() {
 
   }, [])
 
-  const filtered = feedbacks.filter((item) =>
+  async function fetchFeedbacks() {
 
-    item.title
+    setLoading(true)
 
-      .toLowerCase()
+    const { data, error } = await supabase
 
-      .includes(search.toLowerCase())
+      .from('feedbacks')
 
-  )
+      .select('*')
+
+      .order(
+
+        'created_at',
+
+        {
+
+          ascending: false,
+
+        }
+
+      )
+
+    if (error) {
+
+      toast.error(error.message)
+
+    }
+
+    setFeedbacks(data ?? [])
+
+    setLoading(false)
+
+  }
+
+  function openFeedback(
+
+    feedback: Feedback
+
+  ) {
+
+    setSelectedFeedback(feedback)
+
+    setStatus(feedback.status)
+
+    setDialogOpen(true)
+
+  }
+
+  async function saveStatus() {
+
+    if (!selectedFeedback)
+
+      return
+
+    setSaving(true)
+
+    const { error } = await supabase
+
+      .from('feedbacks')
+
+      .update({
+
+        status,
+
+      })
+
+      .eq(
+
+        'id',
+
+        selectedFeedback.id
+
+      )
+
+    if (error) {
+
+      toast.error(error.message)
+
+    }
+
+    else {
+
+      toast.success(
+
+        'Status updated.'
+
+      )
+
+      await fetchFeedbacks()
+
+      setDialogOpen(false)
+
+    }
+
+    setSaving(false)
+
+  }
+
+  const filteredFeedbacks =
+
+    feedbacks.filter((item) => {
+
+      const keyword =
+
+        search.toLowerCase()
+
+      return (
+
+        item.title
+
+          .toLowerCase()
+
+          .includes(keyword)
+
+        ||
+
+        item.category
+
+          .toLowerCase()
+
+          .includes(keyword)
+
+        ||
+
+        item.license_key
+
+          .toLowerCase()
+
+          .includes(keyword)
+
+      )
+
+    })
 
   if (loading) {
 
@@ -105,7 +257,7 @@ export default function FeedbackPage() {
 
           <p className="text-muted-foreground">
 
-            Manage user suggestions and bug reports.
+            Manage suggestions, bug reports and feature requests.
 
           </p>
 
@@ -127,7 +279,7 @@ export default function FeedbackPage() {
 
         <CardContent>
 
-          <div className="relative mb-5">
+          <div className="relative mb-6">
 
             <Search className="absolute left-3 top-3 h-4 w-4"/>
 
@@ -141,15 +293,18 @@ export default function FeedbackPage() {
 
               onChange={(e)=>
 
-                setSearch(e.target.value)
+                setSearch(
+
+                  e.target.value
+
+                )
 
               }
 
             />
 
           </div>
-
-          <div className="overflow-x-auto">
+                    <div className="overflow-x-auto">
 
             <table className="w-full">
 
@@ -193,73 +348,157 @@ export default function FeedbackPage() {
 
                   </th>
 
+                  <th className="px-4 py-3 text-center">
+
+                    Action
+
+                  </th>
+
                 </tr>
 
               </thead>
 
               <tbody>
 
-                {filtered.map((item)=>(
+                {
 
-                  <tr
+                  filteredFeedbacks.length === 0
 
-                    key={item.id}
+                  ?
 
-                    className="border-b hover:bg-muted/40"
+                  (
 
-                  >
+                    <tr>
 
-                    <td className="px-4 py-4">
+                      <td
 
-                      {item.category}
+                        colSpan={7}
 
-                    </td>
+                        className="py-12 text-center text-muted-foreground"
 
-                    <td className="px-4 py-4">
+                      >
 
-                      {item.title}
+                        No feedback found.
 
-                    </td>
+                      </td>
 
-                    <td className="px-4 py-4">
+                    </tr>
 
-                      {item.license_key}
+                  )
 
-                    </td>
+                  :
 
-                    <td className="px-4 py-4 text-center">
+                  (
 
-                      {item.app_version}
+                    filteredFeedbacks.map((item) => (
 
-                    </td>
+                      <tr
 
-                    <td className="px-4 py-4 text-center">
+                        key={item.id}
 
-                      <Badge>
+                        className="border-b hover:bg-muted/40"
 
-                        {item.status}
+                      >
 
-                      </Badge>
+                        <td className="px-4 py-4">
 
-                    </td>
+                          {item.category}
 
-                    <td className="px-4 py-4 text-center">
+                        </td>
 
-                      {
+                        <td className="px-4 py-4 font-medium">
 
-                        new Date(
+                          {item.title}
 
-                          item.created_at
+                        </td>
 
-                        ).toLocaleDateString()
+                        <td className="px-4 py-4">
 
-                      }
+                          {item.license_key}
 
-                    </td>
+                        </td>
 
-                  </tr>
+                        <td className="px-4 py-4 text-center">
 
-                ))}
+                          {item.app_version}
+
+                        </td>
+
+                        <td className="px-4 py-4 text-center">
+
+                          <Badge
+
+                            variant={
+
+                              item.status === 'Closed'
+
+                              ? 'default'
+
+                              : item.status === 'In Progress'
+
+                              ? 'secondary'
+
+                              : 'outline'
+
+                            }
+
+                          >
+
+                            {item.status}
+
+                          </Badge>
+
+                        </td>
+
+                        <td className="px-4 py-4 text-center">
+
+                          {
+
+                            new Date(
+
+                              item.created_at
+
+                            ).toLocaleDateString()
+
+                          }
+
+                        </td>
+
+                        <td className="px-4 py-4">
+
+                          <div className="flex justify-center">
+
+                            <Button
+
+                              size="sm"
+
+                              variant="outline"
+
+                              onClick={() =>
+
+                                openFeedback(item)
+
+                              }
+
+                            >
+
+                              <Eye className="mr-1 h-3 w-3"/>
+
+                              View
+
+                            </Button>
+
+                          </div>
+
+                        </td>
+
+                      </tr>
+
+                    ))
+
+                  )
+
+                }
 
               </tbody>
 
@@ -270,6 +509,217 @@ export default function FeedbackPage() {
         </CardContent>
 
       </Card>
+            <Dialog
+
+        open={dialogOpen}
+
+        onOpenChange={setDialogOpen}
+
+      >
+
+        <DialogContent className="sm:max-w-xl">
+
+          <DialogHeader>
+
+            <DialogTitle>
+
+              Feedback Detail
+
+            </DialogTitle>
+
+            <DialogDescription>
+
+              Review user feedback and update its status.
+
+            </DialogDescription>
+
+          </DialogHeader>
+
+          {
+
+            selectedFeedback && (
+
+              <div className="space-y-5">
+
+                <div>
+
+                  <Label>
+
+                    Title
+
+                  </Label>
+
+                  <p className="mt-1">
+
+                    {selectedFeedback.title}
+
+                  </p>
+
+                </div>
+
+                <div>
+
+                  <Label>
+
+                    Category
+
+                  </Label>
+
+                  <p className="mt-1">
+
+                    {selectedFeedback.category}
+
+                  </p>
+
+                </div>
+
+                <div>
+
+                  <Label>
+
+                    License Key
+
+                  </Label>
+
+                  <p className="mt-1">
+
+                    {selectedFeedback.license_key}
+
+                  </p>
+
+                </div>
+
+                <div>
+
+                  <Label>
+
+                    App Version
+
+                  </Label>
+
+                  <p className="mt-1">
+
+                    {selectedFeedback.app_version}
+
+                  </p>
+
+                </div>
+
+                <div>
+
+                  <Label>
+
+                    Description
+
+                  </Label>
+
+                  <div className="mt-2 rounded-lg border p-4 whitespace-pre-wrap text-sm">
+
+                    {selectedFeedback.description}
+
+                  </div>
+
+                </div>
+
+                <div>
+
+                  <Label>
+
+                    Status
+
+                  </Label>
+
+                  <Select
+
+                    value={status}
+
+                    onValueChange={setStatus}
+
+                  >
+
+                    <SelectTrigger className="mt-2">
+
+                      <SelectValue />
+
+                    </SelectTrigger>
+
+                    <SelectContent>
+
+                      <SelectItem value="Open">
+
+                        Open
+
+                      </SelectItem>
+
+                      <SelectItem value="In Progress">
+
+                        In Progress
+
+                      </SelectItem>
+
+                      <SelectItem value="Closed">
+
+                        Closed
+
+                      </SelectItem>
+
+                    </SelectContent>
+
+                  </Select>
+
+                </div>
+
+              </div>
+
+            )
+
+          }
+
+          <DialogFooter>
+
+            <Button
+
+              variant="outline"
+
+              onClick={() =>
+
+                setDialogOpen(false)
+
+              }
+
+            >
+
+              Close
+
+            </Button>
+
+            <Button
+
+              disabled={saving}
+
+              onClick={saveStatus}
+
+            >
+
+              {
+
+                saving && (
+
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin"/>
+
+                )
+
+              }
+
+              Save Status
+
+            </Button>
+
+          </DialogFooter>
+
+        </DialogContent>
+
+      </Dialog>
 
     </div>
 
