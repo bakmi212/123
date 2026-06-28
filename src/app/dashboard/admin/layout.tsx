@@ -5,7 +5,25 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createBrowserClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
-import { Loader2, LayoutDashboard, Users, Package, FolderTree, CreditCard, Key, DollarSign, Gift, Bell, Settings, LogOut, Menu, X } from 'lucide-react'
+import {
+  Loader2,
+  LayoutDashboard,
+  Users,
+  Package,
+  FolderTree,
+  CreditCard,
+  Key,
+  DollarSign,
+  Gift,
+  Bell,
+  Settings,
+  LogOut,
+  Menu,
+  X,
+  Image,
+  MessageSquare,
+  Download
+} from 'lucide-react'
 import type { User } from '@supabase/supabase-js'
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -41,6 +59,23 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { icon: Key, label: 'Licenses', href: '/dashboard/admin/licenses' },
     { icon: DollarSign, label: 'Payments', href: '/dashboard/admin/payments' },
     { icon: Gift, label: 'Affiliates', href: '/dashboard/admin/affiliates' },
+    {
+      icon: Image,
+      label: 'Banner Manager',
+      href: '/admin/banners',
+    },
+    
+    {
+      icon: Download,
+      label: 'App Updates',
+      href: '/admin/updates',
+    },
+    
+    {
+      icon: MessageSquare,
+      label: 'Feedback',
+      href: '/admin/feedbacks',
+    },
     { icon: Bell, label: 'Notifications', href: '/dashboard/admin/notifications' },
     { icon: Settings, label: 'Settings', href: '/dashboard/admin/settings' },
   ]
