@@ -38,13 +38,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+import { Select } from '@/components/ui/select'
 
 interface Feedback {
 
@@ -481,15 +475,16 @@ export default function FeedbackPage() {
 
             <Select
 
-              value={categoryFilter}
-
-              onValueChange={
-
-                setCategoryFilter
-
-              }
-
-            >
+              <Select
+                value={categoryFilter}
+                onChange={(e) => setCategoryFilter(e.target.value)}
+              >
+                <option value="All">All Categories</option>
+                <option value="Suggestion">Suggestion</option>
+                <option value="Bug">Bug</option>
+                <option value="Feature Request">Feature Request</option>
+                <option value="Other">Other</option>
+              </Select>
 
               <SelectTrigger className="w-full md:w-56">
 
@@ -924,12 +919,13 @@ export default function FeedbackPage() {
                   </Label>
 
                   <Select
-
                     value={status}
-
-                    onValueChange={setStatus}
-
+                    onChange={(e) => setStatus(e.target.value)}
                   >
+                    <option value="Open">Open</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Closed">Closed</option>
+                  </Select>
 
                     <SelectTrigger className="mt-2">
 
