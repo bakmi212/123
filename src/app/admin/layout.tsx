@@ -8,10 +8,30 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import {
-  Loader2, LayoutDashboard, Users, Package, FolderOpen, ShoppingCart,
-  CreditCard, Key, Users2, Settings, LogOut, Menu, X, FileText,
-  Search, Bell, ChevronDown, Calendar, BarChart3, Sparkles, Download, Zap
-} from 'lucide-react'
+    Loader2,
+    LayoutDashboard,
+    Users,
+    Package,
+    FolderOpen,
+    ShoppingCart,
+    CreditCard,
+    Key,
+    Users2,
+    Settings,
+    LogOut,
+    Menu,
+    X,
+    FileText,
+    Image,
+    Search,
+    Bell,
+    ChevronDown,
+    Calendar,
+    BarChart3,
+    Sparkles,
+    Download,
+    Zap
+  } from 'lucide-react'
 
 const FOCUS_MODE_PATHS = ['/admin/products/new']
 const FOCUS_MODE_PATTERNS = [
@@ -29,6 +49,21 @@ const menuItems = [
   { icon: Users, label: 'Users', href: '/admin/users' },
   { icon: Package, label: 'Products', href: '/admin/products' },
   { icon: FolderOpen, label: 'Categories', href: '/admin/categories' },
+  {
+    icon: Image,
+    label: 'Banner Manager',
+    href: '/admin/banners',
+  },
+  {
+    icon: Download,
+    label: 'App Updates',
+    href: '/admin/updates',
+  },
+  {
+    icon: FileText,
+    label: 'Feedback',
+    href: '/admin/feedbacks',
+  },
   { icon: ShoppingCart, label: 'Orders', href: '/admin/orders' },
   { icon: CreditCard, label: 'Payments', href: '/admin/payments', hidden: true },
   { icon: Key, label: 'Licenses', href: '/admin/licenses' },
