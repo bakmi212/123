@@ -62,7 +62,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     {
       icon: Image,
       label: 'Banner Manager',
-      href: '/admin/banners',
+      href: '/dashboard/admin/banners',
     },
     
     {
