@@ -1,162 +1,213 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+
+import { z } from 'zod'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
 
 import { createBrowserClient } from '@/lib/supabase/client'
-
 import { toast } from 'sonner'
 
 import {
-
   Loader2,
-
-  Search,
-
   Plus,
-
   Pencil,
-
   Trash2,
-
-  Download,
-
+  Eye,
+  Search,
+  RefreshCw,
+  Rocket,
 } from 'lucide-react'
 
 import {
-
   Card,
-
   CardContent,
-
   CardHeader,
-
   CardTitle,
-
 } from '@/components/ui/card'
 
 import { Button } from '@/components/ui/button'
-
-import { Input } from '@/components/ui/input'
-
-import { Label } from '@/components/ui/label'
-
 import { Badge } from '@/components/ui/badge'
-
-import { Select } from '@/components/ui/select'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import { Label } from '@/components/ui/label'
+import { Switch } from '@/components/ui/switch'
 
 import {
-
   Dialog,
-
   DialogContent,
-
   DialogDescription,
-
   DialogFooter,
-
   DialogHeader,
-
   DialogTitle,
-
 } from '@/components/ui/dialog'
 
-interface AppUpdate {
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form'
+
+interface UpdateItem {
 
   id: string
 
   version: string
 
-  minimum_version: string
+  title: string
 
-  download_url: string
+  description: string
 
-  changelog: string
+  type:
+    | 'Feature'
+    | 'Improvement'
+    | 'Bug Fix'
+    | 'Security'
 
-  force_update: boolean
+  status:
+    | 'Draft'
+    | 'Published'
 
   published: boolean
 
   created_at: string
 
-}
-
-const defaultForm = {
-
-  version: '',
-
-  minimum_version: '',
-
-  download_url: '',
-
-  changelog: '',
-
-  force_update: false,
-
-  published: true,
+  updated_at: string
 
 }
+
+const formSchema = z.object({
+
+  version: z
+    .string()
+    .min(1, 'Version is required'),
+
+  title: z
+    .string()
+    .min(3, 'Title is required'),
+
+  description: z
+    .string()
+    .min(10, 'Description is required'),
+
+  type: z.enum([
+    'Feature',
+    'Improvement',
+    'Bug Fix',
+    'Security',
+  ]),
+
+  status: z.enum([
+    'Draft',
+    'Published',
+  ]),
+
+  published: z.boolean(),
+
+})
+
+type FormValues = z.infer<typeof formSchema>
 
 export default function UpdatesPage() {
 
-  const supabase = createBrowserClient()
+  const supabase = useMemo(
+    () => createBrowserClient(),
+    []
+  )
 
   const [loading, setLoading] = useState(true)
 
   const [saving, setSaving] = useState(false)
 
+  const [deleting, setDeleting] = useState(false)
+
   const [updates, setUpdates] =
-
-    useState<AppUpdate[]>([])
-
-  const [search, setSearch] =
-
-    useState('')
+    useState<UpdateItem[]>([])
 
   const [selected, setSelected] =
+    useState<UpdateItem | null>(null)
 
-    useState<AppUpdate | null>(null)
+  const [search, setSearch] =
+    useState('')
 
-  const [form, setForm] =
-
-    useState(defaultForm)
-
-  const [addOpen, setAddOpen] =
-
+  const [createOpen, setCreateOpen] =
     useState(false)
 
   const [editOpen, setEditOpen] =
+    useState(false)
 
+  const [viewOpen, setViewOpen] =
     useState(false)
 
   const [deleteOpen, setDeleteOpen] =
-
     useState(false)
 
-  useEffect(() => {
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      version: '',
+      title: '',
+      description: '',
+      type: 'Feature',
+      status: 'Draft',
+      published: false,
+    },
+  })
+    const resetForm = () => {
 
-    fetchUpdates()
+    form.reset({
 
-  }, [])
+      version: '',
 
-  async function fetchUpdates() {
+      title: '',
+
+      description: '',
+
+      type: 'Feature',
+
+      status: 'Draft',
+
+      published: false,
+
+    })
+
+    setSelected(null)
+
+  }
+
+  const fetchUpdates = useCallback(async () => {
 
     setLoading(true)
 
     const { data, error } = await supabase
 
-      .from('app_updates')
+      .from('updates')
 
       .select('*')
 
       .order('created_at', {
-
         ascending: false,
-
       })
 
     if (error) {
 
       toast.error(error.message)
+
+      setLoading(false)
+
+      return
 
     }
 
@@ -164,39 +215,205 @@ export default function UpdatesPage() {
 
     setLoading(false)
 
+  }, [supabase])
+
+  useEffect(() => {
+
+    fetchUpdates()
+
+    const channel = supabase
+
+      .channel('admin-updates')
+
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'updates',
+        },
+        () => {
+
+          fetchUpdates()
+
+        }
+      )
+
+      .subscribe()
+
+    return () => {
+
+      supabase.removeChannel(channel)
+
+    }
+
+  }, [fetchUpdates, supabase])
+
+  const filteredUpdates = updates.filter((item) => {
+
+    const keyword = search.toLowerCase()
+
+    return (
+
+      item.version
+        .toLowerCase()
+        .includes(keyword)
+
+      ||
+
+      item.title
+        .toLowerCase()
+        .includes(keyword)
+
+      ||
+
+      item.description
+        .toLowerCase()
+        .includes(keyword)
+
+    )
+
+  })
+
+  const totalUpdates = updates.length
+
+  const publishedUpdates = updates.filter(
+
+    (item) => item.published
+
+  ).length
+
+  const draftUpdates = updates.filter(
+
+    (item) => !item.published
+
+  ).length
+
+  const latestVersion =
+
+    updates.length > 0
+
+      ? updates[0].version
+
+      : '-'
+
+  function renderTypeBadge(
+
+    type: UpdateItem['type']
+
+  ) {
+
+    switch (type) {
+
+      case 'Feature':
+
+        return (
+
+          <Badge>
+
+            🚀 Feature
+
+          </Badge>
+
+        )
+
+      case 'Improvement':
+
+        return (
+
+          <Badge variant="secondary">
+
+            ⚡ Improvement
+
+          </Badge>
+
+        )
+
+      case 'Bug Fix':
+
+        return (
+
+          <Badge className="bg-orange-500">
+
+            🐞 Bug Fix
+
+          </Badge>
+
+        )
+
+      case 'Security':
+
+        return (
+
+          <Badge className="bg-red-600">
+
+            🔒 Security
+
+          </Badge>
+
+        )
+
+    }
+
   }
 
-  function resetForm() {
+  function renderStatusBadge(
 
-    setForm(defaultForm)
+    status: UpdateItem['status']
 
-    setSelected(null)
+  ) {
+
+    return status === 'Published'
+
+      ? (
+
+        <Badge className="bg-green-600">
+
+          Published
+
+        </Badge>
+
+      )
+
+      : (
+
+        <Badge className="bg-yellow-500">
+
+          Draft
+
+        </Badge>
+
+      )
 
   }
 
-  function openAdd() {
+  function openCreate() {
 
     resetForm()
 
-    setAddOpen(true)
+    setCreateOpen(true)
 
   }
 
-  function openEdit(item: AppUpdate) {
+  function openEdit(
+
+    item: UpdateItem
+
+  ) {
 
     setSelected(item)
 
-    setForm({
+    form.reset({
 
       version: item.version,
 
-      minimum_version: item.minimum_version,
+      title: item.title,
 
-      download_url: item.download_url,
+      description: item.description,
 
-      changelog: item.changelog,
+      type: item.type,
 
-      force_update: item.force_update,
+      status: item.status,
 
       published: item.published,
 
@@ -206,549 +423,124 @@ export default function UpdatesPage() {
 
   }
 
-  function openDelete(item: AppUpdate) {
+  function openView(
+
+    item: UpdateItem
+
+  ) {
+
+    setSelected(item)
+
+    setViewOpen(true)
+
+  }
+
+  function openDelete(
+
+    item: UpdateItem
+
+  ) {
 
     setSelected(item)
 
     setDeleteOpen(true)
 
   }
-
-  const filtered =
-
-    updates.filter((item) =>
-
-      item.version
-
-        .toLowerCase()
-
-        .includes(
-
-          search.toLowerCase()
-
-        )
-
-    )
-
-  if (loading) {
-
-    return (
-
-      <div className="flex justify-center py-12">
-
-        <Loader2 className="h-8 w-8 animate-spin"/>
-
-      </div>
-
-    )
-
-  }
-
-  return (
-
-    <div className="space-y-6">
-          <div className="flex items-center justify-between">
-
-        <div>
-
-          <h1 className="text-3xl font-bold">
-
-            App Updates
-
-          </h1>
-
-          <p className="text-muted-foreground">
-
-            Manage desktop application releases.
-
-          </p>
-
-        </div>
-
-        <Button onClick={openAdd}>
-
-          <Plus className="mr-2 h-4 w-4"/>
-
-          Add Update
-
-        </Button>
-
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-4">
-
-        <Card>
-
-          <CardContent className="pt-6">
-
-            <div className="text-2xl font-bold">
-
-              {updates.length}
-
-            </div>
-
-            <p className="text-sm text-muted-foreground">
-
-              Total Releases
-
-            </p>
-
-          </CardContent>
-
-        </Card>
-
-        <Card>
-
-          <CardContent className="pt-6">
-
-            <div className="text-2xl font-bold">
-
-              {
-
-                updates.find(
-
-                  x => x.published
-
-                )?.version ?? '-'
-
-              }
-
-            </div>
-
-            <p className="text-sm text-muted-foreground">
-
-              Latest Version
-
-            </p>
-
-          </CardContent>
-
-        </Card>
-
-        <Card>
-
-          <CardContent className="pt-6">
-
-            <div className="text-2xl font-bold">
-
-              {
-
-                updates.filter(
-
-                  x => x.force_update
-
-                ).length
-
-              }
-
-            </div>
-
-            <p className="text-sm text-muted-foreground">
-
-              Force Update
-
-            </p>
-
-          </CardContent>
-
-        </Card>
-
-        <Card>
-
-          <CardContent className="pt-6">
-
-            <div className="text-2xl font-bold">
-
-              {
-
-                updates.filter(
-
-                  x => x.published
-
-                ).length
-
-              }
-
-            </div>
-
-            <p className="text-sm text-muted-foreground">
-
-              Published
-
-            </p>
-
-          </CardContent>
-
-        </Card>
-
-      </div>
-
-      <Card>
-
-        <CardHeader>
-
-          <CardTitle>
-
-            Releases
-
-          </CardTitle>
-
-        </CardHeader>
-
-        <CardContent>
-
-          <div className="relative mb-6">
-
-            <Search className="absolute left-3 top-3 h-4 w-4"/>
-
-            <Input
-
-              className="pl-10"
-
-              placeholder="Search version..."
-
-              value={search}
-
-              onChange={(e)=>
-
-                setSearch(
-
-                  e.target.value
-
-                )
-
-              }
-
-            />
-
-          </div>
-
-          <div className="overflow-x-auto">
-
-            <table className="w-full">
-
-              <thead>
-
-                <tr className="border-b">
-
-                  <th className="px-4 py-3 text-left">
-
-                    Version
-
-                  </th>
-
-                  <th className="px-4 py-3 text-center">
-
-                    Minimum
-
-                  </th>
-
-                  <th className="px-4 py-3 text-center">
-
-                    Force
-
-                  </th>
-
-                  <th className="px-4 py-3 text-center">
-
-                    Published
-
-                  </th>
-
-                  <th className="px-4 py-3 text-center">
-
-                    Date
-
-                  </th>
-
-                  <th className="px-4 py-3 text-center">
-
-                    Action
-
-                  </th>
-
-                </tr>
-
-              </thead>
-
-              <tbody>
-
-                {
-
-                  filtered.length === 0
-
-                  ?
-
-                  (
-
-                    <tr>
-
-                      <td
-
-                        colSpan={6}
-
-                        className="py-12 text-center text-muted-foreground"
-
-                      >
-
-                        No releases found.
-
-                      </td>
-
-                    </tr>
-
-                  )
-
-                  :
-
-                  (
-
-                    filtered.map((item)=>(
-
-                      <tr
-
-                        key={item.id}
-
-                        className="border-b hover:bg-muted/40"
-
-                      >
-
-                        <td className="px-4 py-4 font-medium">
-
-                          {item.version}
-
-                        </td>
-
-                        <td className="px-4 py-4 text-center">
-
-                          {item.minimum_version}
-
-                        </td>
-
-                        <td className="px-4 py-4 text-center">
-
-                          {
-
-                            item.force_update
-
-                            ?
-
-                            <Badge>
-
-                              Yes
-
-                            </Badge>
-
-                            :
-
-                            <Badge variant="outline">
-
-                              No
-
-                            </Badge>
-
-                          }
-
-                        </td>
-
-                        <td className="px-4 py-4 text-center">
-
-                          {
-
-                            item.published
-
-                            ?
-
-                            <Badge>
-
-                              Published
-
-                            </Badge>
-
-                            :
-
-                            <Badge variant="outline">
-
-                              Draft
-
-                            </Badge>
-
-                          }
-
-                        </td>
-
-                        <td className="px-4 py-4 text-center">
-
-                          {
-
-                            new Date(
-
-                              item.created_at
-
-                            ).toLocaleDateString()
-
-                          }
-
-                        </td>
-
-                        <td className="px-4 py-4">
-
-                          <div className="flex justify-center gap-2">
-
-                            <Button
-
-                              size="sm"
-
-                              variant="outline"
-
-                              onClick={()=>
-
-                                openEdit(item)
-
-                              }
-
-                            >
-
-                              <Pencil className="mr-1 h-3 w-3"/>
-
-                              Edit
-
-                            </Button>
-
-                            <Button
-
-                              size="sm"
-
-                              variant="destructive"
-
-                              onClick={()=>
-
-                                openDelete(item)
-
-                              }
-
-                            >
-
-                              <Trash2 className="mr-1 h-3 w-3"/>
-
-                              Delete
-
-                            </Button>
-
-                          </div>
-
-                        </td>
-
-                      </tr>
-
-                    ))
-
-                  )
-
-                }
-
-              </tbody>
-
-            </table>
-
-          </div>
-
-        </CardContent>
-
-      </Card>
-      async function createUpdate() {
-  if (!form.version.trim()) {
-    toast.error('Version is required.')
-    return
-  }
-
-  if (!form.title.trim()) {
-    toast.error('Title is required.')
-    return
-  }
-
-  if (!form.description.trim()) {
-    toast.error('Description is required.')
-    return
-  }
+  async function onCreate(values: FormValues) {
 
   setSaving(true)
 
   const { error } = await supabase
+
     .from('updates')
+
     .insert({
-      version: form.version,
-      title: form.title,
-      description: form.description,
-      type: form.type,
-      status: form.status,
-      published: form.published,
+
+      version: values.version,
+
+      title: values.title,
+
+      description: values.description,
+
+      type: values.type,
+
+      status: values.status,
+
+      published: values.published,
+
     })
 
   setSaving(false)
 
   if (error) {
+
     toast.error(error.message)
+
     return
+
   }
 
-  toast.success('Update created.')
+  toast.success('Update created successfully.')
 
-  setCreateDialog(false)
+  setCreateOpen(false)
 
   resetForm()
 
   fetchUpdates()
+
 }
 
-async function updateUpdate() {
+async function onUpdate(values: FormValues) {
+
   if (!selected) return
-
-  if (!form.version.trim()) {
-    toast.error('Version is required.')
-    return
-  }
-
-  if (!form.title.trim()) {
-    toast.error('Title is required.')
-    return
-  }
-
-  if (!form.description.trim()) {
-    toast.error('Description is required.')
-    return
-  }
 
   setSaving(true)
 
   const { error } = await supabase
+
     .from('updates')
+
     .update({
-      version: form.version,
-      title: form.title,
-      description: form.description,
-      type: form.type,
-      status: form.status,
-      published: form.published,
+
+      version: values.version,
+
+      title: values.title,
+
+      description: values.description,
+
+      type: values.type,
+
+      status: values.status,
+
+      published: values.published,
+
+      updated_at: new Date().toISOString(),
+
     })
+
     .eq('id', selected.id)
 
   setSaving(false)
 
   if (error) {
+
     toast.error(error.message)
+
     return
+
   }
 
-  toast.success('Update updated.')
+  toast.success('Update saved successfully.')
 
-  setEditDialog(false)
+  setEditOpen(false)
 
   resetForm()
 
   fetchUpdates()
+
 }
-async function deleteUpdate() {
+
+async function onDelete() {
 
   if (!selected) return
 
@@ -774,16 +566,581 @@ async function deleteUpdate() {
 
   toast.success('Update deleted.')
 
-  setDeleteDialog(false)
+  setDeleteOpen(false)
 
   resetForm()
 
   fetchUpdates()
 
 }
+
+function duplicateUpdate(item: UpdateItem) {
+
+  form.reset({
+
+    version: item.version + '.1',
+
+    title: item.title,
+
+    description: item.description,
+
+    type: item.type,
+
+    status: 'Draft',
+
+    published: false,
+
+  })
+
+  setSelected(null)
+
+  setCreateOpen(true)
+
+}
+
+function publishUpdate(item: UpdateItem) {
+
+  setSelected(item)
+
+  form.reset({
+
+    version: item.version,
+
+    title: item.title,
+
+    description: item.description,
+
+    type: item.type,
+
+    status: 'Published',
+
+    published: true,
+
+  })
+
+  setEditOpen(true)
+
+}
+
+const latestUpdate = updates.length
+
+  ? updates[0]
+
+  : null
+
+const recentUpdates = updates.slice(0, 5)
+
+const hasUpdates = updates.length > 0
 <Dialog
-  open={viewDialog}
-  onOpenChange={setViewDialog}
+  open={createOpen}
+  onOpenChange={(open) => {
+    setCreateOpen(open)
+    if (!open) resetForm()
+  }}
+>
+
+  <DialogContent className="sm:max-w-2xl">
+
+    <DialogHeader>
+
+      <DialogTitle>
+
+        Create Update
+
+      </DialogTitle>
+
+      <DialogDescription>
+
+        Create a new application changelog.
+
+      </DialogDescription>
+
+    </DialogHeader>
+
+    <Form {...form}>
+
+      <form
+        onSubmit={form.handleSubmit(onCreate)}
+        className="space-y-6"
+      >
+
+        <FormField
+          control={form.control}
+          name="version"
+          render={({ field }) => (
+
+            <FormItem>
+
+              <FormLabel>
+
+                Version
+
+              </FormLabel>
+
+              <FormControl>
+
+                <Input
+                  placeholder="v2.0.0"
+                  {...field}
+                />
+
+              </FormControl>
+
+              <FormMessage />
+
+            </FormItem>
+
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="title"
+          render={({ field }) => (
+
+            <FormItem>
+
+              <FormLabel>
+
+                Title
+
+              </FormLabel>
+
+              <FormControl>
+
+                <Input
+                  placeholder="New Feature"
+                  {...field}
+                />
+
+              </FormControl>
+
+              <FormMessage />
+
+            </FormItem>
+
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="description"
+          render={({ field }) => (
+
+            <FormItem>
+
+              <FormLabel>
+
+                Description
+
+              </FormLabel>
+
+              <FormControl>
+
+                <Textarea
+                  rows={8}
+                  placeholder="Write changelog..."
+                  {...field}
+                />
+
+              </FormControl>
+
+              <FormMessage />
+
+            </FormItem>
+
+          )}
+        />
+
+        <div className="grid gap-5 md:grid-cols-2">
+
+          <FormField
+            control={form.control}
+            name="type"
+            render={({ field }) => (
+
+              <FormItem>
+
+                <FormLabel>
+
+                  Type
+
+                </FormLabel>
+
+                <Select
+                  value={field.value}
+                  onValueChange={field.onChange}
+                >
+
+                  <FormControl>
+
+                    <SelectTrigger>
+
+                      <SelectValue />
+
+                    </SelectTrigger>
+
+                  </FormControl>
+
+                  <SelectContent>
+
+                    <SelectItem value="Feature">
+
+                      🚀 Feature
+
+                    </SelectItem>
+
+                    <SelectItem value="Improvement">
+
+                      ⚡ Improvement
+
+                    </SelectItem>
+
+                    <SelectItem value="Bug Fix">
+
+                      🐞 Bug Fix
+
+                    </SelectItem>
+
+                    <SelectItem value="Security">
+
+                      🔒 Security
+
+                    </SelectItem>
+
+                  </SelectContent>
+
+                </Select>
+
+                <FormMessage />
+
+              </FormItem>
+
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="status"
+            render={({ field }) => (
+
+              <FormItem>
+
+                <FormLabel>
+
+                  Status
+
+                </FormLabel>
+
+                <Select
+                  value={field.value}
+                  onValueChange={field.onChange}
+                >
+
+                  <FormControl>
+
+                    <SelectTrigger>
+
+                      <SelectValue />
+
+                    </SelectTrigger>
+
+                  </FormControl>
+
+                  <SelectContent>
+
+                    <SelectItem value="Draft">
+
+                      Draft
+
+                    </SelectItem>
+
+                    <SelectItem value="Published">
+
+                      Published
+
+                    </SelectItem>
+
+                  </SelectContent>
+
+                </Select>
+
+                <FormMessage />
+
+              </FormItem>
+
+            )}
+          />
+
+        </div>
+
+        <FormField
+          control={form.control}
+          name="published"
+          render={({ field }) => (
+
+            <FormItem className="flex items-center justify-between rounded-lg border p-4">
+
+              <div>
+
+                <FormLabel>
+
+                  Publish Immediately
+
+                </FormLabel>
+
+                <p className="text-sm text-muted-foreground">
+
+                  Make this update visible to users.
+
+                </p>
+
+              </div>
+
+              <FormControl>
+
+                <Switch
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+
+              </FormControl>
+
+            </FormItem>
+
+          )}
+        />
+
+        <DialogFooter>
+
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => {
+
+              setCreateOpen(false)
+
+              resetForm()
+
+            }}
+          >
+
+            Cancel
+
+          </Button>
+
+          <Button
+            type="submit"
+            disabled={saving}
+          >
+
+            {saving && (
+
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+
+            )}
+
+            Create Update
+
+          </Button>
+
+        </DialogFooter>
+
+      </form>
+
+    </Form>
+
+  </DialogContent>
+
+</Dialog>
+if (loading) {
+
+  return (
+
+    <div className="flex justify-center py-20">
+
+      <Loader2 className="h-8 w-8 animate-spin" />
+
+    </div>
+
+  )
+
+}
+
+return (
+
+<div className="space-y-6">
+
+  {/* Header */}
+
+  <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+
+    <div>
+
+      <h1 className="text-3xl font-bold">
+
+        Updates Manager
+
+      </h1>
+
+      <p className="text-muted-foreground">
+
+        Manage application changelog and releases.
+
+      </p>
+
+    </div>
+
+    <Button onClick={openCreate}>
+
+      <Plus className="mr-2 h-4 w-4" />
+
+      New Update
+
+    </Button>
+
+  </div>
+
+  {/* Statistics */}
+
+  <div className="grid gap-4 md:grid-cols-4">
+
+    <Card>
+
+      <CardContent className="pt-6">
+
+        <div className="text-3xl font-bold">
+
+          {totalUpdates}
+
+        </div>
+
+        <p className="text-sm text-muted-foreground">
+
+          Total Updates
+
+        </p>
+
+      </CardContent>
+
+    </Card>
+
+    <Card>
+
+      <CardContent className="pt-6">
+
+        <div className="text-3xl font-bold text-green-600">
+
+          {publishedUpdates}
+
+        </div>
+
+        <p className="text-sm text-muted-foreground">
+
+          Published
+
+        </p>
+
+      </CardContent>
+
+    </Card>
+
+    <Card>
+
+      <CardContent className="pt-6">
+
+        <div className="text-3xl font-bold text-yellow-500">
+
+          {draftUpdates}
+
+        </div>
+
+        <p className="text-sm text-muted-foreground">
+
+          Draft
+
+        </p>
+
+      </CardContent>
+
+    </Card>
+
+    <Card>
+
+      <CardContent className="pt-6">
+
+        <div className="text-3xl font-bold text-blue-600">
+
+          {latestVersion}
+
+        </div>
+
+        <p className="text-sm text-muted-foreground">
+
+          Latest Version
+
+        </p>
+
+      </CardContent>
+
+    </Card>
+
+  </div>
+
+  {/* Table */}
+
+  <Card>
+
+    <CardHeader>
+
+      <CardTitle>
+
+        Application Updates
+
+      </CardTitle>
+
+    </CardHeader>
+
+    <CardContent>
+
+      <div className="mb-6 flex flex-col gap-4 md:flex-row">
+
+        <div className="relative flex-1">
+
+          <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground"/>
+
+          <Input
+
+            className="pl-10"
+
+            placeholder="Search updates..."
+
+            value={search}
+
+            onChange={(e)=>setSearch(e.target.value)}
+
+          />
+
+        </div>
+
+        <Button
+
+          variant="outline"
+
+          onClick={fetchUpdates}
+
+        >
+
+          <RefreshCw className="mr-2 h-4 w-4"/>
+
+          Refresh
+
+        </Button>
+
+      </div>
+      <Dialog
+  open={viewOpen}
+  onOpenChange={setViewOpen}
 >
 
   <DialogContent className="sm:max-w-2xl">
@@ -798,7 +1155,7 @@ async function deleteUpdate() {
 
       <DialogDescription>
 
-        View changelog information.
+        View application changelog.
 
       </DialogDescription>
 
@@ -812,7 +1169,7 @@ async function deleteUpdate() {
 
           <Label>Version</Label>
 
-          <p className="mt-2 font-semibold">
+          <p className="mt-2 text-lg font-semibold">
 
             {selected.version}
 
@@ -824,7 +1181,7 @@ async function deleteUpdate() {
 
           <Label>Title</Label>
 
-          <p className="mt-2 font-semibold">
+          <p className="mt-2 font-medium">
 
             {selected.title}
 
@@ -832,7 +1189,7 @@ async function deleteUpdate() {
 
         </div>
 
-        <div className="grid grid-cols-2 gap-5">
+        <div className="grid gap-4 md:grid-cols-2">
 
           <div>
 
@@ -840,11 +1197,7 @@ async function deleteUpdate() {
 
             <div className="mt-2">
 
-              <Badge>
-
-                {selected.type}
-
-              </Badge>
+              {renderTypeBadge(selected.type)}
 
             </div>
 
@@ -856,17 +1209,7 @@ async function deleteUpdate() {
 
             <div className="mt-2">
 
-              <Badge
-                className={
-                  selected.status === 'Published'
-                    ? 'bg-green-600'
-                    : 'bg-yellow-500'
-                }
-              >
-
-                {selected.status}
-
-              </Badge>
+              {renderStatusBadge(selected.status)}
 
             </div>
 
@@ -886,7 +1229,7 @@ async function deleteUpdate() {
 
         </div>
 
-        <div className="grid grid-cols-2 gap-5">
+        <div className="grid gap-4 md:grid-cols-2">
 
           <div>
 
@@ -924,7 +1267,7 @@ async function deleteUpdate() {
 
       <Button
         variant="outline"
-        onClick={() => setViewDialog(false)}
+        onClick={() => setViewOpen(false)}
       >
 
         Close
@@ -936,7 +1279,7 @@ async function deleteUpdate() {
         <Button
           onClick={() => {
 
-            setViewDialog(false)
+            setViewOpen(false)
 
             openEdit(selected)
 
@@ -957,8 +1300,8 @@ async function deleteUpdate() {
 
 </Dialog>
 <Dialog
-  open={deleteDialog}
-  onOpenChange={setDeleteDialog}
+  open={deleteOpen}
+  onOpenChange={setDeleteOpen}
 >
 
   <DialogContent>
@@ -991,7 +1334,7 @@ async function deleteUpdate() {
 
           </p>
 
-          <p className="text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
 
             {selected.title}
 
@@ -999,11 +1342,7 @@ async function deleteUpdate() {
 
         </div>
 
-        <Badge>
-
-          {selected.type}
-
-        </Badge>
+        {renderTypeBadge(selected.type)}
 
       </div>
 
@@ -1015,7 +1354,7 @@ async function deleteUpdate() {
         variant="outline"
         onClick={() => {
 
-          setDeleteDialog(false)
+          setDeleteOpen(false)
 
           resetForm()
 
@@ -1029,7 +1368,7 @@ async function deleteUpdate() {
       <Button
         variant="destructive"
         disabled={deleting}
-        onClick={deleteUpdate}
+        onClick={onDelete}
       >
 
         {deleting && (
@@ -1048,3 +1387,6 @@ async function deleteUpdate() {
 
 </Dialog>
 
+</div>
+
+)
