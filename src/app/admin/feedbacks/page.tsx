@@ -6,6 +6,8 @@ import {
   Loader2,
   Search,
   Eye,
+  Trash2,
+  MessageSquare,
 } from 'lucide-react'
 
 import { toast } from 'sonner'
@@ -72,16 +74,24 @@ export default function FeedbackPage() {
 
   const [saving, setSaving] = useState(false)
 
+  const [deleting, setDeleting] = useState(false)
+
   const [feedbacks, setFeedbacks] =
     useState<Feedback[]>([])
 
   const [search, setSearch] =
     useState('')
 
+  const [categoryFilter, setCategoryFilter] =
+    useState('All')
+
   const [selectedFeedback, setSelectedFeedback] =
     useState<Feedback | null>(null)
 
   const [dialogOpen, setDialogOpen] =
+    useState(false)
+
+  const [deleteDialogOpen, setDeleteDialogOpen] =
     useState(false)
 
   const [status, setStatus] =
@@ -104,15 +114,10 @@ export default function FeedbackPage() {
       .select('*')
 
       .order(
-
         'created_at',
-
         {
-
           ascending: false,
-
         }
-
       )
 
     if (error) {
@@ -128,23 +133,30 @@ export default function FeedbackPage() {
   }
 
   function openFeedback(
-
-    feedback: Feedback
-
+    item: Feedback
   ) {
 
-    setSelectedFeedback(feedback)
+    setSelectedFeedback(item)
 
-    setStatus(feedback.status)
+    setStatus(item.status)
 
     setDialogOpen(true)
+
+  }
+
+  function openDelete(
+    item: Feedback
+  ) {
+
+    setSelectedFeedback(item)
+
+    setDeleteDialogOpen(true)
 
   }
 
   async function saveStatus() {
 
     if (!selectedFeedback)
-
       return
 
     setSaving(true)
@@ -160,11 +172,8 @@ export default function FeedbackPage() {
       })
 
       .eq(
-
         'id',
-
         selectedFeedback.id
-
       )
 
     if (error) {
@@ -176,9 +185,7 @@ export default function FeedbackPage() {
     else {
 
       toast.success(
-
         'Status updated.'
-
       )
 
       await fetchFeedbacks()
@@ -191,7 +198,48 @@ export default function FeedbackPage() {
 
   }
 
-  const filteredFeedbacks =
+  async function deleteFeedback() {
+
+    if (!selectedFeedback)
+      return
+
+    setDeleting(true)
+
+    const { error } = await supabase
+
+      .from('feedbacks')
+
+      .delete()
+
+      .eq(
+        'id',
+        selectedFeedback.id
+      )
+
+    if (error) {
+
+      toast.error(error.message)
+
+    }
+
+    else {
+
+      toast.success(
+        'Feedback deleted.'
+      )
+
+      await fetchFeedbacks()
+
+      setDeleteDialogOpen(false)
+
+      setSelectedFeedback(null)
+
+    }
+
+    setDeleting(false)
+
+  }
+    const filteredFeedbacks =
 
     feedbacks.filter((item) => {
 
@@ -199,33 +247,77 @@ export default function FeedbackPage() {
 
         search.toLowerCase()
 
-      return (
+      const matchSearch =
 
         item.title
-
           .toLowerCase()
-
           .includes(keyword)
 
         ||
 
         item.category
-
           .toLowerCase()
-
           .includes(keyword)
 
         ||
 
         item.license_key
-
           .toLowerCase()
-
           .includes(keyword)
+
+      const matchCategory =
+
+        categoryFilter === 'All'
+
+        ||
+
+        item.category === categoryFilter
+
+      return (
+
+        matchSearch
+
+        &&
+
+        matchCategory
 
       )
 
     })
+
+  const total =
+
+    feedbacks.length
+
+  const openCount =
+
+    feedbacks.filter(
+
+      f =>
+
+      f.status === 'Open'
+
+    ).length
+
+  const progressCount =
+
+    feedbacks.filter(
+
+      f =>
+
+      f.status === 'In Progress'
+
+    ).length
+
+  const closedCount =
+
+    feedbacks.filter(
+
+      f =>
+
+      f.status === 'Closed'
+
+    ).length
 
   if (loading) {
 
@@ -245,23 +337,103 @@ export default function FeedbackPage() {
 
     <div className="space-y-6">
 
-      <div className="flex items-center justify-between">
+      <div>
 
-        <div>
+        <h1 className="text-3xl font-bold">
 
-          <h1 className="text-3xl font-bold">
+          Feedback Manager
 
-            Feedback Manager
+        </h1>
 
-          </h1>
+        <p className="text-muted-foreground">
 
-          <p className="text-muted-foreground">
+          Manage user suggestions, bug reports and feature requests.
 
-            Manage suggestions, bug reports and feature requests.
+        </p>
 
-          </p>
+      </div>
 
-        </div>
+      <div className="grid gap-4 md:grid-cols-4">
+
+        <Card>
+
+          <CardContent className="pt-6">
+
+            <div className="text-2xl font-bold">
+
+              {total}
+
+            </div>
+
+            <p className="text-sm text-muted-foreground">
+
+              Total Feedback
+
+            </p>
+
+          </CardContent>
+
+        </Card>
+
+        <Card>
+
+          <CardContent className="pt-6">
+
+            <div className="text-2xl font-bold text-blue-600">
+
+              {openCount}
+
+            </div>
+
+            <p className="text-sm text-muted-foreground">
+
+              Open
+
+            </p>
+
+          </CardContent>
+
+        </Card>
+
+        <Card>
+
+          <CardContent className="pt-6">
+
+            <div className="text-2xl font-bold text-yellow-600">
+
+              {progressCount}
+
+            </div>
+
+            <p className="text-sm text-muted-foreground">
+
+              In Progress
+
+            </p>
+
+          </CardContent>
+
+        </Card>
+
+        <Card>
+
+          <CardContent className="pt-6">
+
+            <div className="text-2xl font-bold text-green-600">
+
+              {closedCount}
+
+            </div>
+
+            <p className="text-sm text-muted-foreground">
+
+              Closed
+
+            </p>
+
+          </CardContent>
+
+        </Card>
 
       </div>
 
@@ -279,32 +451,91 @@ export default function FeedbackPage() {
 
         <CardContent>
 
-          <div className="relative mb-6">
+          <div className="mb-6 flex flex-col gap-4 md:flex-row">
 
-            <Search className="absolute left-3 top-3 h-4 w-4"/>
+            <div className="relative flex-1">
 
-            <Input
+              <Search className="absolute left-3 top-3 h-4 w-4"/>
 
-              className="pl-10"
+              <Input
 
-              placeholder="Search feedback..."
+                className="pl-10"
 
-              value={search}
+                placeholder="Search feedback..."
 
-              onChange={(e)=>
+                value={search}
 
-                setSearch(
+                onChange={(e)=>
 
-                  e.target.value
+                  setSearch(
 
-                )
+                    e.target.value
+
+                  )
+
+                }
+
+              />
+
+            </div>
+
+            <Select
+
+              value={categoryFilter}
+
+              onValueChange={
+
+                setCategoryFilter
 
               }
 
-            />
+            >
+
+              <SelectTrigger className="w-full md:w-56">
+
+                <SelectValue/>
+
+              </SelectTrigger>
+
+              <SelectContent>
+
+                <SelectItem value="All">
+
+                  All Categories
+
+                </SelectItem>
+
+                <SelectItem value="Suggestion">
+
+                  Suggestion
+
+                </SelectItem>
+
+                <SelectItem value="Bug">
+
+                  Bug
+
+                </SelectItem>
+
+                <SelectItem value="Feature Request">
+
+                  Feature Request
+
+                </SelectItem>
+
+                <SelectItem value="Other">
+
+                  Other
+
+                </SelectItem>
+
+              </SelectContent>
+
+            </Select>
 
           </div>
-                    <div className="overflow-x-auto">
+
+          <div className="overflow-x-auto">
 
             <table className="w-full">
 
@@ -359,8 +590,7 @@ export default function FeedbackPage() {
               </thead>
 
               <tbody>
-
-                {
+                              {
 
                   filteredFeedbacks.length === 0
 
@@ -374,11 +604,27 @@ export default function FeedbackPage() {
 
                         colSpan={7}
 
-                        className="py-12 text-center text-muted-foreground"
+                        className="py-12"
 
                       >
 
-                        No feedback found.
+                        <div className="flex flex-col items-center justify-center text-center">
+
+                          <MessageSquare className="mb-3 h-12 w-12 text-muted-foreground"/>
+
+                          <h3 className="font-semibold">
+
+                            No Feedback Found
+
+                          </h3>
+
+                          <p className="text-sm text-muted-foreground">
+
+                            There are no feedback matching your search.
+
+                          </p>
+
+                        </div>
 
                       </td>
 
@@ -426,27 +672,51 @@ export default function FeedbackPage() {
 
                         <td className="px-4 py-4 text-center">
 
-                          <Badge
+                          {
 
-                            variant={
+                            item.status === 'Open'
 
-                              item.status === 'Closed'
+                            ?
 
-                              ? 'default'
+                            (
 
-                              : item.status === 'In Progress'
+                              <Badge className="bg-blue-600 hover:bg-blue-600">
 
-                              ? 'secondary'
+                                Open
 
-                              : 'outline'
+                              </Badge>
 
-                            }
+                            )
 
-                          >
+                            :
 
-                            {item.status}
+                            item.status === 'In Progress'
 
-                          </Badge>
+                            ?
+
+                            (
+
+                              <Badge className="bg-yellow-500 hover:bg-yellow-500">
+
+                                In Progress
+
+                              </Badge>
+
+                            )
+
+                            :
+
+                            (
+
+                              <Badge className="bg-green-600 hover:bg-green-600">
+
+                                Closed
+
+                              </Badge>
+
+                            )
+
+                          }
 
                         </td>
 
@@ -466,7 +736,7 @@ export default function FeedbackPage() {
 
                         <td className="px-4 py-4">
 
-                          <div className="flex justify-center">
+                          <div className="flex justify-center gap-2">
 
                             <Button
 
@@ -485,6 +755,26 @@ export default function FeedbackPage() {
                               <Eye className="mr-1 h-3 w-3"/>
 
                               View
+
+                            </Button>
+
+                            <Button
+
+                              size="sm"
+
+                              variant="destructive"
+
+                              onClick={() =>
+
+                                openDelete(item)
+
+                              }
+
+                            >
+
+                              <Trash2 className="mr-1 h-3 w-3"/>
+
+                              Delete
 
                             </Button>
 
@@ -549,7 +839,7 @@ export default function FeedbackPage() {
 
                   </Label>
 
-                  <p className="mt-1">
+                  <p className="mt-1 font-medium">
 
                     {selectedFeedback.title}
 
@@ -557,19 +847,39 @@ export default function FeedbackPage() {
 
                 </div>
 
-                <div>
+                <div className="grid grid-cols-2 gap-4">
 
-                  <Label>
+                  <div>
 
-                    Category
+                    <Label>
 
-                  </Label>
+                      Category
 
-                  <p className="mt-1">
+                    </Label>
 
-                    {selectedFeedback.category}
+                    <p className="mt-1">
 
-                  </p>
+                      {selectedFeedback.category}
+
+                    </p>
+
+                  </div>
+
+                  <div>
+
+                    <Label>
+
+                      App Version
+
+                    </Label>
+
+                    <p className="mt-1">
+
+                      {selectedFeedback.app_version}
+
+                    </p>
+
+                  </div>
 
                 </div>
 
@@ -581,25 +891,9 @@ export default function FeedbackPage() {
 
                   </Label>
 
-                  <p className="mt-1">
+                  <p className="mt-1 break-all">
 
                     {selectedFeedback.license_key}
-
-                  </p>
-
-                </div>
-
-                <div>
-
-                  <Label>
-
-                    App Version
-
-                  </Label>
-
-                  <p className="mt-1">
-
-                    {selectedFeedback.app_version}
 
                   </p>
 
@@ -613,7 +907,7 @@ export default function FeedbackPage() {
 
                   </Label>
 
-                  <div className="mt-2 rounded-lg border p-4 whitespace-pre-wrap text-sm">
+                  <div className="mt-2 rounded-lg border bg-muted/30 p-4 whitespace-pre-wrap text-sm">
 
                     {selectedFeedback.description}
 
@@ -720,8 +1014,112 @@ export default function FeedbackPage() {
         </DialogContent>
 
       </Dialog>
+            <Dialog
 
-    </div>
+        open={deleteDialogOpen}
+
+        onOpenChange={setDeleteDialogOpen}
+
+      >
+
+        <DialogContent>
+
+          <DialogHeader>
+
+            <DialogTitle>
+
+              Delete Feedback
+
+            </DialogTitle>
+
+            <DialogDescription>
+
+              This action cannot be undone.
+
+            </DialogDescription>
+
+          </DialogHeader>
+
+          {
+
+            selectedFeedback && (
+
+              <div className="rounded-lg border bg-muted/30 p-4">
+
+                <p className="font-semibold">
+
+                  {selectedFeedback.title}
+
+                </p>
+
+                <p className="mt-2 text-sm text-muted-foreground">
+
+                  {selectedFeedback.category}
+
+                </p>
+
+                <p className="mt-1 text-sm text-muted-foreground break-all">
+
+                  {selectedFeedback.license_key}
+
+                </p>
+
+              </div>
+
+            )
+
+          }
+
+          <DialogFooter>
+
+            <Button
+
+              variant="outline"
+
+              onClick={() => {
+
+                setDeleteDialogOpen(false)
+
+                setSelectedFeedback(null)
+
+              }}
+
+            >
+
+              Cancel
+
+            </Button>
+
+            <Button
+
+              variant="destructive"
+
+              disabled={deleting}
+
+              onClick={deleteFeedback}
+
+            >
+
+              {
+
+                deleting && (
+
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin"/>
+
+                )
+
+              }
+
+              Delete Feedback
+
+            </Button>
+
+          </DialogFooter>
+
+        </DialogContent>
+
+      </Dialog>
+          </div>
 
   )
 
