@@ -781,3 +781,270 @@ async function deleteUpdate() {
   fetchUpdates()
 
 }
+<Dialog
+  open={viewDialog}
+  onOpenChange={setViewDialog}
+>
+
+  <DialogContent className="sm:max-w-2xl">
+
+    <DialogHeader>
+
+      <DialogTitle>
+
+        Update Detail
+
+      </DialogTitle>
+
+      <DialogDescription>
+
+        View changelog information.
+
+      </DialogDescription>
+
+    </DialogHeader>
+
+    {selected && (
+
+      <div className="space-y-6">
+
+        <div>
+
+          <Label>Version</Label>
+
+          <p className="mt-2 font-semibold">
+
+            {selected.version}
+
+          </p>
+
+        </div>
+
+        <div>
+
+          <Label>Title</Label>
+
+          <p className="mt-2 font-semibold">
+
+            {selected.title}
+
+          </p>
+
+        </div>
+
+        <div className="grid grid-cols-2 gap-5">
+
+          <div>
+
+            <Label>Type</Label>
+
+            <div className="mt-2">
+
+              <Badge>
+
+                {selected.type}
+
+              </Badge>
+
+            </div>
+
+          </div>
+
+          <div>
+
+            <Label>Status</Label>
+
+            <div className="mt-2">
+
+              <Badge
+                className={
+                  selected.status === 'Published'
+                    ? 'bg-green-600'
+                    : 'bg-yellow-500'
+                }
+              >
+
+                {selected.status}
+
+              </Badge>
+
+            </div>
+
+          </div>
+
+        </div>
+
+        <div>
+
+          <Label>Description</Label>
+
+          <div className="mt-2 rounded-lg border p-4 whitespace-pre-wrap">
+
+            {selected.description}
+
+          </div>
+
+        </div>
+
+        <div className="grid grid-cols-2 gap-5">
+
+          <div>
+
+            <Label>Published</Label>
+
+            <p className="mt-2">
+
+              {selected.published ? 'Yes' : 'No'}
+
+            </p>
+
+          </div>
+
+          <div>
+
+            <Label>Created</Label>
+
+            <p className="mt-2">
+
+              {new Date(
+                selected.created_at
+              ).toLocaleString()}
+
+            </p>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    )}
+
+    <DialogFooter>
+
+      <Button
+        variant="outline"
+        onClick={() => setViewDialog(false)}
+      >
+
+        Close
+
+      </Button>
+
+      {selected && (
+
+        <Button
+          onClick={() => {
+
+            setViewDialog(false)
+
+            openEdit(selected)
+
+          }}
+        >
+
+          <Pencil className="mr-2 h-4 w-4" />
+
+          Edit
+
+        </Button>
+
+      )}
+
+    </DialogFooter>
+
+  </DialogContent>
+
+</Dialog>
+<Dialog
+  open={deleteDialog}
+  onOpenChange={setDeleteDialog}
+>
+
+  <DialogContent>
+
+    <DialogHeader>
+
+      <DialogTitle>
+
+        Delete Update
+
+      </DialogTitle>
+
+      <DialogDescription>
+
+        This action cannot be undone.
+
+      </DialogDescription>
+
+    </DialogHeader>
+
+    {selected && (
+
+      <div className="rounded-lg border bg-muted/40 p-4 space-y-3">
+
+        <div>
+
+          <p className="font-semibold">
+
+            {selected.version}
+
+          </p>
+
+          <p className="text-muted-foreground">
+
+            {selected.title}
+
+          </p>
+
+        </div>
+
+        <Badge>
+
+          {selected.type}
+
+        </Badge>
+
+      </div>
+
+    )}
+
+    <DialogFooter>
+
+      <Button
+        variant="outline"
+        onClick={() => {
+
+          setDeleteDialog(false)
+
+          resetForm()
+
+        }}
+      >
+
+        Cancel
+
+      </Button>
+
+      <Button
+        variant="destructive"
+        disabled={deleting}
+        onClick={deleteUpdate}
+      >
+
+        {deleting && (
+
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+
+        )}
+
+        Delete
+
+      </Button>
+
+    </DialogFooter>
+
+  </DialogContent>
+
+</Dialog>
+
