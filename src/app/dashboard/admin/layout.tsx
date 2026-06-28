@@ -68,13 +68,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     {
       icon: Download,
       label: 'App Updates',
-      href: '/admin/updates',
+      href: '/dashboard/admin/updates',
     },
     
     {
       icon: MessageSquare,
       label: 'Feedback',
-      href: '/admin/feedbacks',
+      href: '/dashboard/admin/feedbacks',
     },
     { icon: Bell, label: 'Notifications', href: '/dashboard/admin/notifications' },
     { icon: Settings, label: 'Settings', href: '/dashboard/admin/settings' },
