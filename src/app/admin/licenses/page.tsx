@@ -46,6 +46,8 @@ interface License {
 
   status: LicenseStatus
 
+  device_count: number
+
   user_id: string | null
 
   product_id: string
@@ -204,23 +206,32 @@ export default function AdminLicensesPage() {
   setLoading(true)
 
   const [
-    { data: licenseData, error },
-    { data: profileData },
-    { data: productData },
-  ] = await Promise.all([
-    supabase
-      .from('licenses')
-      .select('*')
-      .order('created_at', { ascending: false }),
-
-    supabase
-      .from('profiles')
-      .select('user_id,email'),
-
-    supabase
-      .from('products')
-      .select('id,name'),
-  ])
+	  { data: licenseData, error },
+	  { data: profileData },
+	  { data: productData },
+	  { data: deviceData },
+	] = await Promise.all([
+	
+	  supabase
+	    .from("licenses")
+	    .select("*")
+	    .order("created_at", {
+	      ascending: false,
+	    }),
+	
+	  supabase
+	    .from("profiles")
+	    .select("user_id,email"),
+	
+	  supabase
+	    .from("products")
+	    .select("id,name"),
+	
+	  supabase
+	    .from("license_devices")
+	    .select("license_id"),
+	
+	])
 
   if (error) {
     toast.error(error.message)
@@ -249,6 +260,13 @@ export default function AdminLicensesPage() {
       productData?.find(
         p => p.id === item.product_id
       ) ?? null,
+
+    device_count:
+    deviceData?.filter(
+        d =>
+            d.license_id === item.id
+    ).length ?? 0,
+	  
   }))
 
   setLicenses(rows)
@@ -720,7 +738,7 @@ max_activations: form.max_devices,
 
   <td className="px-4 py-3 text-center text-sm">
 
-    0 / {license.max_devices}
+    {license.device_count} / {license.max_devices}
 
   </td>
 
