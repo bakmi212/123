@@ -1,3 +1,5 @@
-# bismillah
+# Pabrik Lagu YT
 
-[![Open in Bolt](https://bolt.new/static/open-in-bolt.svg)](https://bolt.new/~/sb1-kcw5wdos)
+Repository managed by LumintuSuite.
+
+⚠ Auto Generated.
