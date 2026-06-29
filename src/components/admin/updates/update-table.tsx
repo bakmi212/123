@@ -109,13 +109,11 @@ export function UpdateTable({
               </td>
 
               <td className="px-4 py-4 text-center">
-                {item.published ? 'Yes' : 'No'}
+                {item.published ? "Yes" : "No"}
               </td>
 
               <td className="px-4 py-4 text-center">
-                {new Date(
-                  item.created_at
-                ).toLocaleDateString()}
+                {new Date(item.created_at).toLocaleDateString()}
               </td>
 
               <td className="px-4 py-4">
@@ -127,9 +125,7 @@ export function UpdateTable({
                     variant="outline"
                     onClick={() => onView(item)}
                   >
-
                     <Eye className="h-4 w-4" />
-
                   </Button>
 
                   <Button
@@ -137,9 +133,7 @@ export function UpdateTable({
                     variant="outline"
                     onClick={() => onEdit(item)}
                   >
-
                     <Pencil className="h-4 w-4" />
-
                   </Button>
 
                   <Button
@@ -147,9 +141,7 @@ export function UpdateTable({
                     variant="destructive"
                     onClick={() => onDelete(item)}
                   >
-
                     <Trash2 className="h-4 w-4" />
-
                   </Button>
 
                 </div>
@@ -159,7 +151,8 @@ export function UpdateTable({
             </tr>
 
           ))}
-          </tbody>
+
+        </tbody>
 
       </table>
 
