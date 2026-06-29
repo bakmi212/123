@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+
 import { UseFormReturn } from 'react-hook-form'
 
 import {
@@ -41,13 +41,15 @@ import { Loader2 } from 'lucide-react'
 interface FormValues {
   product_id: string
 
+  platform: "desktop" | "mobile"
+
   version: string
   title: string
   description: string
 
-  type: 'Feature' | 'Improvement' | 'Bug Fix' | 'Security'
+  type: "Feature" | "Improvement" | "Bug Fix" | "Security"
 
-  status: 'Draft' | 'Published'
+  status: "Draft" | "Published"
 
   published: boolean
 }
@@ -55,7 +57,7 @@ interface FormValues {
 interface UpdateFormDialogProps {
   open: boolean
 
-  mode: 'create' | 'edit'
+  mode: "create" | "edit"
 
   title: string
   description: string
@@ -64,11 +66,21 @@ interface UpdateFormDialogProps {
 
   products: Product[]
 
+  selectedFile: File | null
+
+  setSelectedFile: (
+    file: File | null
+  ) => void
+
   saving: boolean
 
-  onOpenChange: (open: boolean) => void
+  onOpenChange: (
+    open: boolean
+  ) => void
 
-  onSubmit: (values: FormValues) => void
+  onSubmit: (
+    values: FormValues
+  ) => void
 }
 
 export function UpdateFormDialog({
@@ -78,12 +90,12 @@ export function UpdateFormDialog({
   description,
   form,
   products,
+  selectedFile,
+  setSelectedFile,
   saving,
   onOpenChange,
   onSubmit,
 }: UpdateFormDialogProps) {
-  const [selectedFile, setSelectedFile] =
-  useState<File | null>(null)
   return (
     <Dialog
       open={open}
