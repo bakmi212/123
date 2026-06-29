@@ -64,38 +64,10 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 
-interface Product {
-  id: string
-  name: string
-  slug: string
-}
-
-interface UpdateItem {
-  id: string
-
-  product_id: string
-
-  products: Product | null
-
-  version: string
-  title: string
-  description: string
-
-  type:
-    | 'Feature'
-    | 'Improvement'
-    | 'Bug Fix'
-    | 'Security'
-
-  status:
-    | 'Draft'
-    | 'Published'
-
-  published: boolean
-
-  created_at: string
-  updated_at: string
-}
+import {
+  Product,
+  UpdateItem,
+} from '@/components/admin/updates/types'
 
 const formSchema = z.object({
   product_id: z.string().uuid("Product is required"),
