@@ -131,6 +131,23 @@ export default function UpdatesPage() {
 
   const [updates, setUpdates] =
     useState<UpdateItem[]>([])
+  
+  const [products, setProducts] =
+    useState<Product[]>([])
+
+  const fetchProducts = useCallback(async () => {
+    const { data, error } = await supabase
+      .from("products")
+      .select("id, name, slug")
+      .order("name")
+  
+    if (error) {
+      toast.error(error.message)
+      return
+    }
+  
+    setProducts(data ?? [])
+  }, [supabase])
 
   const [selected, setSelected] =
     useState<UpdateItem | null>(null)
@@ -220,27 +237,22 @@ export default function UpdatesPage() {
   }, [supabase])
 
   useEffect(() => {
-
     fetchUpdates()
-
+    fetchProducts()
+  
     const channel = supabase
-
-      .channel('updates-admin')
-
+      .channel("updates-admin")
       .on(
-        'postgres_changes',
+        "postgres_changes",
         {
-          event: '*',
-          schema: 'public',
-          table: 'updates',
+          event: "*",
+          schema: "public",
+          table: "updates",
         },
         () => {
-
           fetchUpdates()
-
         }
       )
-
       .subscribe()
 
     return () => {
@@ -249,7 +261,7 @@ export default function UpdatesPage() {
 
     }
 
-  }, [fetchUpdates, supabase])
+  }, [fetchUpdates, fetchProducts, supabase])
 
   const filteredUpdates = updates.filter((item) => {
     const keyword = search.toLowerCase()
@@ -697,7 +709,7 @@ export default function UpdatesPage() {
 
               <Input
                 className="pl-10"
-                placeholder="Search version, title or description..."
+                placeholder="Search product, version, title..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
@@ -759,6 +771,10 @@ export default function UpdatesPage() {
                   <tr className="border-b">
 
                     <th className="px-4 py-3 text-left">
+                      Product
+                    </th>
+
+                    <th className="px-4 py-3 text-left">
 
                       Version
 
@@ -812,6 +828,10 @@ export default function UpdatesPage() {
                       key={item.id}
                       className="border-b hover:bg-muted/50"
                     >
+
+                      <td className="px-4 py-4">
+                        {item.products?.name ?? "-"}
+                      </td>
 
                       <td className="px-4 py-4 font-medium">
 
@@ -996,6 +1016,25 @@ export default function UpdatesPage() {
                   )}
                 />
               </>
+
+              <FormField
+                control={form.control}
+                name="title"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Title</FormLabel>
+              
+                    <FormControl>
+                      <Input
+                        placeholder="New Feature"
+                        {...field}
+                      />
+                    </FormControl>
+              
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
               <FormField
                 control={form.control}
@@ -1258,6 +1297,40 @@ export default function UpdatesPage() {
                 onSubmit={form.handleSubmit(onUpdate)}
                 className="space-y-6"
               >
+
+                <FormField
+                  control={form.control}
+                  name="product_id"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Product</FormLabel>
+                
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select product" />
+                          </SelectTrigger>
+                        </FormControl>
+                
+                        <SelectContent>
+                          {products.map((product) => (
+                            <SelectItem
+                              key={product.id}
+                              value={product.id}
+                            >
+                              {product.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
   
                 <FormField
                   control={form.control}
@@ -1563,19 +1636,19 @@ export default function UpdatesPage() {
             <div className="space-y-6">
 
               <div>
-
-                <Label>
-
-                  Version
-
-                </Label>
-
+                <Label>Product</Label>
+              
                 <p className="mt-1 font-medium">
-
-                  {selected.version}
-
+                  {selected.products?.name ?? "-"}
                 </p>
-
+              </div>
+              
+              <div>
+                <Label>Version</Label>
+              
+                <p className="mt-1 font-medium">
+                  {selected.version}
+                </p>
               </div>
 
               <div>
@@ -1716,11 +1789,16 @@ export default function UpdatesPage() {
 
               <div className="rounded-lg border p-4">
 
-                <p className="font-semibold">
+                <>
+                  <p className="font-semibold">
+                    {selected.products?.name ?? "-"}
+                  </p>
+                
+                  <p className="text-sm">
+                    {selected.version}
+                  </p>
 
-                  {selected.version}
-
-                </p>
+                </>
 
                 <p className="text-sm text-muted-foreground">
 
