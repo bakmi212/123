@@ -10,9 +10,9 @@ export async function createRelease(
   prerelease = false
 ) {
 
-  console.log("=== CREATE RELEASE ===");
-  console.log("Owner:", owner);
-  console.log("Repo :", repo);
+  console.log("===== CREATE RELEASE =====");
+  console.log("Owner =", owner);
+  console.log("Repo  =", repo);
 
   const result = await githubFetch(
     `/repos/${owner}/${repo}/releases`,
@@ -29,7 +29,7 @@ export async function createRelease(
     }
   );
 
-  console.log("GitHub Response:", result);
+  console.log(result);
 
   return result;
 }
