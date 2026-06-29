@@ -3,6 +3,21 @@ import { supabaseAdmin } from "@/lib/supabase-admin";
 
 export async function POST(req: NextRequest) {
   try {
+    // Verifikasi secret dari GitHub Actions
+    const secret = req.headers.get("x-webhook-secret");
+
+    if (secret !== process.env.GITHUB_WEBHOOK_SECRET) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Unauthorized",
+        },
+        {
+          status: 401,
+        }
+      );
+    }
+
     const body = await req.json();
 
     const release = body.release;
