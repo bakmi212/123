@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { UseFormReturn } from 'react-hook-form'
 
 import {
@@ -81,6 +82,8 @@ export function UpdateFormDialog({
   onOpenChange,
   onSubmit,
 }: UpdateFormDialogProps) {
+  const [selectedFile, setSelectedFile] =
+  useState<File | null>(null)
   return (
     <Dialog
       open={open}
@@ -137,13 +140,46 @@ export function UpdateFormDialog({
                   </Select>
             
                   <FormMessage />
-                </FormItem>
-              )}
-            />
-            
-            <FormField
-              control={form.control}
-              name="version"
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="platform"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Platform</FormLabel>
+                  
+                        <Select
+                          value={field.value}
+                          onValueChange={field.onChange}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select platform" />
+                            </SelectTrigger>
+                          </FormControl>
+                  
+                          <SelectContent>
+                            <SelectItem value="desktop">
+                              🖥️ Desktop
+                            </SelectItem>
+                  
+                            <SelectItem value="mobile">
+                              📱 Mobile
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                  
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="version"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Version</FormLabel>
@@ -195,10 +231,67 @@ export function UpdateFormDialog({
                   </FormControl>
             
                   <FormMessage />
-                </FormItem>
-              )}
-            />
-            <div className="grid gap-4 md:grid-cols-2">
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormItem>
+                  
+                    <FormItem>
+
+                      <FormLabel>
+                    
+                        Upload File
+                    
+                      </FormLabel>
+                    
+                      <Input
+                        type="file"
+                        accept={
+                          form.watch('platform') === 'desktop'
+                            ? '.exe,.msi,.zip,.rar,.7z'
+                            : '.apk,.aab,.xapk'
+                        }
+                        onChange={(e) => {
+                    
+                          const file = e.target.files?.[0] ?? null
+                    
+                          setSelectedFile(file)
+                    
+                        }}
+                      />
+                    
+                      <p className="mt-2 text-xs text-muted-foreground">
+                    
+                        {form.watch('platform') === 'desktop'
+                          ? 'Supported: .exe, .msi, .zip, .rar, .7z'
+                          : 'Supported: .apk, .aab, .xapk'}
+                    
+                      </p>
+                    
+                      {selectedFile && (
+                    
+                        <div className="mt-3 rounded-lg border bg-muted/30 p-3">
+                    
+                          <p className="font-medium">
+                    
+                            📄 {selectedFile.name}
+                    
+                          </p>
+                    
+                          <p className="text-sm text-muted-foreground">
+                    
+                            {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+                    
+                          </p>
+                    
+                        </div>
+                    
+                      )}
+                    
+                    </FormItem>
+                    
+                    <div className="grid gap-4 md:grid-cols-2">
 
               <FormField
                 control={form.control}
