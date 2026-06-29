@@ -400,6 +400,50 @@ export default function UpdatesPage() {
 
     setSaving(true)
 
+    const product = products.find(
+      (p) => p.id === values.product_id
+    )
+    
+    if (!product?.github_repo) {
+      toast.error("GitHub repository not configured")
+    
+      return
+    }
+    
+    const publishResponse = await fetch(
+      "/api/github/publish",
+      {
+        method: "POST",
+    
+        headers: {
+          "Content-Type": "application/json",
+        },
+    
+        body: JSON.stringify({
+          repository: product.github_repo,
+    
+          version: values.version,
+    
+          title: values.title,
+    
+          description: values.description,
+        }),
+      }
+    )
+    
+    const publishResult =
+      await publishResponse.json()
+    
+    if (!publishResult.success) {
+      console.error(publishResult)
+    
+      toast.error(
+        "Failed to create GitHub Release"
+      )
+    
+      return
+    }
+
     const { error } = await supabase
 
       .from('updates')
