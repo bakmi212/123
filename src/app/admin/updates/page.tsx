@@ -84,11 +84,18 @@ export default function UpdatesPage() {
   
   const [products, setProducts] =
     useState<Product[]>([])
+  const [selectedFile, setSelectedFile] =
+  useState<File | null>(null)
 
   const fetchProducts = useCallback(async () => {
     const { data, error } = await supabase
       .from("products")
-      .select("id, name, slug")
+     .select(`
+        id,
+        name,
+        slug,
+        github_repo
+      `)
       .order("name")
   
     if (error) {
@@ -410,38 +417,41 @@ export default function UpdatesPage() {
       return
     }
     
+    const formData = new FormData();
+
+    formData.append("product_id", values.product_id);
+    formData.append("version", values.version);
+    formData.append("title", values.title);
+    formData.append("description", values.description);
+    formData.append("draft", "false");
+    formData.append("prerelease", "false");
+    
+    if (selectedFile) {
+      formData.append("file", selectedFile);
+    }
+    
     const publishResponse = await fetch(
       "/api/github/publish",
       {
         method: "POST",
-    
-        headers: {
-          "Content-Type": "application/json",
-        },
-    
-        body: JSON.stringify({
-          repository: product.github_repo,
-    
-          version: values.version,
-    
-          title: values.title,
-    
-          description: values.description,
-        }),
+        body: formData,
       }
-    )
+    );
     
     const publishResult =
-      await publishResponse.json()
+      await publishResponse.json();
     
     if (!publishResult.success) {
-      console.error(publishResult)
+      console.error(publishResult);
     
       toast.error(
-        "Failed to create GitHub Release"
-      )
+        publishResult.message ??
+          "Failed to create GitHub Release"
+      );
     
-      return
+      setSaving(false);
+    
+      return;
     }
 
     const { error } = await supabase
@@ -689,6 +699,8 @@ export default function UpdatesPage() {
         description="Create a new application update."
         form={form}
         products={products}
+        selectedFile={selectedFile}
+        setSelectedFile={setSelectedFile}
         saving={saving}
         onOpenChange={(open) => {
           setCreateOpen(open)
@@ -706,6 +718,8 @@ export default function UpdatesPage() {
           description="Update release information."
           form={form}
           products={products}
+          selectedFile={selectedFile}
+          setSelectedFile={setSelectedFile}
           saving={saving}
           onOpenChange={(open) => {
             setEditOpen(open)
