@@ -1,15 +1,14 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+
 import { createBrowserClient } from '@/lib/supabase/client'
+
 import { toast } from 'sonner'
 
 import {
   Loader2,
   Search,
-  Eye,
-  Trash2,
-  MessageSquare,
 } from 'lucide-react'
 
 import {
@@ -19,11 +18,21 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Select } from '@/components/ui/select'
+import {
+  Button,
+} from '@/components/ui/button'
+
+import {
+  Badge,
+} from '@/components/ui/badge'
+
+import {
+  Input,
+} from '@/components/ui/input'
+
+import {
+  Label,
+} from '@/components/ui/label'
 
 import {
   Dialog,
@@ -35,14 +44,27 @@ import {
 } from '@/components/ui/dialog'
 
 interface Feedback {
+
   id: string
+
+  app_id: string
+  app_name: string
+
   category: string
-  title: string
-  description: string
+
+  message: string
+
+  name: string
+  email: string
+
   license_key: string
+
   app_version: string
-  status: string
+
+  is_read: boolean
+
   created_at: string
+
 }
 
 export default function FeedbackPage() {
@@ -50,21 +72,23 @@ export default function FeedbackPage() {
   const supabase = createBrowserClient()
 
   const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
+
   const [deleting, setDeleting] = useState(false)
 
-  const [feedbacks, setFeedbacks] = useState<Feedback[]>([])
+  const [feedbacks, setFeedbacks] =
+    useState<Feedback[]>([])
 
-  const [search, setSearch] = useState('')
-  const [categoryFilter, setCategoryFilter] = useState('All')
+  const [search, setSearch] =
+    useState('')
+
+  const [appFilter, setAppFilter] =
+    useState('All Apps')
+
+  const [dialogOpen, setDialogOpen] =
+    useState(false)
 
   const [selectedFeedback, setSelectedFeedback] =
     useState<Feedback | null>(null)
-
-  const [dialogOpen, setDialogOpen] = useState(false)
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
-
-  const [status, setStatus] = useState('Open')
 
   useEffect(() => {
 
@@ -92,37 +116,17 @@ export default function FeedbackPage() {
 
       toast.error(error.message)
 
-    }
+    } else {
 
-    setFeedbacks(data ?? [])
+      setFeedbacks(data ?? [])
+
+    }
 
     setLoading(false)
 
   }
 
-  function openFeedback(item: Feedback) {
-
-    setSelectedFeedback(item)
-
-    setStatus(item.status)
-
-    setDialogOpen(true)
-
-  }
-
-  function openDelete(item: Feedback) {
-
-    setSelectedFeedback(item)
-
-    setDeleteDialogOpen(true)
-
-  }
-
-  async function saveStatus() {
-
-    if (!selectedFeedback) return
-
-    setSaving(true)
+  async function markAsRead(id: string) {
 
     const { error } = await supabase
 
@@ -130,27 +134,58 @@ export default function FeedbackPage() {
 
       .update({
 
-        status,
+        is_read: true,
 
       })
 
-      .eq('id', selectedFeedback.id)
+      .eq('id', id)
 
-    if (error) {
+    if (!error) {
 
-      toast.error(error.message)
+      setFeedbacks((prev) =>
 
-    } else {
+      setSelectedFeedback((prev) =>
+        prev && prev.id === id
+          ? {
+              ...prev,
+              is_read: true,
+            }
+          : prev
+      )
 
-      toast.success('Status updated.')
+        prev.map((item) =>
 
-      await fetchFeedbacks()
+          item.id === id
 
-      setDialogOpen(false)
+            ? {
+
+                ...item,
+
+                is_read: true,
+
+              }
+
+            : item
+
+        )
+
+      )
 
     }
 
-    setSaving(false)
+  }
+
+  async function openFeedback(item: Feedback) {
+
+    setSelectedFeedback(item)
+
+    setDialogOpen(true)
+
+    if (!item.is_read) {
+
+      await markAsRead(item.id)
+
+    }
 
   }
 
@@ -176,11 +211,11 @@ export default function FeedbackPage() {
 
       toast.success('Feedback deleted.')
 
-      await fetchFeedbacks()
-
-      setDeleteDialogOpen(false)
+      setDialogOpen(false)
 
       setSelectedFeedback(null)
+
+      fetchFeedbacks()
 
     }
 
@@ -188,61 +223,83 @@ export default function FeedbackPage() {
 
   }
 
-  const filteredFeedbacks =
+  const appOptions = useMemo(() => {
 
-    feedbacks.filter((item) => {
+    return [
 
-      const keyword = search.toLowerCase()
+      'All Apps',
+
+      ...new Set(
+
+        feedbacks.map(
+
+          (item) => item.app_name
+
+        )
+
+      ),
+
+    ]
+
+  }, [feedbacks])
+
+  const filteredFeedbacks = feedbacks.filter(
+
+    (item) => {
+
+      const keyword =
+
+        search.toLowerCase()
 
       const matchSearch =
 
-        item.title.toLowerCase().includes(keyword) ||
+        item.message
 
-        item.category.toLowerCase().includes(keyword) ||
+          .toLowerCase()
 
-        item.license_key.toLowerCase().includes(keyword)
+          .includes(keyword)
 
-      const matchCategory =
+        ||
 
-        categoryFilter === 'All' ||
+        item.category
 
-        item.category === categoryFilter
+          .toLowerCase()
 
-      return matchSearch && matchCategory
+          .includes(keyword)
 
-    })
+        ||
 
-  const total = feedbacks.length
+        item.app_name
 
-  const openCount =
+          .toLowerCase()
 
-    feedbacks.filter(
+          .includes(keyword)
 
-      x => x.status === 'Open'
+      const matchApp =
 
-    ).length
+        appFilter === 'All Apps'
 
-  const progressCount =
+        ||
 
-    feedbacks.filter(
+        item.app_name === appFilter
 
-      x => x.status === 'In Progress'
+      return (
 
-    ).length
+        matchSearch &&
 
-  const closedCount =
+        matchApp
 
-    feedbacks.filter(
+      )
 
-      x => x.status === 'Closed'
+    }
 
-    ).length
+  )
 
   if (loading) {
 
     return (
 
-      <div className="flex justify-center py-12">
+      <div className="flex justify-center py-20">
 
         <Loader2 className="h-8 w-8 animate-spin" />
 
@@ -255,625 +312,496 @@ export default function FeedbackPage() {
   return (
 
     <div className="space-y-6">
-          <div>
-
-        <h1 className="text-3xl font-bold">
-
-          Feedback Manager
-
-        </h1>
-
-        <p className="text-muted-foreground">
-
-          Manage user suggestions, bug reports and feature requests.
-
-        </p>
-
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-4">
-
-        <Card>
-
-          <CardContent className="pt-6">
-
-            <div className="text-2xl font-bold">
-
-              {total}
-
-            </div>
-
-            <p className="text-sm text-muted-foreground">
-
-              Total Feedback
-
-            </p>
-
-          </CardContent>
-
-        </Card>
-
-        <Card>
-
-          <CardContent className="pt-6">
-
-            <div className="text-2xl font-bold text-blue-600">
-
-              {openCount}
-
-            </div>
-
-            <p className="text-sm text-muted-foreground">
-
-              Open
-
-            </p>
-
-          </CardContent>
-
-        </Card>
-
-        <Card>
-
-          <CardContent className="pt-6">
-
-            <div className="text-2xl font-bold text-yellow-600">
-
-              {progressCount}
-
-            </div>
-
-            <p className="text-sm text-muted-foreground">
-
-              In Progress
-
-            </p>
-
-          </CardContent>
-
-        </Card>
-
-        <Card>
-
-          <CardContent className="pt-6">
-
-            <div className="text-2xl font-bold text-green-600">
-
-              {closedCount}
-
-            </div>
-
-            <p className="text-sm text-muted-foreground">
-
-              Closed
-
-            </p>
-
-          </CardContent>
-
-        </Card>
-
-      </div>
-
-      <Card>
-
-        <CardHeader>
-
-          <CardTitle>
-
-            All Feedback
-
-          </CardTitle>
-
-        </CardHeader>
-
-        <CardContent>
-
-          <div className="mb-6 flex flex-col gap-4 md:flex-row">
-
-            <div className="relative flex-1">
-
-              <Search className="absolute left-3 top-3 h-4 w-4"/>
-
-              <Input
-
-                className="pl-10"
-
-                placeholder="Search feedback..."
-
-                value={search}
-
-                onChange={(e)=>
-
-                  setSearch(
-
-                    e.target.value
-
-                  )
-
-                }
-
-              />
-
-            </div>
-
-            <Select
-
-              value={categoryFilter}
-
-              onChange={(e)=>
-
-                setCategoryFilter(
-
-                  e.target.value
-
-                )
-
-              }
-
-              className="md:w-56"
-
-            >
-
-              <option value="All">
-
-                All Categories
-
-              </option>
-
-              <option value="Suggestion">
-
-                Suggestion
-
-              </option>
-
-              <option value="Bug">
-
-                Bug
-
-              </option>
-
-              <option value="Feature Request">
-
-                Feature Request
-
-              </option>
-
-              <option value="Other">
-
-                Other
-
-              </option>
-
-            </Select>
-
-          </div>
-
-          <div className="overflow-x-auto">
-
-            <table className="w-full">
-
-              <thead>
-
-                <tr className="border-b">
-
-                  <th className="px-4 py-3 text-left">
-
-                    Category
-
-                  </th>
-
-                  <th className="px-4 py-3 text-left">
-
-                    Title
-
-                  </th>
-
-                  <th className="px-4 py-3 text-left">
-
-                    License
-
-                  </th>
-
-                  <th className="px-4 py-3 text-center">
-
-                    Version
-
-                  </th>
-
-                  <th className="px-4 py-3 text-center">
-
-                    Status
-
-                  </th>
-
-                  <th className="px-4 py-3 text-center">
-
-                    Date
-
-                  </th>
-
-                  <th className="px-4 py-3 text-center">
-
-                    Action
-
-                  </th>
-
-                </tr>
-
-              </thead>
-
-              <tbody>
-                              {filteredFeedbacks.length === 0 ? (
-
-                  <tr>
-
-                    <td
-                      colSpan={7}
-                      className="py-12"
-                    >
-
-                      <div className="flex flex-col items-center justify-center text-center">
-
-                        <MessageSquare className="mb-3 h-12 w-12 text-muted-foreground" />
-
-                        <h3 className="font-semibold">
-
-                          No Feedback Found
-
-                        </h3>
-
-                        <p className="text-sm text-muted-foreground">
-
-                          There are no feedback matching your search.
-
-                        </p>
-
-                      </div>
-
-                    </td>
-
-                  </tr>
-
-                ) : (
-
-                  filteredFeedbacks.map((item) => (
-
-                    <tr
-                      key={item.id}
-                      className="border-b hover:bg-muted/40"
-                    >
-
-                      <td className="px-4 py-4">
-
-                        {item.category}
-
-                      </td>
-
-                      <td className="px-4 py-4 font-medium">
-
-                        {item.title}
-
-                      </td>
-
-                      <td className="px-4 py-4">
-
-                        {item.license_key}
-
-                      </td>
-
-                      <td className="px-4 py-4 text-center">
-
-                        {item.app_version}
-
-                      </td>
-
-                      <td className="px-4 py-4 text-center">
-
-                        <Badge
-                          className={
-                            item.status === 'Closed'
-                              ? 'bg-green-600'
-                              : item.status === 'In Progress'
-                              ? 'bg-yellow-500'
-                              : 'bg-blue-600'
-                          }
-                        >
-
-                          {item.status}
-
-                        </Badge>
-
-                      </td>
-
-                      <td className="px-4 py-4 text-center">
-
-                        {new Date(item.created_at).toLocaleDateString()}
-
-                      </td>
-
-                      <td className="px-4 py-4">
-
-                        <div className="flex justify-center gap-2">
-
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => openFeedback(item)}
-                          >
-
-                            <Eye className="mr-1 h-3 w-3" />
-
-                            View
-
-                          </Button>
-
-                          <Button
-                            size="sm"
-                            variant="destructive"
-                            onClick={() => openDelete(item)}
-                          >
-
-                            <Trash2 className="mr-1 h-3 w-3" />
-
-                            Delete
-
-                          </Button>
-
-                        </div>
-
-                      </td>
-
-                    </tr>
-
-                  ))
-
-                )}
-
-              </tbody>
-
-            </table>
-
-          </div>
-
-        </CardContent>
-
-      </Card>
-
-      <Dialog
-        open={dialogOpen}
-        onOpenChange={setDialogOpen}
-      >
-
-        <DialogContent className="sm:max-w-xl">
-
-          <DialogHeader>
-
-            <DialogTitle>
-
-              Feedback Detail
-
-            </DialogTitle>
-
-            <DialogDescription>
-
-              Review user feedback.
-
-            </DialogDescription>
-
-          </DialogHeader>
-
-          {selectedFeedback && (
-
-            <div className="space-y-5">
-
-              <div>
-
-                <Label>Title</Label>
-
-                <p className="mt-1 font-medium">
-
-                  {selectedFeedback.title}
-
-                </p>
-
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-
-                <div>
-
-                  <Label>Category</Label>
-
-                  <p className="mt-1">
-
-                    {selectedFeedback.category}
-
-                  </p>
-
-                </div>
-
-                <div>
-
-                  <Label>Version</Label>
-
-                  <p className="mt-1">
-
-                    {selectedFeedback.app_version}
-
-                  </p>
-
-                </div>
-
-              </div>
-
-              <div>
-
-                <Label>License</Label>
-
-                <p className="mt-1 break-all">
-
-                  {selectedFeedback.license_key}
-
-                </p>
-
-              </div>
-
-              <div>
-
-                <Label>Description</Label>
-
-                <div className="mt-2 rounded-lg border p-4 whitespace-pre-wrap">
-
-                  {selectedFeedback.description}
-
-                </div>
-
-              </div>
-
-              <div>
-
-                <Label>Status</Label>
-
-                <Select
-                  value={status}
-                  onChange={(e) => setStatus(e.target.value)}
-                  className="mt-2"
-                >
-
-                  <option value="Open">Open</option>
-
-                  <option value="In Progress">In Progress</option>
-
-                  <option value="Closed">Closed</option>
-
-                </Select>
-
-              </div>
-                          </div>
-
-          )}
-
-          <DialogFooter>
-
-            <Button
-              variant="outline"
-              onClick={() => setDialogOpen(false)}
-            >
-              Close
-            </Button>
-
-            <Button
-              disabled={saving}
-              onClick={saveStatus}
-            >
-
-              {saving && (
-
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-
-              )}
-
-              Save Status
-
-            </Button>
-
-          </DialogFooter>
-
-        </DialogContent>
-
-      </Dialog>
-
-      <Dialog
-        open={deleteDialogOpen}
-        onOpenChange={setDeleteDialogOpen}
-      >
-
-        <DialogContent>
-
-          <DialogHeader>
-
-            <DialogTitle>
-
-              Delete Feedback
-
-            </DialogTitle>
-
-            <DialogDescription>
-
-              This action cannot be undone.
-
-            </DialogDescription>
-
-          </DialogHeader>
-
-          {selectedFeedback && (
-
-            <div className="rounded-lg border p-4 bg-muted/30">
-
-              <p className="font-semibold">
-
-                {selectedFeedback.title}
-
-              </p>
-
-              <p className="mt-2 text-sm text-muted-foreground">
-
-                {selectedFeedback.category}
-
-              </p>
-
-              <p className="text-sm text-muted-foreground break-all">
-
-                {selectedFeedback.license_key}
-
-              </p>
-
-            </div>
-
-          )}
-
-          <DialogFooter>
-
-            <Button
-              variant="outline"
-              onClick={() => {
-
-                setDeleteDialogOpen(false)
-
-                setSelectedFeedback(null)
-
-              }}
-            >
-
-              Cancel
-
-            </Button>
-
-            <Button
-              variant="destructive"
-              disabled={deleting}
-              onClick={deleteFeedback}
-            >
-
-              {deleting && (
-
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-
-              )}
-
-              Delete
-
-            </Button>
-
-          </DialogFooter>
-
-        </DialogContent>
-
-      </Dialog>
-
+    <div>
+
+      <h1 className="text-3xl font-bold">
+    
+        Feedback Manager
+    
+      </h1>
+    
+      <p className="text-muted-foreground">
+    
+        Manage user feedback from all applications.
+    
+      </p>
+    
     </div>
+    
+    <Card>
+    
+      <CardHeader>
+    
+        <CardTitle>
+    
+          All Feedback
+    
+        </CardTitle>
+    
+      </CardHeader>
+    
+      <CardContent>
+    
+        <div className="mb-6 flex flex-col gap-4 md:flex-row">
+    
+          <div className="relative flex-1">
+    
+            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+    
+            <Input
+    
+              className="pl-10"
+    
+              placeholder="Search feedback..."
+    
+              value={search}
+    
+              onChange={(e) =>
+    
+                setSearch(
+    
+                  e.target.value
+    
+                )
+    
+              }
+    
+            />
+    
+          </div>
+    
+          <select
+    
+            value={appFilter}
+    
+            onChange={(e) =>
+    
+              setAppFilter(
+    
+                e.target.value
+    
+              )
+    
+            }
+    
+            className="h-10 rounded-md border bg-background px-3 md:w-60"
+    
+          >
+    
+            {appOptions.map((app) => (
+    
+              <option
+    
+                key={app}
+    
+                value={app}
+    
+              >
+    
+                {app}
+    
+              </option>
+    
+            ))}
+    
+          </select>
+    
+        </div>
+    
+        <div className="overflow-x-auto">
+    
+          <table className="w-full">
+    
+            <thead>
+    
+              <tr className="border-b">
+    
+                <th className="px-4 py-3 text-left">
+    
+                  App
+    
+                </th>
+    
+                <th className="px-4 py-3 text-left">
+    
+                  Type
+    
+                </th>
+    
+                <th className="px-4 py-3 text-center">
+    
+                  Read
+    
+                </th>
+    
+                <th className="px-4 py-3 text-center">
+    
+                  Date
+    
+                </th>
+    
+                <th className="px-4 py-3 text-center">
+    
+                  Action
+    
+                </th>
+    
+              </tr>
+    
+            </thead>
+    
+            <tbody>
+    
+              {filteredFeedbacks.length === 0 ? (
+    
+                <tr>
+    
+                  <td
+    
+                    colSpan={5}
+    
+                    className="py-16 text-center text-muted-foreground"
+    
+                  >
+    
+                    No feedback found.
+    
+                  </td>
+    
+                </tr>
+    
+              ) : (
+    
+                filteredFeedbacks.map((item) => (
+    
+                  <tr
+    
+                    key={item.id}
+    
+                    className="border-b hover:bg-muted/40"
+    
+                  >
+    
+                    <td className="px-4 py-4 font-medium">
+    
+                      {item.app_name}
+    
+                    </td>
+    
+                    <td className="px-4 py-4">
+    
+                      {item.category}
+    
+                    </td>
+    
+                    <td className="px-4 py-4 text-center">
+    
+                      <Badge
+    
+                        className={
+    
+                          item.is_read
+    
+                            ? 'bg-green-600'
+    
+                            : 'bg-red-600'
+    
+                        }
+    
+                      >
+    
+                        {
+    
+                          item.is_read
+    
+                            ? 'Read'
+    
+                            : 'Unread'
+    
+                        }
+    
+                      </Badge>
+    
+                    </td>
+    
+                    <td className="px-4 py-4 text-center">
+    
+                      {
+    
+                        new Date(
+    
+                          item.created_at
+    
+                        ).toLocaleDateString()
+    
+                      }
+    
+                    </td>
+    
+                    <td className="px-4 py-4 text-center">
+    
+                      <Button
+    
+                        size="sm"
+    
+                        variant="outline"
+    
+                        onClick={() =>
+    
+                          openFeedback(item)
+    
+                        }
+    
+                      >
+    
+                        View
+    
+                      </Button>
+    
+                    </td>
+    
+                  </tr>
+    
+                ))
+    
+              )}
+    
+            </tbody>
+    
+          </table>
+    
+        </div>
+    
+      </CardContent>
+    
+    </Card>
+    <Dialog
 
-  )
+      open={dialogOpen}
+    
+      onOpenChange={setDialogOpen}
+    
+    >
+    
+      <DialogContent className="sm:max-w-2xl">
+    
+        <DialogHeader>
+    
+          <DialogTitle>
+    
+            Feedback Detail
+    
+          </DialogTitle>
+    
+          <DialogDescription>
+    
+            Review user feedback.
+    
+          </DialogDescription>
+    
+        </DialogHeader>
+    
+        {selectedFeedback && (
+    
+          <div className="space-y-5">
+    
+            <div className="grid grid-cols-2 gap-4">
+    
+              <div>
+    
+                <Label>
+    
+                  Application
+    
+                </Label>
+    
+                <p className="mt-1">
+    
+                  {selectedFeedback.app_name}
+    
+                </p>
+    
+              </div>
+    
+              <div>
+    
+                <Label>
+    
+                  Type
+    
+                </Label>
+    
+                <p className="mt-1">
+    
+                  {selectedFeedback.category}
+    
+                </p>
+    
+              </div>
+    
+            </div>
+    
+            <div className="grid grid-cols-2 gap-4">
+    
+              <div>
+    
+                <Label>
+    
+                  Version
+    
+                </Label>
+    
+                <p className="mt-1">
+    
+                  {selectedFeedback.app_version}
+    
+                </p>
+    
+              </div>
+    
+              <div>
+    
+                <Label>
+    
+                  Date
+    
+                </Label>
+    
+                <p className="mt-1">
+    
+                  {
+    
+                    new Date(
+    
+                      selectedFeedback.created_at
+    
+                    ).toLocaleString()
+    
+                  }
+    
+                </p>
+    
+              </div>
+    
+            </div>
+    
+            <div>
+    
+              <Label>
+    
+                License
+    
+              </Label>
+    
+              <p className="mt-1 break-all">
+    
+                {selectedFeedback.license_key}
+    
+              </p>
+    
+            </div>
+    
+            <div className="grid grid-cols-2 gap-4">
+    
+              <div>
+    
+                <Label>
+    
+                  Name
+    
+                </Label>
+    
+                <p className="mt-1">
+    
+                  {selectedFeedback.name || '-'}
+    
+                </p>
+    
+              </div>
+    
+              <div>
+    
+                <Label>
+    
+                  Email
+    
+                </Label>
+    
+                <p className="mt-1 break-all">
+    
+                  {selectedFeedback.email || '-'}
+    
+                </p>
+    
+              </div>
+    
+            </div>
+    
+            <div>
+    
+              <Label>
+    
+                Message
+    
+              </Label>
+    
+              <div className="mt-2 rounded-lg border p-4 whitespace-pre-wrap">
+    
+                {selectedFeedback.message}
+    
+              </div>
+    
+            </div>
+    
+          </div>
+    
+        )}
+    
+        <DialogFooter>
+    
+          <Button
+    
+            variant="outline"
+    
+            onClick={() =>
+    
+              setDialogOpen(false)
+    
+            }
+    
+          >
+    
+            Close
+    
+          </Button>
+    
+          <Button
+    
+            variant="destructive"
+    
+            disabled={deleting}
+    
+            onClick={deleteFeedback}
+    
+          >
+    
+            {deleting && (
+    
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+    
+            )}
+    
+            Delete
+    
+          </Button>
+    
+        </DialogFooter>
+    
+      </DialogContent>
+    
+    </Dialog>
+        </div>
 
-}
+    )
+  
+  }
