@@ -9,14 +9,12 @@ interface UpdateToolbarProps {
   search: string
   onSearchChange: (value: string) => void
   onRefresh: () => void
-  onCreate: () => void
 }
 
 export function UpdateToolbar({
   search,
   onSearchChange,
   onRefresh,
-  onCreate,
 }: UpdateToolbarProps) {
   return (
     <div className="mb-6 flex flex-col gap-4 md:flex-row">
@@ -38,11 +36,6 @@ export function UpdateToolbar({
       >
         <RefreshCw className="mr-2 h-4 w-4" />
         Refresh
-      </Button>
-
-      <Button onClick={onCreate}>
-        <Plus className="mr-2 h-4 w-4" />
-        New Update
       </Button>
 
     </div>
