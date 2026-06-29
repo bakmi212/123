@@ -942,63 +942,60 @@ export default function UpdatesPage() {
               className="space-y-6"
             >
 
-              <FormField
-                control={form.control}
-                name="version"
-                render={({ field }) => (
-
-                  <FormItem>
-
-                    <FormLabel>
-
-                      Version
-
-                    </FormLabel>
-
-                    <FormControl>
-
-                      <Input
-                        placeholder="v2.0.0"
-                        {...field}
-                      />
-
-                    </FormControl>
-
-                    <FormMessage />
-
-                  </FormItem>
-
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="title"
-                render={({ field }) => (
-
-                  <FormItem>
-
-                    <FormLabel>
-
-                      Title
-
-                    </FormLabel>
-
-                    <FormControl>
-
-                      <Input
-                        placeholder="Update title"
-                        {...field}
-                      />
-
-                    </FormControl>
-
-                    <FormMessage />
-
-                  </FormItem>
-
-                )}
-              />
+              <>
+                <FormField
+                  control={form.control}
+                  name="product_id"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Product</FormLabel>
+              
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select product" />
+                          </SelectTrigger>
+                        </FormControl>
+              
+                        <SelectContent>
+                          {products.map((product) => (
+                            <SelectItem
+                              key={product.id}
+                              value={product.id}
+                            >
+                              {product.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+              
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              
+                <FormField
+                  control={form.control}
+                  name="version"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Version</FormLabel>
+              
+                      <FormControl>
+                        <Input
+                          placeholder="v2.0.0"
+                          {...field}
+                        />
+                      </FormControl>
+              
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </>
 
               <FormField
                 control={form.control}
