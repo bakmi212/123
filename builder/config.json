@@ -1,0 +1,9 @@
+{
+  "api": "https://YOURDOMAIN.com/api/releases/publish",
+  "token": "",
+  "product_id": "",
+  "version": "1.0.0",
+  "title": "",
+  "description": "",
+  "file": "dist/app.zip"
+}
