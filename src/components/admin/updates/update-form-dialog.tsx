@@ -236,62 +236,120 @@ export function UpdateFormDialog({
                   />
                   
                   <FormItem>
-                  
-                    <FormItem>
 
-                      <FormLabel>
+                    <FormLabel>
+                  
+                      Upload File
+                  
+                    </FormLabel>
+                  
+                    <FormControl>
+                  
+                      <label
+                        className="flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed p-8 transition hover:bg-muted/40"
+                      >
+                  
+                        <Input
+                          type="file"
+                          className="hidden"
+                          accept={
+                            form.watch('platform') === 'desktop'
+                              ? '.exe,.msi,.zip,.rar,.7z'
+                              : '.apk,.aab,.xapk'
+                          }
+                          onChange={(e) => {
+                  
+                            const file = e.target.files?.[0] ?? null
+                  
+                            setSelectedFile(file)
+                  
+                          }}
+                        />
+                  
+                        <div className="text-5xl">
+                  
+                          📁
+                  
+                        </div>
+                  
+                        <p className="mt-4 text-lg font-semibold">
+                  
+                          Drop file here
+                  
+                        </p>
+                  
+                        <p className="text-sm text-muted-foreground">
+                  
+                          or click to browse
+                  
+                        </p>
+                  
+                        <p className="mt-3 text-xs text-muted-foreground">
+                  
+                          {form.watch('platform') === 'desktop'
+                            ? '.exe • .msi • .zip • .rar • .7z'
+                            : '.apk • .aab • .xapk'}
+                  
+                        </p>
+                  
+                      </label>
+                  
+                    </FormControl>
+                  
+                    {selectedFile && (
+
+                      <div className="mt-4 rounded-lg border bg-muted/30 p-4">
                     
-                        Upload File
+                        <div className="flex items-center justify-between">
                     
-                      </FormLabel>
+                          <div>
                     
-                      <Input
-                        type="file"
-                        accept={
-                          form.watch('platform') === 'desktop'
-                            ? '.exe,.msi,.zip,.rar,.7z'
-                            : '.apk,.aab,.xapk'
-                        }
-                        onChange={(e) => {
+                            <p className="font-semibold">
                     
-                          const file = e.target.files?.[0] ?? null
+                              {form.watch('platform') === 'desktop'
+                                ? '🖥️'
+                                : '📱'}{' '}
                     
-                          setSelectedFile(file)
+                              {selectedFile.name}
                     
-                        }}
-                      />
+                            </p>
                     
-                      <p className="mt-2 text-xs text-muted-foreground">
+                            <p className="text-sm text-muted-foreground">
                     
-                        {form.watch('platform') === 'desktop'
-                          ? 'Supported: .exe, .msi, .zip, .rar, .7z'
-                          : 'Supported: .apk, .aab, .xapk'}
+                              {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
                     
-                      </p>
+                            </p>
                     
-                      {selectedFile && (
+                            <p className="text-xs text-muted-foreground mt-1">
                     
-                        <div className="mt-3 rounded-lg border bg-muted/30 p-3">
+                              {form.watch('platform') === 'desktop'
+                                ? 'Desktop Installer'
+                                : 'Android Package'}
                     
-                          <p className="font-medium">
+                            </p>
                     
-                            📄 {selectedFile.name}
+                          </div>
                     
-                          </p>
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => setSelectedFile(null)}
+                          >
                     
-                          <p className="text-sm text-muted-foreground">
+                            Remove
                     
-                            {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
-                    
-                          </p>
+                          </Button>
                     
                         </div>
                     
-                      )}
+                      </div>
                     
-                    </FormItem>
-                    
-                    <div className="grid gap-4 md:grid-cols-2">
+                    )}
+                  
+                  </FormItem>
+                  
+                  <div className="grid gap-4 md:grid-cols-2">
 
               <FormField
                 control={form.control}
