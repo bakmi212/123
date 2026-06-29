@@ -5,45 +5,76 @@ export async function POST(req: NextRequest) {
     const token = process.env.GITHUB_TOKEN;
     const owner = process.env.GITHUB_OWNER;
 
-    if (!token) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: "GITHUB_TOKEN not found",
-        },
-        { status: 500 }
-      );
-    }
+    if (!token)
+      throw new Error("GITHUB_TOKEN not configured");
 
-    if (!owner) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: "GITHUB_OWNER not found",
-        },
-        { status: 500 }
-      );
-    }
+    if (!owner)
+      throw new Error("GITHUB_OWNER not configured");
 
     const body = await req.json();
 
+    const {
+      repository,
+      version,
+      title,
+      description,
+      draft = false,
+      prerelease = false,
+    } = body;
+
+    if (!repository)
+      throw new Error("Repository is required");
+
+    if (!version)
+      throw new Error("Version is required");
+
+    const response = await fetch(
+      `https://api.github.com/repos/${owner}/${repository}/releases`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/vnd.github+json",
+          "Content-Type": "application/json",
+          "X-GitHub-Api-Version": "2022-11-28",
+        },
+        body: JSON.stringify({
+          tag_name: version,
+          name: title || version,
+          body: description || "",
+          draft,
+          prerelease,
+        }),
+      }
+    );
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      return NextResponse.json(
+        {
+          success: false,
+          github: result,
+        },
+        {
+          status: response.status,
+        }
+      );
+    }
+
     return NextResponse.json({
       success: true,
-      message: "GitHub Publish API Ready",
-      owner,
-      repository: body.repository,
-      version: body.version,
+      release: result,
     });
-
-  } catch (error) {
-    console.error(error);
-
+  } catch (error: any) {
     return NextResponse.json(
       {
         success: false,
-        message: "Internal Server Error",
+        message: error.message,
       },
-      { status: 500 }
+      {
+        status: 500,
+      }
     );
   }
 }
