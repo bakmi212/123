@@ -129,50 +129,57 @@ export default function FeedbackPage() {
   async function markAsRead(id: string) {
 
     const { error } = await supabase
-
+  
       .from('feedbacks')
-
+  
       .update({
-
+  
         is_read: true,
-
+  
       })
-
+  
       .eq('id', id)
-
+  
     if (!error) {
-
+  
       setFeedbacks((prev) =>
-
-      setSelectedFeedback((prev) =>
-        prev && prev.id === id
-          ? {
-              ...prev,
-              is_read: true,
-            }
-          : prev
-      )
-
+  
         prev.map((item) =>
-
+  
           item.id === id
-
+  
             ? {
-
+  
                 ...item,
-
+  
                 is_read: true,
-
+  
               }
-
+  
             : item
-
+  
         )
-
+  
       )
-
+  
+      setSelectedFeedback((prev) =>
+  
+        prev && prev.id === id
+  
+          ? {
+  
+              ...prev,
+  
+              is_read: true,
+  
+            }
+  
+          : prev
+  
+      )
+  
     }
-
+  
   }
 
   async function openFeedback(item: Feedback) {
