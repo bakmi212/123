@@ -101,25 +101,17 @@ export default function FeedbackPage() {
     setLoading(true)
 
     const { data, error } = await supabase
-
       .from('feedbacks')
-
       .select('*')
-
-      .order('created_at', {
-
-        ascending: false,
-
-      })
-
+      .order('created_at', { ascending: false })
+    
+    console.log('ERROR', error)
+    console.log('DATA', data)
+    
     if (error) {
-
       toast.error(error.message)
-
     } else {
-
       setFeedbacks(data ?? [])
-
     }
 
     setLoading(false)
