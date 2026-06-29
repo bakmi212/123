@@ -454,89 +454,63 @@ export default function UpdatesPage() {
       return;
     }
 
-    const { error } = await supabase
+    setSaving(false);
 
-      .from('updates')
-
-      .insert({
-        product_id: values.product_id,
-      
-        platform: values.platform,
-      
-        version: values.version,
-        title: values.title,
-        description: values.description,
-        type: values.type,
-        status: values.status,
-        published: values.published,
-      })
-
-    setSaving(false)
-
-    if (error) {
-
-      toast.error(error.message)
-
-      return
-
+    toast.success(
+      "Release published successfully."
+    );
+    
+    setCreateOpen(false);
+    
+    resetForm();
+    
+    setSelectedFile(null);
+    
+    await fetchUpdates();
     }
-
-    toast.success('Update created successfully.')
-
-    setCreateOpen(false)
-
-    resetForm()
-
-    await fetchUpdates()
-
-  }
 
   async function onUpdate(values: FormValues) {
 
     if (!selected) return
 
-    setSaving(true)
+    setSaving(true);
 
     const { error } = await supabase
-
-      .from('updates')
-
+      .from("updates")
       .update({
         product_id: values.product_id,
-      
+    
         platform: values.platform,
-      
+    
         version: values.version,
         title: values.title,
         description: values.description,
         type: values.type,
         status: values.status,
         published: values.published,
-      
+    
         updated_at: new Date().toISOString(),
       })
-
-      .eq('id', selected.id)
-
-    setSaving(false)
-
+      .eq("id", selected.id);
+    
+    setSaving(false);
+    
     if (error) {
-
-      toast.error(error.message)
-
-      return
-
+      toast.error(error.message);
+    
+      return;
     }
-
-    toast.success('Update updated successfully.')
-
-    setEditOpen(false)
-
-    resetForm()
-
-    await fetchUpdates()
-
-  }
+    
+    toast.success(
+      "Update updated successfully."
+    );
+    
+    setEditOpen(false);
+    
+    resetForm();
+    
+    await fetchUpdates();
+    }
 
   async function onDelete() {
 
