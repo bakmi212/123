@@ -10,7 +10,11 @@ export async function createRelease(
   prerelease = false
 ) {
 
-  return githubFetch(
+  console.log("=== CREATE RELEASE ===");
+  console.log("Owner:", owner);
+  console.log("Repo :", repo);
+
+  const result = await githubFetch(
     `/repos/${owner}/${repo}/releases`,
     {
       method: "POST",
@@ -25,30 +29,7 @@ export async function createRelease(
     }
   );
 
-}
+  console.log("GitHub Response:", result);
 
-export async function getLatestRelease(
-  owner: string,
-  repo: string
-) {
-
-  return githubFetch(
-    `/repos/${owner}/${repo}/releases/latest`
-  );
-
-}
-
-export async function deleteRelease(
-  owner: string,
-  repo: string,
-  releaseId: number
-) {
-
-  return githubFetch(
-    `/repos/${owner}/${repo}/releases/${releaseId}`,
-    {
-      method: "DELETE",
-    }
-  );
-
+  return result;
 }
