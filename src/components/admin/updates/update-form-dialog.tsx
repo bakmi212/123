@@ -243,54 +243,72 @@ export function UpdateFormDialog({
                   
                     </label>
                   
-                      <label
-                        className="flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed p-8 transition hover:bg-muted/40"
-                      >
-                  
-                        <Input
-                          type="file"
-                          className="hidden"
-                          accept={
-                            form.watch('platform') === 'desktop'
-                              ? '.exe,.msi,.zip,.rar,.7z'
-                              : '.apk,.aab,.xapk'
-                          }
-                          onChange={(e) => {
-                  
-                            const file = e.target.files?.[0] ?? null
-                  
-                            setSelectedFile(file)
-                  
-                          }}
-                        />
-                  
-                        <div className="text-5xl">
-                  
-                          📁
-                  
-                        </div>
-                  
-                        <p className="mt-4 text-lg font-semibold">
-                  
-                          Drop file here
-                  
-                        </p>
-                  
-                        <p className="text-sm text-muted-foreground">
-                  
-                          or click to browse
-                  
-                        </p>
-                  
-                        <p className="mt-3 text-xs text-muted-foreground">
-                  
-                          {form.watch('platform') === 'desktop'
-                            ? '.exe • .msi • .zip • .rar • .7z'
-                            : '.apk • .aab • .xapk'}
-                  
-                        </p>
-                  
-                      </label>
+                      <div className="space-y-3">
+
+                        <label className="text-sm font-medium">
+                      
+                          Release Asset
+                      
+                        </label>
+                      
+                        {!selectedFile ? (
+                      
+                          <>
+                            <p className="text-sm text-muted-foreground">
+                      
+                              No file selected
+                      
+                            </p>
+                      
+                            <label>
+                      
+                              <Input
+                                type="file"
+                                className="hidden"
+                                accept={
+                                  form.watch('platform') === 'desktop'
+                                    ? '.exe,.msi,.zip,.rar,.7z'
+                                    : '.apk,.aab,.xapk'
+                                }
+                                onChange={(e) => {
+                      
+                                  const file = e.target.files?.[0] ?? null
+                      
+                                  setSelectedFile(file)
+                      
+                                }}
+                              />
+                      
+                              <Button
+                                type="button"
+                                variant="outline"
+                                className="w-full"
+                                asChild
+                              >
+                      
+                                <span>
+                      
+                                  📂 Choose File
+                      
+                                </span>
+                      
+                              </Button>
+                      
+                            </label>
+                      
+                            <p className="text-xs text-muted-foreground">
+                      
+                              {form.watch('platform') === 'desktop'
+                                ? 'Desktop : .exe .msi .zip .rar .7z'
+                                : 'Mobile : .apk .aab .xapk'}
+                      
+                            </p>
+                      
+                          </>
+                      
+                        ) : null}
+                      
+                      </div>
                   
                     {selectedFile && (
 
