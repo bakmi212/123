@@ -28,6 +28,8 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 
+import { UpdateStats } from '@/components/admin/updates/update-stats'
+
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
@@ -604,89 +606,13 @@ export default function UpdatesPage() {
 
       </div>
 
-      <div className="grid gap-4 md:grid-cols-4">
-
-        <Card>
-
-          <CardContent className="pt-6">
-
-            <div className="text-3xl font-bold">
-
-              {totalUpdates}
-
-            </div>
-
-            <p className="text-sm text-muted-foreground">
-
-              Total Updates
-
-            </p>
-
-          </CardContent>
-
-        </Card>
-
-        <Card>
-
-          <CardContent className="pt-6">
-
-            <div className="text-3xl font-bold text-green-600">
-
-              {publishedUpdates}
-
-            </div>
-
-            <p className="text-sm text-muted-foreground">
-
-              Published
-
-            </p>
-
-          </CardContent>
-
-        </Card>
-
-        <Card>
-
-          <CardContent className="pt-6">
-
-            <div className="text-3xl font-bold text-yellow-500">
-
-              {draftUpdates}
-
-            </div>
-
-            <p className="text-sm text-muted-foreground">
-
-              Draft
-
-            </p>
-
-          </CardContent>
-
-        </Card>
-
-        <Card>
-
-          <CardContent className="pt-6">
-
-            <div className="text-3xl font-bold text-blue-600">
-
-              {latestVersion}
-
-            </div>
-
-            <p className="text-sm text-muted-foreground">
-
-              Latest Version
-
-            </p>
-
-          </CardContent>
-
-        </Card>
-
-      </div>
+      <UpdateStats
+        total={totalUpdates}
+        published={publishedUpdates}
+        draft={draftUpdates}
+        latestApp={updates[0]?.products?.name ?? "-"}
+        latestVersion={latestVersion}
+      />
       <Card>
 
         <CardHeader>
