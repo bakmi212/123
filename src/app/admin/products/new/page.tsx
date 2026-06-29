@@ -231,7 +231,73 @@ export default function NewProductPage() {
     }
 
     const productId = newProduct.id
-    console.log('Product UUID:', productId)
+
+    console.log(
+      'Product UUID:',
+      productId
+    )
+    
+    try {
+    
+      const response =
+        await fetch(
+          "/api/github/create-repo",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+            body: JSON.stringify({
+              name: form.name,
+            }),
+          }
+        )
+    
+      const github =
+        await response.json()
+    
+      if (
+        response.ok &&
+        github.success
+      ) {
+    
+        await supabase
+          .from("products")
+          .update({
+            github_owner:
+              github.owner,
+    
+            github_repo:
+              github.repo,
+    
+            github_branch:
+              "main",
+          })
+          .eq(
+            "id",
+            productId
+          )
+    
+      } else {
+    
+        console.error(github)
+    
+        toast.warning(
+          "Product created but GitHub repository was not created."
+        )
+    
+      }
+    
+    } catch (error) {
+    
+      console.error(error)
+    
+      toast.warning(
+        "Failed to create GitHub repository."
+      )
+    
+    }
 
     // Upload files using the product UUID
     let imageUrl: string | null = null
