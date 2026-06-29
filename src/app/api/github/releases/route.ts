@@ -3,7 +3,7 @@ import { supabaseAdmin } from "@/lib/supabase-admin";
 
 export async function POST(req: NextRequest) {
   try {
-    // Verifikasi secret dari GitHub Actions
+    // Verifikasi secret
     const secret = req.headers.get("x-webhook-secret");
 
     if (secret !== process.env.GITHUB_WEBHOOK_SECRET) {
@@ -12,14 +12,11 @@ export async function POST(req: NextRequest) {
           success: false,
           message: "Unauthorized",
         },
-        {
-          status: 401,
-        }
+        { status: 401 }
       );
     }
 
     const body = await req.json();
-
     const release = body.release;
 
     if (!release) {
@@ -28,9 +25,7 @@ export async function POST(req: NextRequest) {
           success: false,
           message: "Release payload not found",
         },
-        {
-          status: 400,
-        }
+        { status: 400 }
       );
     }
 
@@ -39,15 +34,21 @@ export async function POST(req: NextRequest) {
       title: release.name || release.tag_name,
       description: release.body || "",
       type: "Feature",
-      status: "Published",
-      published: true,
+      status: release.prerelease ? "Draft" : "Published",
+      published: !release.prerelease,
+      release_url: release.html_url,
+      github_id: release.id,
+      created_at: release.created_at,
+      published_at: release.published_at,
     };
 
-    const { error } = await supabaseAdmin
+    const { data, error } = await supabaseAdmin
       .from("updates")
       .upsert(payload, {
         onConflict: "version",
-      });
+      })
+      .select()
+      .single();
 
     if (error) {
       console.error(error);
@@ -57,16 +58,14 @@ export async function POST(req: NextRequest) {
           success: false,
           message: error.message,
         },
-        {
-          status: 500,
-        }
+        { status: 500 }
       );
     }
 
     return NextResponse.json({
       success: true,
       message: "Release synchronized successfully",
-      version: payload.version,
+      data,
     });
   } catch (error) {
     console.error(error);
@@ -74,11 +73,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       {
         success: false,
-        message: "Invalid payload",
+        message: "Internal Server Error",
       },
-      {
-        status: 400,
-      }
+      { status: 500 }
     );
   }
 }
@@ -87,5 +84,6 @@ export async function GET() {
   return NextResponse.json({
     service: "GitHub Release Webhook",
     status: "running",
+    timestamp: new Date().toISOString(),
   });
 }
