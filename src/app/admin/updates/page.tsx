@@ -632,7 +632,6 @@ export default function UpdatesPage() {
             search={search}
             onSearchChange={setSearch}
             onRefresh={fetchUpdates}
-            onCreate={openCreate}
           />
 
           {filteredUpdates.length === 0 ? (
