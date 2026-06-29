@@ -18,6 +18,7 @@ export function UpdateStats({
   total,
   published,
   draft,
+  latestApp,
   latestVersion,
 }: UpdateStatsProps) {
   return (
