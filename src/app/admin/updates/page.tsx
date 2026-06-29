@@ -61,13 +61,18 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 
+interface Product {
+  id: string
+  name: string
+  slug: string
+}
+
 interface UpdateItem {
   id: string
 
-  app_name: string
-  category: string
-  platform: string
-  repository: string
+  product_id: string
+
+  products: Product | null
 
   version: string
   title: string
@@ -90,26 +95,24 @@ interface UpdateItem {
 }
 
 const formSchema = z.object({
-  app_name: z.string().min(1, 'Application is required'),
+  product_id: z.string().uuid("Product is required"),
 
-  category: z.string().min(1, 'Category is required'),
-  
-  platform: z.string().default('Web'),
-  
-  repository: z.string().default(''),
-  version: z.string().min(1, 'Version is required'),
-  title: z.string().min(3, 'Title is required'),
-  description: z.string().min(10, 'Description is required'),
+  version: z.string().min(1, "Version is required"),
+  title: z.string().min(3, "Title is required"),
+  description: z.string().min(10, "Description is required"),
+
   type: z.enum([
-    'Feature',
-    'Improvement',
-    'Bug Fix',
-    'Security',
+    "Feature",
+    "Improvement",
+    "Bug Fix",
+    "Security",
   ]),
+
   status: z.enum([
-    'Draft',
-    'Published',
+    "Draft",
+    "Published",
   ]),
+
   published: z.boolean(),
 })
 
@@ -149,17 +152,16 @@ export default function UpdatesPage() {
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      app_name: 'Lumintusuite',
-      category: 'SaaS',
-      platform: 'Web',
-      repository: '',
   
-      version: '',
-      title: '',
-      description: '',
-      type: 'Feature',
-      status: 'Draft',
+    defaultValues: {
+      product_id: "",
+  
+      version: "",
+      title: "",
+      description: "",
+  
+      type: "Feature",
+      status: "Draft",
       published: false,
     },
   })
@@ -167,10 +169,7 @@ export default function UpdatesPage() {
   const resetForm = () => {
 
     form.reset({
-      app_name: 'Lumintusuite',
-      category: 'SaaS',
-      platform: 'Web',
-      repository: '',
+      product_id: "",
     
       version: '',
       title: '',
@@ -190,9 +189,15 @@ export default function UpdatesPage() {
 
     const { data, error } = await supabase
 
-      .from('updates')
-
-      .select('*')
+      .from("updates")
+      .select(`
+        *,
+        products (
+          id,
+          name,
+          slug
+        )
+      `)
 
       .order('created_at', {
         ascending: false,
@@ -247,39 +252,24 @@ export default function UpdatesPage() {
   }, [fetchUpdates, supabase])
 
   const filteredUpdates = updates.filter((item) => {
-
     const keyword = search.toLowerCase()
-
+  
     return (
-
-      item.app_name
-        .toLowerCase()
-        .includes(keyword)
-    
-      ||
-    
-      item.category
-        .toLowerCase()
-        .includes(keyword)
-    
-      ||
-    
+      item.products?.name
+        ?.toLowerCase()
+        .includes(keyword) ||
+  
       item.version
         .toLowerCase()
-        .includes(keyword)
-    
-      ||
-    
+        .includes(keyword) ||
+  
       item.title
         .toLowerCase()
-        .includes(keyword)
-    
-      ||
-    
+        .includes(keyword) ||
+  
       item.description
         .toLowerCase()
         .includes(keyword)
-    
     )
   })
 
@@ -408,10 +398,7 @@ export default function UpdatesPage() {
     setSelected(item)
 
     form.reset({
-      app_name: item.app_name,
-      category: item.category,
-      platform: item.platform,
-      repository: item.repository,
+      product_id: item.product_id,
     
       version: item.version,
       title: item.title,
@@ -450,10 +437,7 @@ export default function UpdatesPage() {
       .from('updates')
 
       .insert({
-        app_name: values.app_name,
-        category: values.category,
-        platform: values.platform,
-        repository: values.repository,
+        product_id: values.product_id,
       
         version: values.version,
         title: values.title,
@@ -494,10 +478,7 @@ export default function UpdatesPage() {
       .from('updates')
 
       .update({
-        app_name: values.app_name,
-        category: values.category,
-        platform: values.platform,
-        repository: values.repository,
+        product_id: values.product_id,
       
         version: values.version,
         title: values.title,
