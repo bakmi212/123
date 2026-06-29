@@ -1,40 +1,79 @@
-import { logStep } from "./logger";
-import { PublishOptions } from "./types";
+import { syncRepository } from "@/lib/github/contents";
+import { createRelease } from "@/lib/github/release";
+
+import { uploadAssets } from "./upload";
+import { saveRelease } from "./database";
+
+import { createManifest } from "./manifest";
 
 export async function publishRelease(
-  options: PublishOptions
+  options: any
 ) {
 
-  logStep("Start");
+  await syncRepository(
+    options.product
+  );
 
-  logStep("Sync Repository");
+  const release =
+    await createRelease(
+      options.product.github_owner,
+      options.product.github_repo,
+      options.version,
+      options.title,
+      options.description,
+      options.draft,
+      options.prerelease
+    );
 
-  // syncRepository()
+  if (!release.ok) {
 
-  logStep("Create Release");
+    return release;
 
-  // createRelease()
+  }
 
-  logStep("Upload Assets");
+  await uploadAssets();
 
-  // uploadAssets()
+  const manifest =
+    await createManifest(
+      options.version,
+      []
+    );
 
-  logStep("Generate Manifest");
+  await saveRelease({
 
-  // createManifest()
+    product_id:
+      options.product.id,
 
-  logStep("Upload Manifest");
+    version:
+      options.version,
 
-  logStep("Update latest.json");
+    title:
+      options.title,
 
-  logStep("Webhook");
+    description:
+      options.description,
 
-  logStep("Save Updates");
+    published: true,
 
-  logStep("Finish");
+    status: "Published",
+
+    release_url:
+      release.data.html_url,
+
+    github_id:
+      release.data.id,
+
+  });
 
   return {
+
     success: true,
+
+    release:
+      release.data,
+
+    manifest,
+
   };
 
 }
