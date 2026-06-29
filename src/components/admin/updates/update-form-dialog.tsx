@@ -89,7 +89,7 @@ export function UpdateFormDialog({
       open={open}
       onOpenChange={onOpenChange}
     >
-      <DialogContent className="sm:max-w-2xl">
+      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-5xl">
 
         <DialogHeader>
 
@@ -107,7 +107,7 @@ export function UpdateFormDialog({
 
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-6"
+            className="grid gap-6 lg:grid-cols-2"
           >
 
             <FormField
