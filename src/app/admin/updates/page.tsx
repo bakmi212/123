@@ -30,6 +30,7 @@ import {
 
 import { UpdateStats } from '@/components/admin/updates/update-stats'
 import { UpdateToolbar } from '@/components/admin/updates/update-toolbar'
+import { UpdateTable } from '@/components/admin/updates/update-table'
 
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
