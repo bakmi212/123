@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface Update {
   version: string;
@@ -13,30 +13,64 @@ interface Props {
   update: Update | null;
 }
 
-export default function UpdateNotification({ update }: Props) {
-  const [open, setOpen] = useState(true);
+export default function UpdateNotification({
+  update,
+}: Props) {
 
-  if (!update || !open) return null;
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    if (!update) return;
+
+    const dismissed = localStorage.getItem(
+      "dismiss_update"
+    );
+
+    if (dismissed === update.version) {
+      setVisible(false);
+      return;
+    }
+
+    setVisible(true);
+
+  }, [update]);
+
+  if (!update || !visible) {
+    return null;
+  }
+
+  function handleLater() {
+    localStorage.setItem(
+      "dismiss_update",
+      update.version
+    );
+
+    setVisible(false);
+  }
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 w-[380px] rounded-xl border bg-white shadow-2xl p-6">
+    <div className="fixed bottom-6 right-6 z-50 w-[400px] rounded-xl border bg-white shadow-2xl p-6">
 
       <div className="flex items-center justify-between">
 
         <div>
 
           <h2 className="font-bold text-lg">
-            🎉 New Update Available
+
+            🎉 Update Available
+
           </h2>
 
           <p className="text-sm text-gray-500">
-            Version {update.version}
+
+            {update.version}
+
           </p>
 
         </div>
 
         <button
-          onClick={() => setOpen(false)}
+          onClick={handleLater}
           className="text-xl"
         >
           ✕
@@ -44,24 +78,33 @@ export default function UpdateNotification({ update }: Props) {
 
       </div>
 
-      <div className="mt-4 whitespace-pre-wrap text-sm">
+      <div className="mt-4">
 
-        {update.description}
+        <h3 className="font-semibold">
+
+          {update.title}
+
+        </h3>
+
+        <p className="mt-2 whitespace-pre-wrap text-sm text-gray-600">
+
+          {update.description}
+
+        </p>
 
       </div>
 
-      <div className="mt-6 flex gap-2">
+      <div className="mt-6 flex gap-3">
 
         {update.release_url && (
-
           <a
             href={update.release_url}
             target="_blank"
-            className="rounded-lg bg-indigo-600 text-white px-4 py-2"
+            rel="noopener noreferrer"
+            className="rounded-lg bg-indigo-600 px-4 py-2 text-white"
           >
             View Release
           </a>
-
         )}
 
         <button
@@ -69,6 +112,13 @@ export default function UpdateNotification({ update }: Props) {
           className="rounded-lg border px-4 py-2"
         >
           Refresh
+        </button>
+
+        <button
+          onClick={handleLater}
+          className="rounded-lg border px-4 py-2"
+        >
+          Later
         </button>
 
       </div>
