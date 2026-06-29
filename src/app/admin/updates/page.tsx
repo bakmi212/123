@@ -46,13 +46,18 @@ const formSchema = z.object({
   title: z.string().min(3, "Title is required"),
   description: z.string().min(10, "Description is required"),
 
+  platform: z.enum([
+    "desktop",
+    "mobile",
+  ]),
+  
   type: z.enum([
     "Feature",
     "Improvement",
     "Bug Fix",
     "Security",
   ]),
-
+  
   status: z.enum([
     "Draft",
     "Published",
@@ -117,7 +122,9 @@ export default function UpdatesPage() {
   
     defaultValues: {
       product_id: "",
-  
+    
+      platform: "desktop",
+    
       version: "",
       title: "",
       description: "",
@@ -133,7 +140,9 @@ export default function UpdatesPage() {
     form.reset({
       product_id: "",
     
-      version: '',
+      platform: "desktop",
+    
+      version: "",
       title: '',
       description: '',
       type: 'Feature',
@@ -357,6 +366,8 @@ export default function UpdatesPage() {
     form.reset({
       product_id: item.product_id,
     
+      platform: item.platform,
+    
       version: item.version,
       title: item.title,
       description: item.description,
@@ -395,6 +406,8 @@ export default function UpdatesPage() {
 
       .insert({
         product_id: values.product_id,
+      
+        platform: values.platform,
       
         version: values.version,
         title: values.title,
@@ -436,6 +449,8 @@ export default function UpdatesPage() {
 
       .update({
         product_id: values.product_id,
+      
+        platform: values.platform,
       
         version: values.version,
         title: values.title,
