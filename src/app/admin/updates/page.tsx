@@ -30,6 +30,7 @@ import {
 
 import { UpdateStats } from '@/components/admin/updates/update-stats'
 import { UpdateToolbar } from '@/components/admin/updates/update-toolbar'
+import { UpdateViewDialog } from '@/components/admin/updates/update-view-dialog'
 import { UpdateTable } from '@/components/admin/updates/update-table'
 
 import { Button } from '@/components/ui/button'
@@ -1486,152 +1487,13 @@ export default function UpdatesPage() {
           </DialogContent>
   
         </Dialog>
-        <Dialog
+       <UpdateViewDialog
         open={viewOpen}
+        selected={selected}
         onOpenChange={setViewOpen}
-      >
-
-        <DialogContent className="sm:max-w-2xl">
-
-          <DialogHeader>
-
-            <DialogTitle>
-
-              Update Details
-
-            </DialogTitle>
-
-            <DialogDescription>
-
-              View application update information.
-
-            </DialogDescription>
-
-          </DialogHeader>
-
-          {selected && (
-
-            <div className="space-y-6">
-
-              <div>
-                <Label>Product</Label>
-              
-                <p className="mt-1 font-medium">
-                  {selected.products?.name ?? "-"}
-                </p>
-              </div>
-              
-              <div>
-                <Label>Version</Label>
-              
-                <p className="mt-1 font-medium">
-                  {selected.version}
-                </p>
-              </div>
-
-              <div>
-
-                <Label>
-
-                  Title
-
-                </Label>
-
-                <p className="mt-1 font-medium">
-
-                  {selected.title}
-
-                </p>
-
-              </div>
-
-              <div>
-
-                <Label>
-
-                  Description
-
-                </Label>
-
-                <div className="mt-1 whitespace-pre-wrap rounded-md border p-4 text-sm">
-
-                  {selected.description}
-
-                </div>
-
-              </div>
-
-              <div className="grid gap-4 md:grid-cols-3">
-
-                <div>
-
-                  <Label>
-
-                    Type
-
-                  </Label>
-
-                  <div className="mt-2">
-
-                    {renderTypeBadge(selected.type)}
-
-                  </div>
-
-                </div>
-
-                <div>
-
-                  <Label>
-
-                    Status
-
-                  </Label>
-
-                  <div className="mt-2">
-
-                    {renderStatusBadge(selected.status)}
-
-                  </div>
-
-                </div>
-
-                <div>
-
-                  <Label>
-
-                    Published
-
-                  </Label>
-
-                  <p className="mt-2">
-
-                    {selected.published ? 'Yes' : 'No'}
-
-                  </p>
-
-                </div>
-
-              </div>
-
-              <DialogFooter>
-
-                <Button
-                  onClick={() => setViewOpen(false)}
-                >
-
-                  Close
-
-                </Button>
-
-              </DialogFooter>
-
-            </div>
-
-          )}
-
-        </DialogContent>
-
-      </Dialog>
+        renderTypeBadge={renderTypeBadge}
+        renderStatusBadge={renderStatusBadge}
+      />
       <Dialog
         open={deleteOpen}
         onOpenChange={setDeleteOpen}
