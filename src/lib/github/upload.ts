@@ -5,13 +5,16 @@ export async function uploadReleaseAsset(
   file: File
 ) {
   const url =
-    `${uploadUrl.split("{")[0]}?name=${encodeURIComponent(file.name)}`;
+    uploadUrl.split("{")[0] +
+    `?name=${encodeURIComponent(file.name)}`;
 
   const response = await fetch(url, {
     method: "POST",
     headers: {
-      Authorization: githubHeaders().Authorization,
-      Accept: "application/vnd.github+json",
+      Authorization:
+        githubHeaders().Authorization,
+      Accept:
+        "application/vnd.github+json",
       "Content-Type":
         file.type ||
         "application/octet-stream",
@@ -29,5 +32,34 @@ export async function uploadReleaseAsset(
     ok: response.ok,
     status: response.status,
     data: json,
+  };
+}
+
+export async function uploadAssets(
+  uploadUrl: string,
+  files: File[]
+) {
+  const assets: any[] = [];
+
+  for (const file of files) {
+    const result =
+      await uploadReleaseAsset(
+        uploadUrl,
+        file
+      );
+
+    if (!result.ok) {
+      return {
+        success: false,
+        ...result,
+      };
+    }
+
+    assets.push(result.data);
+  }
+
+  return {
+    success: true,
+    assets,
   };
 }
