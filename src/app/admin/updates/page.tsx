@@ -63,23 +63,40 @@ import {
 
 interface UpdateItem {
   id: string
+
+  app_name: string
+  category: string
+  platform: string
+  repository: string
+
   version: string
   title: string
   description: string
+
   type:
     | 'Feature'
     | 'Improvement'
     | 'Bug Fix'
     | 'Security'
+
   status:
     | 'Draft'
     | 'Published'
+
   published: boolean
+
   created_at: string
   updated_at: string
 }
 
 const formSchema = z.object({
+  app_name: z.string().min(1, 'Application is required'),
+
+  category: z.string().min(1, 'Category is required'),
+  
+  platform: z.string().default('Web'),
+  
+  repository: z.string().default(''),
   version: z.string().min(1, 'Version is required'),
   title: z.string().min(3, 'Title is required'),
   description: z.string().min(10, 'Description is required'),
@@ -133,6 +150,11 @@ export default function UpdatesPage() {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      app_name: 'Lumintusuite',
+      category: 'SaaS',
+      platform: 'Web',
+      repository: '',
+  
       version: '',
       title: '',
       description: '',
@@ -145,19 +167,17 @@ export default function UpdatesPage() {
   const resetForm = () => {
 
     form.reset({
-
+      app_name: 'Lumintusuite',
+      category: 'SaaS',
+      platform: 'Web',
+      repository: '',
+    
       version: '',
-
       title: '',
-
       description: '',
-
       type: 'Feature',
-
       status: 'Draft',
-
       published: false,
-
     })
 
     setSelected(null)
@@ -232,24 +252,35 @@ export default function UpdatesPage() {
 
     return (
 
+      item.app_name
+        .toLowerCase()
+        .includes(keyword)
+    
+      ||
+    
+      item.category
+        .toLowerCase()
+        .includes(keyword)
+    
+      ||
+    
       item.version
         .toLowerCase()
         .includes(keyword)
-
+    
       ||
-
+    
       item.title
         .toLowerCase()
         .includes(keyword)
-
+    
       ||
-
+    
       item.description
         .toLowerCase()
         .includes(keyword)
-
+    
     )
-
   })
 
   const totalUpdates = updates.length
@@ -377,19 +408,17 @@ export default function UpdatesPage() {
     setSelected(item)
 
     form.reset({
-
+      app_name: item.app_name,
+      category: item.category,
+      platform: item.platform,
+      repository: item.repository,
+    
       version: item.version,
-
       title: item.title,
-
       description: item.description,
-
       type: item.type,
-
       status: item.status,
-
       published: item.published,
-
     })
 
     setEditOpen(true)
@@ -421,19 +450,17 @@ export default function UpdatesPage() {
       .from('updates')
 
       .insert({
-
+        app_name: values.app_name,
+        category: values.category,
+        platform: values.platform,
+        repository: values.repository,
+      
         version: values.version,
-
         title: values.title,
-
         description: values.description,
-
         type: values.type,
-
         status: values.status,
-
         published: values.published,
-
       })
 
     setSaving(false)
@@ -467,21 +494,19 @@ export default function UpdatesPage() {
       .from('updates')
 
       .update({
-
+        app_name: values.app_name,
+        category: values.category,
+        platform: values.platform,
+        repository: values.repository,
+      
         version: values.version,
-
         title: values.title,
-
         description: values.description,
-
         type: values.type,
-
         status: values.status,
-
         published: values.published,
-
+      
         updated_at: new Date().toISOString(),
-
       })
 
       .eq('id', selected.id)
