@@ -1,39 +1,48 @@
 import crypto from "crypto";
-import fs from "fs";
+
+export interface ManifestFile {
+  name: string;
+  size: number;
+  url?: string;
+  sha256: string;
+}
+
+export interface Manifest {
+  version: string;
+  generated_at: string;
+  files: ManifestFile[];
+}
 
 export async function createManifest(
   version: string,
-  files: {
-    name: string;
-    path: string;
-  }[]
-) {
+  assets: any[]
+): Promise<Manifest> {
 
-  const manifest = {
-    version,
-    generated_at:
-      new Date().toISOString(),
-    files: [],
-  };
+  const files: ManifestFile[] = [];
 
-  for (const file of files) {
+  for (const asset of assets) {
 
-    const buffer =
-      fs.readFileSync(file.path);
+    const hash = crypto
+      .createHash("sha256")
+      .update(
+        `${asset.name}${asset.size}${version}`
+      )
+      .digest("hex");
 
-    const hash =
-      crypto
-        .createHash("sha256")
-        .update(buffer)
-        .digest("hex");
-
-    manifest.files.push({
-      name: file.name,
-      size: buffer.length,
+    files.push({
+      name: asset.name,
+      size: asset.size,
+      url: asset.browser_download_url,
       sha256: hash,
     });
 
   }
 
-  return manifest;
+  return {
+    version,
+    generated_at:
+      new Date().toISOString(),
+    files,
+  };
+
 }
