@@ -10,9 +10,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Send Release to Website
+      - name: Send Release
         run: |
           curl -X POST "${{ secrets.WEBHOOK_URL }}" \
-          -H "Content-Type: application/json" \
-          -H "X-GitHub-Event: release" \
-          -d '${{ toJson(github.event) }}'
+            -H "Content-Type: application/json" \
+            -H "x-webhook-secret: ${{ secrets.WEBHOOK_SECRET }}" \
+            -d '${{ toJson(github.event) }}'
