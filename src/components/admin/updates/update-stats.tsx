@@ -9,6 +9,8 @@ interface UpdateStatsProps {
   total: number
   published: number
   draft: number
+
+  latestApp: string
   latestVersion: string
 }
 
@@ -59,12 +61,16 @@ export function UpdateStats({
 
       <Card>
         <CardContent className="pt-6">
-          <div className="text-3xl font-bold text-blue-600">
-            {latestVersion}
+          <div className="text-xl font-bold text-blue-600">
+            {latestApp}
           </div>
-
-          <p className="text-sm text-muted-foreground">
-            Latest Version
+          
+          <p className="mt-1 text-sm">
+            {latestVersion}
+          </p>
+          
+          <p className="text-xs text-muted-foreground">
+            Latest App
           </p>
         </CardContent>
       </Card>
