@@ -235,15 +235,13 @@ export function UpdateFormDialog({
                     )}
                   />
                   
-                  <FormItem>
+                  <div>
 
-                    <FormLabel>
+                    <label className="mb-2 block text-sm font-medium">
                   
                       Upload File
                   
-                    </FormLabel>
-                  
-                    <FormControl>
+                    </label>
                   
                       <label
                         className="flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed p-8 transition hover:bg-muted/40"
@@ -293,8 +291,6 @@ export function UpdateFormDialog({
                         </p>
                   
                       </label>
-                  
-                    </FormControl>
                   
                     {selectedFile && (
 
@@ -347,7 +343,7 @@ export function UpdateFormDialog({
                     
                     )}
                   
-                  </FormItem>
+                  </div>
                   
                   <div className="grid gap-4 md:grid-cols-2">
 
