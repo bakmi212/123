@@ -2,27 +2,58 @@
 
 import { useEffect, useState } from "react";
 
+export interface AppUpdate {
+  version: string;
+  title: string;
+  description: string;
+  release_url?: string;
+}
+
 export function useUpdateCheck(currentVersion: string) {
-  const [update, setUpdate] = useState<any>(null);
+  const [update, setUpdate] = useState<AppUpdate | null>(null);
 
   useEffect(() => {
-    async function check() {
-      const res = await fetch("/api/updates/latest");
+    let mounted = true;
 
-      if (!res.ok) return;
+    async function checkForUpdates() {
+      try {
+        const res = await fetch("/api/updates/latest", {
+          cache: "no-store",
+        });
 
-      const json = await res.json();
+        if (!res.ok) return;
 
-      if (
-        json.success &&
-        json.update?.version &&
-        json.update.version !== currentVersion
-      ) {
-        setUpdate(json.update);
+        const json = await res.json();
+
+        if (!mounted) return;
+
+        if (
+          json.success &&
+          json.update &&
+          json.update.version !== currentVersion
+        ) {
+          setUpdate(json.update);
+        } else {
+          setUpdate(null);
+        }
+      } catch (err) {
+        console.error("Update check failed:", err);
       }
     }
 
-    check();
+    // cek saat aplikasi dibuka
+    checkForUpdates();
+
+    // cek ulang setiap 5 menit
+    const interval = setInterval(
+      checkForUpdates,
+      5 * 60 * 1000
+    );
+
+    return () => {
+      mounted = false;
+      clearInterval(interval);
+    };
   }, [currentVersion]);
 
   return update;
