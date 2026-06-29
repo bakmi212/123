@@ -5,25 +5,31 @@ export async function POST(req: NextRequest) {
     const token = process.env.GITHUB_TOKEN;
     const owner = process.env.GITHUB_OWNER;
 
-    if (!token || !owner) {
+    if (!token) {
       return NextResponse.json(
         {
           success: false,
-          message: "GitHub not configured",
+          message: "GITHUB_TOKEN not configured",
         },
-        { status: 500 }
+        {
+          status: 500,
+        }
       );
     }
 
-    const { name } = await req.json();
+    const body = await req.json();
+
+    const name = body.name;
 
     if (!name) {
       return NextResponse.json(
         {
           success: false,
-          message: "Repository name required",
+          message: "Repository name is required",
         },
-        { status: 400 }
+        {
+          status: 400,
+        }
       );
     }
 
@@ -34,7 +40,7 @@ export async function POST(req: NextRequest) {
       .replace(/^-+|-+$/g, "");
 
     const response = await fetch(
-      `https://api.github.com/orgs/${owner}/repos`,
+      "https://api.github.com/user/repos",
       {
         method: "POST",
         headers: {
@@ -48,17 +54,25 @@ export async function POST(req: NextRequest) {
           description: `${name} Release Repository`,
           private: true,
           auto_init: true,
+          has_issues: true,
+          has_projects: false,
+          has_wiki: false,
         }),
       }
     );
 
     const github = await response.json();
 
+    console.log("GitHub Status:", response.status);
+    console.log("GitHub Response:", github);
+
     if (!response.ok) {
       return NextResponse.json(
         {
           success: false,
-          message: github.message,
+          message:
+            github.message ??
+            "Failed to create repository",
           github,
         },
         {
@@ -69,21 +83,31 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      owner,
+      owner:
+        owner ??
+        github.owner?.login ??
+        null,
       repo: github.name,
       url: github.html_url,
+      github,
     });
 
   } catch (error: any) {
+
+    console.error(error);
+
     return NextResponse.json(
       {
         success: false,
-        message: error.message,
+        message:
+          error.message ??
+          "Internal Server Error",
       },
       {
         status: 500,
       }
     );
+
   }
 }
 
@@ -91,5 +115,6 @@ export async function GET() {
   return NextResponse.json({
     success: true,
     message: "Create Repo API Ready",
+    owner: process.env.GITHUB_OWNER,
   });
 }
