@@ -13,11 +13,6 @@ import { toast } from 'sonner'
 import {
   Loader2,
   Plus,
-  Pencil,
-  Trash2,
-  Eye,
-  Search,
-  RefreshCw,
   Rocket,
 } from 'lucide-react'
 
@@ -38,36 +33,6 @@ import { UpdateTable } from '@/components/admin/updates/update-table'
 
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
-import { Label } from '@/components/ui/label'
-import { Switch } from '@/components/ui/switch'
-
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
-
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form'
 
 import {
   Product,
@@ -644,162 +609,14 @@ export default function UpdatesPage() {
 
           ) : (
 
-            <div className="overflow-x-auto">
-
-              <table className="w-full">
-
-                <thead>
-
-                  <tr className="border-b">
-
-                    <th className="px-4 py-3 text-left">
-                      Product
-                    </th>
-
-                    <th className="px-4 py-3 text-left">
-
-                      Version
-
-                    </th>
-
-                    <th className="px-4 py-3 text-left">
-
-                      Title
-
-                    </th>
-
-                    <th className="px-4 py-3 text-center">
-
-                      Type
-
-                    </th>
-
-                    <th className="px-4 py-3 text-center">
-
-                      Status
-
-                    </th>
-
-                    <th className="px-4 py-3 text-center">
-
-                      Published
-
-                    </th>
-
-                    <th className="px-4 py-3 text-center">
-
-                      Created
-
-                    </th>
-
-                    <th className="px-4 py-3 text-center">
-
-                      Action
-
-                    </th>
-
-                  </tr>
-
-                </thead>
-
-                <tbody>
-
-                  {filteredUpdates.map((item) => (
-
-                    <tr
-                      key={item.id}
-                      className="border-b hover:bg-muted/50"
-                    >
-
-                      <td className="px-4 py-4">
-                        {item.products?.name ?? "-"}
-                      </td>
-
-                      <td className="px-4 py-4 font-medium">
-
-                        {item.version}
-
-                      </td>
-
-                      <td className="px-4 py-4">
-
-                        {item.title}
-
-                      </td>
-
-                      <td className="px-4 py-4 text-center">
-
-                        {renderTypeBadge(item.type)}
-
-                      </td>
-
-                      <td className="px-4 py-4 text-center">
-
-                        {renderStatusBadge(item.status)}
-
-                      </td>
-
-                      <td className="px-4 py-4 text-center">
-
-                        {item.published ? 'Yes' : 'No'}
-
-                      </td>
-
-                      <td className="px-4 py-4 text-center">
-
-                        {new Date(
-                          item.created_at
-                        ).toLocaleDateString()}
-
-                      </td>
-
-                      <td className="px-4 py-4">
-
-                        <div className="flex justify-center gap-2">
-
-                          <Button
-                            size="icon"
-                            variant="outline"
-                            onClick={() => openView(item)}
-                          >
-
-                            <Eye className="h-4 w-4" />
-
-                          </Button>
-
-                          <Button
-                            size="icon"
-                            variant="outline"
-                            onClick={() => openEdit(item)}
-                          >
-
-                            <Pencil className="h-4 w-4" />
-
-                          </Button>
-
-                          <Button
-                            size="icon"
-                            variant="destructive"
-                            onClick={() => openDelete(item)}
-                          >
-
-                            <Trash2 className="h-4 w-4" />
-
-                          </Button>
-
-                        </div>
-
-                      </td>
-
-                    </tr>
-
-                  ))}
-
-                </tbody>
-
-              </table>
-
-            </div>
+            <UpdateTable
+              updates={filteredUpdates}
+              renderTypeBadge={renderTypeBadge}
+              renderStatusBadge={renderStatusBadge}
+              onView={openView}
+              onEdit={openEdit}
+              onDelete={openDelete}
+            />
 
           )}
 
