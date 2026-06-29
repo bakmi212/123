@@ -107,7 +107,7 @@ export function UpdateFormDialog({
 
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="grid gap-6 lg:grid-cols-2"
+            className="space-y-8"
           >
 
             <FormField
