@@ -22,12 +22,13 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
 
     const release = body.release;
+    const repository = body.repository;
 
-    if (!release) {
+    if (!release || !repository) {
       return NextResponse.json(
         {
           success: false,
-          message: "Release payload not found",
+          message: "Invalid webhook payload",
         },
         {
           status: 400,
@@ -36,10 +37,9 @@ export async function POST(req: NextRequest) {
     }
 
     const asset =
-      release.assets?.[0] ?? null;
-
-    const repository =
-      body.repository;
+      release.assets?.length > 0
+        ? release.assets[0]
+        : null;
 
     const { data: product } =
       await supabaseAdmin
@@ -49,26 +49,23 @@ export async function POST(req: NextRequest) {
           "github_repo",
           repository.name
         )
-        .single();
+        .maybeSingle();
 
     const payload = {
       product_id:
         product?.id ?? null,
 
-      platform:
-        asset?.name?.endsWith(".apk") ||
-        asset?.name?.endsWith(".aab")
-          ? "mobile"
-          : "desktop",
-
       version: release.tag_name,
 
       title:
-        release.name ||
+        release.name ??
         release.tag_name,
 
       description:
-        release.body || "",
+        release.body ?? "",
+
+      release_notes:
+        release.body ?? "",
 
       type: "Feature",
 
@@ -80,26 +77,50 @@ export async function POST(req: NextRequest) {
       published:
         !release.prerelease,
 
-      github_id: release.id,
+      is_prerelease:
+        release.prerelease,
+
+      github_id:
+        release.id,
+
+      github_url:
+        release.html_url,
 
       release_url:
         release.html_url,
 
-      download_url:
-        asset?.browser_download_url ??
-        null,
-
-      asset_name:
-        asset?.name ?? null,
-
-      asset_size:
-        asset?.size ?? null,
-
-      created_at:
-        release.created_at,
+      release_date:
+        release.published_at,
 
       published_at:
         release.published_at,
+
+      author:
+        release.author?.login ??
+        null,
+
+      platform:
+        asset?.name?.endsWith(".apk") ||
+        asset?.name?.endsWith(".aab")
+          ? "mobile"
+          : "desktop",
+
+      file_name:
+        asset?.name ?? null,
+
+      file_url:
+        asset?.browser_download_url ??
+        null,
+
+      file_size:
+        asset?.size ?? null,
+
+      file_type:
+        asset?.content_type ??
+        null,
+
+      updated_at:
+        new Date().toISOString(),
     };
 
     const { data, error } =
@@ -139,7 +160,7 @@ export async function POST(req: NextRequest) {
       {
         success: false,
         message:
-          error.message ??
+          error?.message ??
           "Internal Server Error",
       },
       {
