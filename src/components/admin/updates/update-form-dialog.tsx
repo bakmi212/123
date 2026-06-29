@@ -326,3 +326,13 @@ export function UpdateFormDialog({
               </Button>
             
             </DialogFooter>
+            </form>
+
+            </Form>
+            
+            </DialogContent>
+            
+            </Dialog>
+            
+              )
+            }
