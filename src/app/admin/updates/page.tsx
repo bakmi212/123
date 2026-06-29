@@ -427,11 +427,11 @@ export default function UpdatesPage() {
     formData.append("prerelease", "false");
     
     if (selectedFile) {
-      formData.append("file", selectedFile);
+      formData.append("files", selectedFile);
     }
     
     const publishResponse = await fetch(
-      "/api/github/publish",
+      "/api/releases/publish",
       {
         method: "POST",
         body: formData,
