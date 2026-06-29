@@ -229,6 +229,8 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
                 <Image
                   src="/dashboard-preview.png"
                   alt="Dashboard Preview"
+                  width={1200}
+                  height={675}
                   className="w-full h-auto object-cover transition-transform duration-700 hover:scale-105"
                 />
 
