@@ -140,19 +140,19 @@ export default function CampaignPage() {
         all_products: item.all_products,
     
         products:
-    
-          item.campaign_products?.map(
-    
-            (p: any) => p.products?.name
-    
+
+          item.desktop_campaign_products?.map(
+        
+            (p:any)=>p.products?.name
+        
           ) ?? [],
-    
+        
         product_ids:
-    
-          item.campaign_products?.map(
-    
-            (p: any) => p.product_id
-    
+        
+          item.desktop_campaign_products?.map(
+        
+            (p:any)=>p.product_id
+        
           ) ?? [],
     
       }))
@@ -167,7 +167,10 @@ export default function CampaignPage() {
 
     setEditingId(null)
 
-    setForm(defaultForm)
+    setForm({
+      ...defaultForm,
+      product_ids: [],
+    })
 
     setDialogOpen(true)
 
@@ -378,7 +381,10 @@ export default function CampaignPage() {
   
         setEditingId(null)
   
-        setForm(defaultForm)
+        setForm({
+          ...defaultForm,
+          product_ids: [],
+        })
   
         await loadCampaigns()
   
@@ -518,7 +524,10 @@ export default function CampaignPage() {
 
           setEditingId(null)
 
-          setForm(defaultForm)
+          setForm({
+            ...defaultForm,
+            product_ids: [],
+          })
 
         }}
 
