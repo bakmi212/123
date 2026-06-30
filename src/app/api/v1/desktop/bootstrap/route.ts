@@ -27,6 +27,19 @@ export async function GET(request: Request) {
     }
 
     const { data: campaigns } =
+
+      const { data: remoteConfig } =
+
+        await supabase
+    
+        .from('desktop_settings')
+    
+        .select('setting_value')
+    
+        .eq('setting_key','remote_config')
+    
+        .single()
+        
       await supabase.rpc(
         'get_desktop_campaigns',
         {
@@ -40,16 +53,14 @@ export async function GET(request: Request) {
 
       bootstrap: {
 
-        campaigns: campaigns ?? [],
-
-        latest_version: null,
-
-        maintenance: null,
-
-        news: [],
-
-        settings: {},
-
+          campaigns: campaigns ?? [],
+      
+          remote_config:
+      
+              remoteConfig?.setting_value ?? {},
+      
+          news: [],
+      
       }
 
     })
