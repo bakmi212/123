@@ -26,6 +26,10 @@ export interface CampaignRow {
 
   button_text: string | null
 
+  button_url: string | null
+  
+  product_ids: string[]
+
   priority: number
 
   duration: number
