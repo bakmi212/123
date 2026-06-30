@@ -49,9 +49,13 @@ interface Banner {
 
   id: string
 
-  title: string | null
+  banner_name: string
+
+  product: string
 
   image_url: string
+
+  button_text: string | null
 
   button_url: string
 
@@ -94,7 +98,11 @@ export default function AdminBannerPage() {
 
   const [form, setForm] = useState({
 
-    title: '',
+    banner_name: '',
+
+    product: 'all',
+    
+    button_text: '',
 
     image_url: '',
 
@@ -134,22 +142,26 @@ export default function AdminBannerPage() {
 
   function resetForm() {
 
-    setForm({
-
-      title: '',
-
-      image_url: '',
-
-      button_url: '',
-
-      duration: 5,
-
-      sort_order: banners.length + 1,
-
-      is_active: true,
-
-    })
-
+      setForm({
+  
+        banner_name: '',
+  
+        product: 'all',
+  
+        image_url: '',
+  
+        button_text: '',
+  
+        button_url: '',
+  
+        duration: 5,
+  
+        sort_order: banners.length + 1,
+  
+        is_active: true,
+  
+      })
+  
   }
 
   async function handleImageUpload(
