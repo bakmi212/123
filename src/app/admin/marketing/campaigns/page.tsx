@@ -86,11 +86,11 @@ export default function CampaignPage() {
 
     const { data, error } = await supabase
 
-      .from('campaigns')
+      .from('desktop_campaigns')
 
       .select(`
         *,
-        campaign_products(
+        desktop_campaign_products(
           product_id,
           products(
             id,
@@ -252,7 +252,7 @@ export default function CampaignPage() {
   
           const { error } = await supabase
   
-            .from('campaigns')
+            .from('desktop_campaigns')
   
             .update({
   
@@ -288,7 +288,7 @@ export default function CampaignPage() {
   
           const { data, error } = await supabase
   
-            .from('campaigns')
+            .from('desktop_campaigns')
   
             .insert({
   
@@ -328,7 +328,7 @@ export default function CampaignPage() {
   
         await supabase
   
-          .from('campaign_products')
+          .from('desktop_campaign_products')
   
           .delete()
   
@@ -356,7 +356,7 @@ export default function CampaignPage() {
   
           const { error } = await supabase
   
-            .from('campaign_products')
+            .from('desktop_campaign_products')
   
             .insert(rows)
   
@@ -422,7 +422,7 @@ export default function CampaignPage() {
   
       const { error } = await supabase
   
-        .from('campaigns')
+        .from('desktop_campaigns')
   
         .delete()
   
