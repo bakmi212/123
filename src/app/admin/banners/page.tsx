@@ -1,797 +1,462 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 
-import {
-  Loader2,
-  Plus,
-  Edit,
-  Trash2,
-  Image as ImageIcon,
-  X,
-} from 'lucide-react'
+import { Loader2, Plus } from 'lucide-react'
 
 import { toast } from 'sonner'
 
 import { createBrowserClient } from '@/lib/supabase/client'
 
-import {
-  uploadBannerImage,
-  deleteBannerImage,
-  validateBannerImage,
-} from '@/lib/supabase/storage'
+import CampaignTable, {
 
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
+  CampaignRow,
 
-import { Badge } from '@/components/ui/badge'
+} from './components/CampaignTable'
+
+import CampaignDialog, {
+
+  CampaignForm,
+
+} from './components/CampaignDialog'
 
 import { Button } from '@/components/ui/button'
 
-import { Input } from '@/components/ui/input'
+const defaultForm: CampaignForm = {
 
-import { Label } from '@/components/ui/label'
+  campaign_name: '',
 
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from '@/components/ui/dialog'
+  campaign_type: 'banner',
 
-interface Banner {
+  image_url: '',
 
-  id: string
+  button_text: '',
 
-  banner_name: string
+  button_url: '',
 
-  product: string
+  priority: 100,
 
-  image_url: string
+  duration: 5,
 
-  button_text: string | null
+  all_products: true,
 
-  button_url: string
+  product_ids: [],
 
-  duration: number
-
-  sort_order: number
-
-  is_active: boolean
-
-  created_at: string
+  is_active: true,
 
 }
 
-export default function AdminBannerPage() {
+export default function CampaignPage() {
 
   const supabase = createBrowserClient()
 
-  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [loading, setLoading] =
 
-  const [loading, setLoading] = useState(true)
+    useState(true)
 
-  const [saving, setSaving] = useState(false)
+  const [saving, setSaving] =
 
-  const [uploading, setUploading] = useState(false)
+    useState(false)
 
-  const [deleting, setDeleting] = useState(false)
+  const [campaigns, setCampaigns] =
 
-  const [banners, setBanners] = useState<Banner[]>([])
+    useState<CampaignRow[]>([])
 
-  const [addDialogOpen, setAddDialogOpen] = useState(false)
+  const [dialogOpen, setDialogOpen] =
 
-  const [editDialogOpen, setEditDialogOpen] = useState(false)
+    useState(false)
 
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [editingId, setEditingId] =
 
-  const [selectedBanner, setSelectedBanner] =
-    useState<Banner | null>(null)
-  const [oldImageUrl, setOldImageUrl] =
-    useState('')
+    useState<string | null>(null)
 
-  const [form, setForm] = useState({
+  const [form, setForm] =
 
-    banner_name: '',
-
-    product: 'all',
-    
-    button_text: '',
-
-    image_url: '',
-
-    button_url: '',
-
-    duration: 5,
-
-    sort_order: 1,
-
-    is_active: true,
-
-  })
+    useState<CampaignForm>(defaultForm)
 
   useEffect(() => {
 
-    fetchBanners()
+    loadCampaigns()
 
   }, [])
 
-  async function fetchBanners() {
+  async function loadCampaigns() {
 
     setLoading(true)
 
-    const { data } = await supabase
+    const { data, error } = await supabase
 
-      .from('banners')
+      .from('desktop_campaigns')
 
-      .select('*')
+      .select(`
+        *,
+        desktop_campaign_products(
+          product_id,
+          products(
+            id,
+            name
+          )
+        )
+      `)
 
-      .order('sort_order')
+      .order('priority', {
 
-    setBanners(data ?? [])
+        ascending: false,
+
+      })
+
+    if (error) {
+
+      toast.error(error.message)
+
+      setLoading(false)
+
+      return
+
+    }
+
+    const rows: CampaignRow[] =
+
+      (data ?? []).map((item: any) => ({
+    
+        id: item.id,
+    
+        campaign_name: item.campaign_name,
+    
+        campaign_type: item.campaign_type,
+    
+        image_url: item.image_url,
+    
+        button_text: item.button_text,
+    
+        button_url: item.button_url,
+    
+        priority: item.priority,
+    
+        duration: item.duration,
+    
+        is_active: item.is_active,
+    
+        all_products: item.all_products,
+    
+        products:
+
+          item.desktop_campaign_products?.map(
+        
+            (p:any)=>p.products?.name
+        
+          ) ?? [],
+        
+        product_ids:
+        
+          item.desktop_campaign_products?.map(
+        
+            (p:any)=>p.product_id
+        
+          ) ?? [],
+    
+      }))
+
+    setCampaigns(rows)
 
     setLoading(false)
 
   }
 
-  function resetForm() {
+  function openCreate() {
 
-      setForm({
-  
-        banner_name: '',
-  
-        product: 'all',
-  
-        image_url: '',
-  
-        button_text: '',
-  
-        button_url: '',
-  
-        duration: 5,
-  
-        sort_order: banners.length + 1,
-  
-        is_active: true,
-  
-      })
-  
-  }
-
-  async function handleImageUpload(
-
-    e: React.ChangeEvent<HTMLInputElement>
-
-  ) {
-
-    const file = e.target.files?.[0]
-
-    if (!file)
-      return
-
-    const validate = validateBannerImage(file)
-
-    if (!validate.valid) {
-
-      toast.error(validate.error)
-
-      return
-
-    }
-
-    setUploading(true)
-
-    const image = await uploadBannerImage(
-
-      file,
-
-      crypto.randomUUID()
-
-    )
-
-    if (!image) {
-
-      toast.error('Upload failed')
-
-      setUploading(false)
-
-      return
-
-    }
+    setEditingId(null)
 
     setForm({
-
-      ...form,
-
-      image_url: image,
-
+      ...defaultForm,
+      product_ids: [],
     })
 
-    toast.success('Banner uploaded')
-
-    setUploading(false)
-
-    if (fileInputRef.current)
-
-      fileInputRef.current.value = ''
-
-  }
-
-  async function removeImage() {
-
-    setForm({
-
-      ...form,
-
-      image_url: '',
-
-    })
-
-  }
-    async function handleAdd() {
-
-    if (!form.image_url.trim()) {
-
-      toast.error("Banner image is required.")
-    
-      return
-    
-    }
-    
-    if (!form.button_url.trim()) {
-    
-      toast.error("Button URL is required.")
-    
-      return
-    
-    }
-    
-    if (form.duration < 1) {
-    
-      toast.error("Duration must be greater than zero.")
-    
-      return
-    
-    }
-
-    setSaving(true)
-
-    const { error } = await supabase
-
-      .from("banners")
-      
-      .insert({
-      
-        title:
-      
-          form.title || null,
-      
-        image_url:
-      
-          form.image_url,
-      
-        button_url:
-      
-          form.button_url,
-      
-        duration:
-      
-          Number(form.duration),
-      
-        sort_order:
-      
-          Number(form.sort_order),
-      
-        is_active:
-      
-          form.is_active,
-      
-      })
-
-    if (error) {
-
-      toast.error(error.message)
-
-    }
-
-    else {
-
-      await fetchBanners()
-
-            resetForm()
-
-      setOldImageUrl('')
-
-      setAddDialogOpen(false)
-
-      toast.success("Banner created.")
-
-    }
-
-    setSaving(false)
-
-  }
-
-  async function handleEdit() {
-
-    if (!selectedBanner)
-      return
-
-    if (!form.button_url.trim()) {
-
-      toast.error('Button URL is required')
-
-      return
-
-    }
-
-    setSaving(true)
-
-    const { error } = await supabase
-
-      .from('banners')
-
-      .update({
-
-        title:
-
-          form.title || null,
-
-        image_url:
-
-          form.image_url,
-
-        button_url:
-
-          form.button_url,
-
-        duration: Number(form.duration),
-        sort_order: Number(form.sort_order),
-
-        is_active:
-
-          form.is_active,
-
-      })
-
-      .eq(
-
-        'id',
-
-        selectedBanner.id
-
-      )
-
-    if (error) {
-
-      toast.error(error.message)
-
-    }
-
-    else {
-
-      await fetchBanners()
-
-      if (
-
-        oldImageUrl &&
-      
-        oldImageUrl !== form.image_url
-      
-      ) {
-      
-        await deleteBannerImage(
-      
-          oldImageUrl
-      
-        )
-      
-      }
-
-      setSelectedBanner(null)
-
-      setOldImageUrl('')
-      
-      resetForm()
-      
-      setEditDialogOpen(false)
-      
-      toast.success("Banner updated.")
-
-    }
-
-    setSaving(false)
-
-  }
-
-  async function handleDelete() {
-
-    if (!selectedBanner)
-      return
-
-    setDeleting(true)
-
-    if (selectedBanner.image_url) {
-
-      await deleteBannerImage(
-
-        selectedBanner.image_url
-
-      )
-
-    }
-
-    const { error } = await supabase
-
-      .from('banners')
-
-      .delete()
-
-      .eq(
-
-        'id',
-
-        selectedBanner.id
-
-      )
-
-    if (error) {
-
-      toast.error(error.message)
-
-    }
-
-    else {
-
-      await fetchBanners()
-
-      setSelectedBanner(null)
-
-      setOldImageUrl('')
-      
-      setDeleteDialogOpen(false)
-      
-      toast.success("Banner deleted.")
-
-    }
-
-    setDeleting(false)
+    setDialogOpen(true)
 
   }
 
   function openEdit(
 
-    banner: Banner
+    row: CampaignRow
 
   ) {
 
-    setSelectedBanner(banner)
-
-    setOldImageUrl(
-      banner.image_url
-    )
+    setEditingId(row.id)
 
     setForm({
 
-      title:
+      campaign_name:
 
-        banner.title ?? '',
+        row.campaign_name,
+
+      campaign_type:
+
+        'banner',
 
       image_url:
 
-        banner.image_url,
+        row.image_url || '',
 
-      button_url:
+      button_text:
 
-        banner.button_url,
+        row.button_text || '',
+
+      button_url: row.button_url || '',
+
+      priority:
+
+        row.priority,
 
       duration:
 
-        banner.duration,
+        row.duration,
 
-      sort_order:
+      all_products:
 
-        banner.sort_order,
+        row.all_products,
+
+      product_ids: row.product_ids,
 
       is_active:
 
-        banner.is_active,
+        row.is_active,
 
     })
 
-    setEditDialogOpen(true)
+    setDialogOpen(true)
 
   }
+    async function saveCampaign() {
 
-  function openDelete(
+      if (!form.campaign_name.trim()) {
+  
+        toast.error('Campaign name is required.')
+  
+        return
+  
+      }
+  
+      if (!form.image_url.trim()) {
+  
+        toast.error('Campaign image is required.')
+  
+        return
+  
+      }
+  
+      setSaving(true)
+  
+      try {
+  
+        let campaignId = editingId
+  
+        if (editingId) {
+  
+          const { error } = await supabase
+  
+            .from('desktop_campaigns')
+  
+            .update({
+  
+              campaign_name: form.campaign_name,
+  
+              campaign_type: form.campaign_type,
+  
+              image_url: form.image_url,
+  
+              button_text: form.button_text || null,
+  
+              button_url: form.button_url || null,
+  
+              priority: form.priority,
+  
+              duration: form.duration,
+  
+              all_products: form.all_products,
+  
+              is_active: form.is_active,
+  
+              updated_at: new Date().toISOString(),
+  
+            })
+  
+            .eq('id', editingId)
+  
+          if (error) throw error
+  
+        }
+  
+        else {
+  
+          const { data, error } = await supabase
+  
+            .from('desktop_campaigns')
+  
+            .insert({
+  
+              campaign_name: form.campaign_name,
+  
+              campaign_type: form.campaign_type,
+  
+              image_url: form.image_url,
+  
+              button_text: form.button_text || null,
+  
+              button_url: form.button_url || null,
+  
+              priority: form.priority,
+  
+              duration: form.duration,
+  
+              all_products: form.all_products,
+  
+              is_active: form.is_active,
+  
+            })
+  
+            .select()
+  
+            .single()
+  
+          if (error) throw error
+  
+          campaignId = data.id
+  
+        }
+  
+        if (!campaignId)
+  
+          throw new Error('Campaign ID not found.')
+  
+        await supabase
+  
+          .from('desktop_campaign_products')
+  
+          .delete()
+  
+          .eq('campaign_id', campaignId)
+  
+        if (
+  
+          !form.all_products &&
+  
+          form.product_ids.length > 0
+  
+        ) {
+  
+          const rows = form.product_ids.map(
+  
+            product_id => ({
+  
+              campaign_id: campaignId,
+  
+              product_id,
+  
+            })
+  
+          )
+  
+          const { error } = await supabase
+  
+            .from('desktop_campaign_products')
+  
+            .insert(rows)
+  
+          if (error) throw error
+  
+        }
+  
+        toast.success(
+  
+          editingId
+  
+            ? 'Campaign updated.'
+  
+            : 'Campaign created.'
+  
+        )
+  
+        setDialogOpen(false)
+  
+        setEditingId(null)
+  
+        setForm({
+          ...defaultForm,
+          product_ids: [],
+        })
+  
+        await loadCampaigns()
+  
+      }
+  
+      catch (err: any) {
+  
+        toast.error(
+  
+          err.message ||
+  
+          'Failed to save campaign.'
+  
+        )
+  
+      }
+  
+      finally {
+  
+        setSaving(false)
+  
+      }
+  
+    }
+  
+    async function deleteCampaign(
+  
+      row: CampaignRow
+  
+    ) {
+  
+      if (
+  
+        !confirm(
+  
+          `Delete "${row.campaign_name}" ?`
+  
+        )
+  
+      ) return
+  
+      const { error } = await supabase
+  
+        .from('desktop_campaigns')
+  
+        .delete()
+  
+        .eq('id', row.id)
+  
+      if (error) {
+  
+        toast.error(error.message)
+  
+        return
+  
+      }
+  
+      toast.success(
+  
+        'Campaign deleted.'
+  
+      )
+  
+      await loadCampaigns()
+  
+    }
 
-    banner: Banner
-
-  ) {
-
-    setSelectedBanner(banner)
-
-    setDeleteDialogOpen(true)
-
-  }
-    function renderForm() {
+      if (loading) {
 
     return (
 
-      <div className="space-y-4">
-
-        <div className="space-y-2">
-
-          <Label>
-
-            Banner Image *
-
-          </Label>
-
-          {
-
-            form.image_url ? (
-
-              <div className="relative inline-block">
-
-                <img
-
-                  src={form.image_url}
-
-                  alt="Banner"
-
-                  className="h-44 w-full rounded-lg border object-cover"
-
-                />
-
-                <button
-
-                  type="button"
-
-                  onClick={removeImage}
-
-                  className="absolute right-2 top-2 rounded-full bg-black/60 p-2 text-white"
-
-                >
-
-                  <X className="h-4 w-4"/>
-
-                </button>
-
-              </div>
-
-            ) : (
-
-              <label className="flex h-44 cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed">
-
-                {
-
-                  uploading
-
-                  ?
-
-                  <Loader2 className="h-8 w-8 animate-spin"/>
-
-                  :
-
-                  <ImageIcon className="h-8 w-8"/>
-
-                }
-
-                <span className="mt-3 text-sm">
-
-                  {
-
-                    uploading
-
-                    ?
-
-                    'Uploading...'
-
-                    :
-
-                    'Click to upload banner'
-
-                  }
-
-                </span>
-
-                <input
-
-                  ref={fileInputRef}
-
-                  type="file"
-
-                  accept="image/jpeg,image/png,image/webp,image/gif"
-
-                  className="hidden"
-
-                  onChange={handleImageUpload}
-
-                />
-
-              </label>
-
-            )
-
-          }
-
-        </div>
-
-        <div className="space-y-2">
-
-          <Label>
-
-            Title
-
-          </Label>
-
-          <Input
-
-            value={form.title}
-
-            onChange={(e)=>
-
-              setForm({
-
-                ...form,
-
-                title:e.target.value
-
-              })
-
-            }
-
-          />
-
-        </div>
-
-        <div className="space-y-2">
-
-          <Label>
-
-            Button URL *
-
-          </Label>
-
-          <Input
-
-            placeholder="https://..."
-
-            value={form.button_url}
-
-            onChange={(e)=>
-
-              setForm({
-
-                ...form,
-
-                button_url:e.target.value
-
-              })
-
-            }
-
-          />
-
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-
-          <div className="space-y-2">
-
-            <Label>
-
-              Duration (Second)
-
-            </Label>
-
-            <Input
-
-              type="number"
-
-              min={1}
-
-              value={form.duration}
-
-              onChange={(e)=>
-
-                setForm({
-
-                  ...form,
-
-                  duration:Number(e.target.value)
-
-                })
-
-              }
-
-            />
-
-          </div>
-
-          <div className="space-y-2">
-
-            <Label>
-
-              Sort Order
-
-            </Label>
-
-            <Input
-
-              type="number"
-
-              min={1}
-
-              value={form.sort_order}
-
-              onChange={(e)=>
-
-                setForm({
-
-                  ...form,
-
-                  sort_order:Number(e.target.value)
-
-                })
-
-              }
-
-            />
-
-          </div>
-
-        </div>
-
-        <div className="flex items-center gap-2">
-
-          <input
-
-            id="active"
-
-            type="checkbox"
-
-            checked={form.is_active}
-
-            onChange={(e)=>
-
-              setForm({
-
-                ...form,
-
-                is_active:e.target.checked
-
-              })
-
-            }
-
-          />
-
-          <Label htmlFor="active">
-
-            Active
-
-          </Label>
-
-        </div>
-
-      </div>
-
-    )
-
-  }
-    if (loading) {
-
-    return (
-
-      <div className="flex justify-center py-12">
+      <div className="flex h-[400px] items-center justify-center">
 
         <Loader2 className="h-8 w-8 animate-spin" />
 
@@ -811,460 +476,64 @@ export default function AdminBannerPage() {
 
           <h1 className="text-3xl font-bold">
 
-            Banner Manager
+            Campaign Manager
 
           </h1>
 
           <p className="text-muted-foreground">
 
-            Manage dashboard carousel banners.
+            Manage marketing campaigns across all products.
 
           </p>
 
         </div>
 
-        <Button
-          onClick={() => {
-        
-            resetForm()
-        
-            fileInputRef.current = null
-        
-            setAddDialogOpen(true)
-        
-          }}
-        >
+        <Button onClick={openCreate}>
 
-          <Plus className="mr-2 h-4 w-4"/>
+          <Plus className="mr-2 h-4 w-4" />
 
-          Add Banner
+          New Campaign
 
         </Button>
 
       </div>
 
-      <Card>
+      <CampaignTable
 
-        <CardHeader>
+        campaigns={campaigns}
 
-          <CardTitle>
+        onEdit={openEdit}
 
-            All Banners
+        onDelete={deleteCampaign}
 
-          </CardTitle>
+      />
 
-        </CardHeader>
+      <CampaignDialog
 
-        <CardContent className="p-0">
+        open={dialogOpen}
 
-          <div className="overflow-x-auto">
+        saving={saving}
 
-            <table className="w-full">
+        value={form}
 
-              <thead>
+        onChange={setForm}
 
-                <tr className="border-b">
+        onClose={() => {
 
-                  <th className="px-4 py-3 text-left">
+          setDialogOpen(false)
 
-                    Preview
+          setEditingId(null)
 
-                  </th>
+          setForm({
+            ...defaultForm,
+            product_ids: [],
+          })
 
-                  <th className="px-4 py-3 text-left">
+        }}
 
-                    URL
+        onSave={saveCampaign}
 
-                  </th>
-
-                  <th className="px-4 py-3 text-center">
-
-                    Duration
-
-                  </th>
-
-                  <th className="px-4 py-3 text-center">
-
-                    Order
-
-                  </th>
-
-                  <th className="px-4 py-3 text-center">
-
-                    Status
-
-                  </th>
-
-                  <th className="px-4 py-3 text-center">
-
-                    Actions
-
-                  </th>
-
-                </tr>
-
-              </thead>
-
-              <tbody>
-
-                {
-
-                  banners.map((banner) => (
-
-                    <tr
-
-                      key={banner.id}
-
-                      className="border-b hover:bg-muted/40"
-
-                    >
-
-                      <td className="px-4 py-4">
-
-                        <img
-
-                          src={banner.image_url}
-
-                          alt="Banner"
-
-                          className="h-24 w-48 rounded-lg border object-cover"
-
-                        />
-
-                      </td>
-
-                      <td className="px-4 py-4">
-
-                        <div className="max-w-sm truncate">
-
-                          {banner.button_url}
-
-                        </div>
-
-                      </td>
-
-                      <td className="px-4 py-4 text-center">
-
-                        {banner.duration}s
-
-                      </td>
-
-                      <td className="px-4 py-4 text-center">
-
-                        {banner.sort_order}
-
-                      </td>
-
-                      <td className="px-4 py-4 text-center">
-
-                        {
-
-                          banner.is_active
-
-                          ?
-
-                          <Badge>
-
-                            Active
-
-                          </Badge>
-
-                          :
-
-                          <Badge variant="secondary">
-
-                            Disabled
-
-                          </Badge>
-
-                        }
-
-                      </td>
-
-                      <td className="px-4 py-4">
-
-                        <div className="flex justify-center gap-2">
-
-                          <Button
-
-                            size="sm"
-
-                            variant="outline"
-
-                            onClick={()=>
-
-                              openEdit(banner)
-
-                            }
-
-                          >
-
-                            <Edit className="mr-1 h-3 w-3"/>
-
-                            Edit
-
-                          </Button>
-
-                          <Button
-
-                            size="sm"
-
-                            variant="destructive"
-
-                            onClick={()=>
-
-                              openDelete(banner)
-
-                            }
-
-                          >
-
-                            <Trash2 className="mr-1 h-3 w-3"/>
-
-                            Delete
-
-                          </Button>
-
-                        </div>
-
-                      </td>
-
-                    </tr>
-
-                  ))
-
-                }
-
-              </tbody>
-
-            </table>
-
-          </div>
-
-        </CardContent>
-
-      </Card>
-            <Dialog
-
-        open={addDialogOpen}
-
-        onOpenChange={setAddDialogOpen}
-
-      >
-
-        <DialogContent className="sm:max-w-xl">
-
-          <DialogHeader>
-
-            <DialogTitle>
-
-              Add Banner
-
-            </DialogTitle>
-
-            <DialogDescription>
-
-              Create new dashboard banner.
-
-            </DialogDescription>
-
-          </DialogHeader>
-
-          {renderForm()}
-
-          <DialogFooter>
-
-            <Button
-
-              variant="outline"
-
-              onClick={()=>
-
-                setAddDialogOpen(false)
-
-              }
-
-            >
-
-              Cancel
-
-            </Button>
-
-            <Button
-
-              disabled={saving}
-
-              onClick={handleAdd}
-
-            >
-
-              {
-
-                saving &&
-
-                <Loader2 className="mr-2 h-4 w-4 animate-spin"/>
-
-              }
-
-              Save
-
-            </Button>
-
-          </DialogFooter>
-
-        </DialogContent>
-
-      </Dialog>
-
-      <Dialog
-
-        open={editDialogOpen}
-
-        onOpenChange={setEditDialogOpen}
-
-      >
-
-        <DialogContent className="sm:max-w-xl">
-
-          <DialogHeader>
-
-            <DialogTitle>
-
-              Edit Banner
-
-            </DialogTitle>
-
-            <DialogDescription>
-
-              Update banner information.
-
-            </DialogDescription>
-
-          </DialogHeader>
-
-          {renderForm()}
-
-          <DialogFooter>
-
-            <Button
-
-              variant="outline"
-
-              onClick={()=> {
-
-                resetForm()
-
-                setSelectedBanner(null)
-              
-                setOldImageUrl('')
-              
-                setEditDialogOpen(false)
-
-              }}
-
-            >
-
-              Cancel
-
-            </Button>
-
-            <Button
-
-              disabled={saving}
-
-              onClick={handleEdit}
-
-            >
-
-              {
-
-                saving &&
-
-                <Loader2 className="mr-2 h-4 w-4 animate-spin"/>
-
-              }
-
-              Save Changes
-
-            </Button>
-
-          </DialogFooter>
-
-        </DialogContent>
-
-      </Dialog>
-
-      <Dialog
-
-        open={deleteDialogOpen}
-
-        onOpenChange={setDeleteDialogOpen}
-
-      >
-
-        <DialogContent>
-
-          <DialogHeader>
-
-            <DialogTitle>
-
-              Delete Banner
-
-            </DialogTitle>
-
-            <DialogDescription>
-
-              Are you sure you want to delete this banner?
-
-            </DialogDescription>
-
-          </DialogHeader>
-
-          <DialogFooter>
-
-            <Button
-
-              variant="outline"
-
-              onClick={()=>
-
-                setDeleteDialogOpen(false)
-
-              }
-
-            >
-
-              Cancel
-
-            </Button>
-
-            <Button
-
-              variant="destructive"
-
-              disabled={deleting}
-
-              onClick={handleDelete}
-
-            >
-
-              {
-
-                deleting &&
-
-                <Loader2 className="mr-2 h-4 w-4 animate-spin"/>
-
-              }
-
-              Delete
-
-            </Button>
-
-          </DialogFooter>
-
-        </DialogContent>
-
-      </Dialog>
+      />
 
     </div>
 
