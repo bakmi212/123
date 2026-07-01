@@ -4,82 +4,138 @@ import { createClient } from '@supabase/supabase-js'
 
 const supabase = createClient(
 
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
 
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
 
 )
 
 export async function GET(request: Request) {
 
-    try {
+  try {
 
-        const { searchParams } =
+    const { searchParams } =
 
-            new URL(request.url)
+      new URL(request.url)
 
-        const product =
+    const product =
 
-            searchParams.get('product')
+      searchParams.get('product')
 
-        if (!product) {
+    if (!product) {
 
-            return NextResponse.json({
+      return NextResponse.json(
 
-                success:false,
+        {
 
-                message:'Missing product.'
+          success: false,
 
-            },{
+          message: 'Missing product.'
 
-                status:400
+        },
 
-            })
+        {
+
+          status: 400
 
         }
 
-        const { data,error } =
-
-            await supabase.rpc(
-
-                'get_desktop_campaigns',
-
-                {
-
-                    p_product_slug:product
-
-                }
-
-            )
-
-        if(error)
-
-            throw error
-
-        return NextResponse.json({
-
-            success:true,
-
-            campaigns:data ?? []
-
-        })
+      )
 
     }
 
-    catch(err:any){
+    const {
 
-        return NextResponse.json({
+      data: campaigns,
 
-            success:false,
+      error: campaignError
 
-            message:err.message
+    } = await supabase.rpc(
 
-        },{
+      'get_desktop_campaigns',
 
-            status:500
+      {
 
-        })
+        p_product_slug: product
 
-    }
+      }
+
+    )
+
+    if (campaignError)
+
+      throw campaignError
+
+    const {
+
+      data: remoteConfig,
+
+      error: remoteError
+
+    } = await supabase
+
+      .from('desktop_settings')
+
+      .select('setting_value')
+
+      .eq(
+
+        'setting_key',
+
+        'remote_config'
+
+      )
+
+      .single()
+
+    if (remoteError)
+
+      throw remoteError
+
+    return NextResponse.json({
+
+      success: true,
+
+      bootstrap: {
+
+        campaigns:
+
+          campaigns ?? [],
+
+        remote_config:
+
+          remoteConfig?.setting_value ?? {},
+
+        news: []
+
+      }
+
+    })
+
+  }
+
+  catch (err: any) {
+
+    return NextResponse.json(
+
+      {
+
+        success: false,
+
+        message:
+
+          err.message
+
+      },
+
+      {
+
+        status: 500
+
+      }
+
+    )
+
+  }
 
 }
