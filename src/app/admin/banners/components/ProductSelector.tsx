@@ -1,6 +1,10 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+
+import { Search } from 'lucide-react'
+
+import { Input } from '@/components/ui/input'
 
 import { createBrowserClient } from '@/lib/supabase/client'
 
@@ -50,6 +54,10 @@ export default function ProductSelector({
 
     useState<Product[]>([])
 
+  const [keyword, setKeyword] =
+
+    useState('')
+
   useEffect(() => {
 
     loadProducts()
@@ -62,7 +70,11 @@ export default function ProductSelector({
 
       .from('products')
 
-      .select('id,name,slug,image_url')
+      .select(
+
+        'id,name,slug,image_url'
+
+      )
 
       .eq('is_active', true)
 
@@ -74,9 +86,51 @@ export default function ProductSelector({
 
   }
 
-  function toggleProduct(id: string) {
+  const filtered = useMemo(() => {
 
-    if (selected.includes(id)) {
+    const q =
+
+      keyword.toLowerCase()
+
+    return products.filter(
+
+      p =>
+
+        p.name
+
+          .toLowerCase()
+
+          .includes(q)
+
+        ||
+
+        p.slug
+
+          .toLowerCase()
+
+          .includes(q)
+
+    )
+
+  }, [
+
+    keyword,
+
+    products,
+
+  ])
+
+  function toggleProduct(
+
+    id: string
+
+  ) {
+
+    if (
+
+      selected.includes(id)
+
+    ) {
 
       onChange(
 
@@ -106,17 +160,15 @@ export default function ProductSelector({
 
     <div className="space-y-4">
 
-      <div className="flex items-center gap-3">
+      <label className="flex cursor-pointer items-center gap-3 rounded-lg border p-4">
 
         <input
-
-          id="all-products"
 
           type="checkbox"
 
           checked={allProducts}
 
-          onChange={(e) =>
+          onChange={(e)=>
 
             onAllChange(
 
@@ -128,115 +180,205 @@ export default function ProductSelector({
 
         />
 
-        <label
+        <div>
 
-          htmlFor="all-products"
+          <div className="font-medium">
 
-          className="text-sm font-medium"
+            All Products
 
-        >
+          </div>
 
-          All Products
+          <div className="text-sm text-muted-foreground">
 
-        </label>
+            Show this campaign on every desktop product.
 
-      </div>
+          </div>
+
+        </div>
+
+      </label>
 
       {
 
         !allProducts && (
 
-          <div className="rounded-lg border">
+          <>
 
-            {
+            <div className="relative">
 
-              loading
+              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground"/>
 
-                ?
+              <Input
 
-                <div className="p-4 text-sm text-muted-foreground">
+                className="pl-9"
 
-                  Loading products...
+                placeholder="Search product..."
 
-                </div>
+                value={keyword}
 
-                :
+                onChange={(e)=>
 
-                products.map(product => (
+                  setKeyword(
 
-                  <label
+                    e.target.value
 
-                    key={product.id}
+                  )
 
-                    className="flex cursor-pointer items-center gap-3 border-b px-4 py-3 last:border-0"
+                }
 
-                  >
+              />
 
-                    <input
+            </div>
 
-                      type="checkbox"
+            <div className="rounded-lg border">
 
-                      checked={
+              <div className="flex items-center justify-between border-b px-4 py-3">
 
-                        selected.includes(
+                <span className="text-sm font-medium">
 
-                          product.id
+                  Products
 
-                        )
+                </span>
 
-                      }
+                <span className="text-xs text-muted-foreground">
 
-                      onChange={() =>
+                  {
 
-                        toggleProduct(
+                    selected.length
 
-                          product.id
+                  } selected
 
-                        )
+                </span>
 
-                      }
+              </div>
 
-                    />
+              <div className="max-h-64 overflow-y-auto">
 
-                    {
+                {
 
-                      product.image_url && (
+                  loading
 
-                        <img
+                  ?
 
-                          src={product.image_url}
+                  <div className="p-4 text-sm text-muted-foreground">
 
-                          className="h-8 w-8 rounded object-cover"
+                    Loading products...
+
+                  </div>
+
+                  :
+
+                  filtered.length === 0
+
+                  ?
+
+                  <div className="p-4 text-sm text-muted-foreground">
+
+                    No products found.
+
+                  </div>
+
+                  :
+
+                  filtered.map(
+
+                    product => (
+
+                      <label
+
+                        key={product.id}
+
+                        className="flex cursor-pointer items-center gap-3 border-b px-4 py-3 transition hover:bg-muted/40 last:border-0"
+
+                      >
+
+                        <input
+
+                          type="checkbox"
+
+                          checked={
+
+                            selected.includes(
+
+                              product.id
+
+                            )
+
+                          }
+
+                          onChange={()=>
+
+                            toggleProduct(
+
+                              product.id
+
+                            )
+
+                          }
 
                         />
 
-                      )
+                        {
 
-                    }
+                          product.image_url
 
-                    <div>
+                          ?
 
-                      <div className="font-medium">
+                          <img
 
-                        {product.name}
+                            src={
 
-                      </div>
+                              product.image_url
 
-                      <div className="text-xs text-muted-foreground">
+                            }
 
-                        {product.slug}
+                            className="h-10 w-10 rounded-lg border object-cover"
 
-                      </div>
+                          />
 
-                    </div>
+                          :
 
-                  </label>
+                          <div className="h-10 w-10 rounded-lg bg-muted"/>
 
-                ))
+                        }
 
-            }
+                        <div className="flex-1">
 
-          </div>
+                          <div className="font-medium">
+
+                            {
+
+                              product.name
+
+                            }
+
+                          </div>
+
+                          <div className="text-xs text-muted-foreground">
+
+                            {
+
+                              product.slug
+
+                            }
+
+                          </div>
+
+                        </div>
+
+                      </label>
+
+                    )
+
+                  )
+
+                }
+
+              </div>
+
+            </div>
+
+          </>
 
         )
 
