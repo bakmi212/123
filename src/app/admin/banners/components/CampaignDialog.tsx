@@ -1,132 +1,88 @@
 'use client'
 
 import {
-
   Dialog,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-
 } from '@/components/ui/dialog'
 
 import { Button } from '@/components/ui/button'
-
 import { Input } from '@/components/ui/input'
-
 import { Label } from '@/components/ui/label'
 
 import ImageUploader from './ImageUploader'
-
 import ProductSelector from './ProductSelector'
 
 export interface CampaignForm {
-
   campaign_name: string
-
   campaign_type: 'banner'
-
   image_url: string
-
   button_text: string
-
   button_url: string
-
   priority: number
-
   duration: number
-
   all_products: boolean
-
   product_ids: string[]
-
   is_active: boolean
-
 }
 
 interface Props {
-
   open: boolean
-
   saving: boolean
-
   value: CampaignForm
-
   onClose: () => void
-
   onSave: () => void
-
   onChange: (value: CampaignForm) => void
-
 }
 
 export default function CampaignDialog({
-
   open,
-
   saving,
-
   value,
-
   onClose,
-
   onSave,
-
   onChange,
-
 }: Props) {
-
   return (
-
     <Dialog
-
       open={open}
-
-      onOpenChange={(v)=>{
-
-        if(!v) onClose()
-
+      onOpenChange={(v) => {
+        if (!v) onClose()
       }}
-
     >
+      <DialogContent className="max-h-[92vh] overflow-hidden p-0 sm:max-w-3xl">
 
-      <DialogContent className="sm:max-w-2xl">
-
-        <DialogHeader>
+        <DialogHeader className="border-b px-6 py-5">
 
           <DialogTitle>
 
-            Campaign
+            {value.campaign_name
+              ? 'Edit Campaign'
+              : 'New Campaign'}
 
           </DialogTitle>
 
           <DialogDescription>
 
-            Create or update desktop campaign.
+            Configure a desktop marketing campaign.
 
           </DialogDescription>
 
         </DialogHeader>
 
-        <div className="space-y-6">
+        <div className="max-h-[70vh] space-y-6 overflow-y-auto px-6 py-6">
 
           <ImageUploader
-
             value={value.image_url}
-
-            onChange={(url)=>
-
+            onChange={(url) =>
               onChange({
-
                 ...value,
-
-                image_url:url
-
+                image_url: url,
               })
-
             }
-
           />
 
           <div className="space-y-2">
@@ -138,82 +94,61 @@ export default function CampaignDialog({
             </Label>
 
             <Input
-
+              placeholder="Summer Promotion"
               value={value.campaign_name}
-
-              onChange={(e)=>
-
+              onChange={(e) =>
                 onChange({
-
                   ...value,
-
-                  campaign_name:e.target.value
-
+                  campaign_name: e.target.value,
                 })
-
               }
-
             />
 
           </div>
 
-          <div className="space-y-2">
+          <div className="grid grid-cols-2 gap-4">
 
-            <Label>
+            <div className="space-y-2">
 
-              Button Text
+              <Label>
 
-            </Label>
+                Button Text
 
-            <Input
+              </Label>
 
-              placeholder="Learn More"
+              <Input
+                placeholder="Learn More"
+                value={value.button_text}
+                onChange={(e) =>
+                  onChange({
+                    ...value,
+                    button_text: e.target.value,
+                  })
+                }
+              />
 
-              value={value.button_text}
+            </div>
 
-              onChange={(e)=>
+            <div className="space-y-2">
 
-                onChange({
+              <Label>
 
-                  ...value,
+                Button URL
 
-                  button_text:e.target.value
+              </Label>
 
-                })
+              <Input
+                placeholder="https://..."
+                value={value.button_url}
+                onChange={(e) =>
+                  onChange({
+                    ...value,
+                    button_url: e.target.value,
+                  })
+                }
+              />
 
-              }
-
-            />
-
-          </div>
-
-          <div className="space-y-2">
-
-            <Label>
-
-              Button URL
-
-            </Label>
-
-            <Input
-
-              placeholder="https://..."
-
-              value={value.button_url}
-
-              onChange={(e)=>
-
-                onChange({
-
-                  ...value,
-
-                  button_url:e.target.value
-
-                })
-
-              }
-
-            />
+            </div>
 
           </div>
 
@@ -228,23 +163,14 @@ export default function CampaignDialog({
               </Label>
 
               <Input
-
                 type="number"
-
                 value={value.priority}
-
-                onChange={(e)=>
-
+                onChange={(e) =>
                   onChange({
-
                     ...value,
-
-                    priority:Number(e.target.value)
-
+                    priority: Number(e.target.value),
                   })
-
                 }
-
               />
 
             </div>
@@ -258,139 +184,115 @@ export default function CampaignDialog({
               </Label>
 
               <Input
-
                 type="number"
-
                 min={1}
-
                 value={value.duration}
-
-                onChange={(e)=>
-
+                onChange={(e) =>
                   onChange({
-
                     ...value,
-
-                    duration:Number(e.target.value)
-
+                    duration: Number(e.target.value),
                   })
-
                 }
-
               />
 
             </div>
 
           </div>
 
-          <ProductSelector
+          <div className="border-t pt-6">
 
-            allProducts={value.all_products}
+            <h3 className="font-semibold">
 
-            selected={value.product_ids}
+              Distribution
 
-            onAllChange={(checked)=>
+            </h3>
 
-              onChange({
+            <p className="mb-4 text-sm text-muted-foreground">
 
-                ...value,
+              Select which products will display this campaign.
 
-                all_products:checked,
+            </p>
 
-                product_ids:
-
-                  checked
-
-                  ?
-
-                  []
-
-                  :
-
-                  value.product_ids
-
-              })
-
-            }
-
-            onChange={(ids)=>
-
-              onChange({
-
-                ...value,
-
-                product_ids:ids
-
-              })
-
-            }
-
-          />
-
-          <div className="flex items-center gap-3">
-
-            <input
-
-              type="checkbox"
-
-              checked={value.is_active}
-
-              onChange={(e)=>
-
+            <ProductSelector
+              allProducts={value.all_products}
+              selected={value.product_ids}
+              onAllChange={(checked) =>
                 onChange({
-
                   ...value,
-
-                  is_active:e.target.checked
-
+                  all_products: checked,
+                  product_ids: checked
+                    ? []
+                    : value.product_ids,
                 })
-
               }
-
+              onChange={(ids) =>
+                onChange({
+                  ...value,
+                  product_ids: ids,
+                })
+              }
             />
 
-            <Label>
+          </div>
 
-              Active
+          <div className="border-t pt-5">
 
-            </Label>
+            <label className="flex cursor-pointer items-center gap-3">
+
+              <input
+                type="checkbox"
+                checked={value.is_active}
+                onChange={(e) =>
+                  onChange({
+                    ...value,
+                    is_active: e.target.checked,
+                  })
+                }
+              />
+
+              <div>
+
+                <div className="font-medium">
+
+                  Active Campaign
+
+                </div>
+
+                <div className="text-sm text-muted-foreground">
+
+                  Users can see this campaign.
+
+                </div>
+
+              </div>
+
+            </label>
 
           </div>
 
         </div>
 
-        <DialogFooter>
+        <DialogFooter className="border-t px-6 py-4">
 
           <Button
-
             variant="outline"
-
             onClick={onClose}
-
           >
-
             Cancel
-
           </Button>
 
           <Button
-
             disabled={saving}
-
             onClick={onSave}
-
           >
-
-            Save Campaign
-
+            {saving
+              ? 'Saving...'
+              : 'Save Campaign'}
           </Button>
 
         </DialogFooter>
 
       </DialogContent>
-
     </Dialog>
-
   )
-
 }
