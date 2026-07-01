@@ -71,7 +71,7 @@ export async function saveRelease(data: {
     await supabaseAdmin
       .from("updates")
       .upsert(payload, {
-        onConflict: "version",
+        onConflict: "product_id,version",
       })
       .select()
       .single();
