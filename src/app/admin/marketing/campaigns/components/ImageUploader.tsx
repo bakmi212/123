@@ -4,11 +4,11 @@ import { useRef, useState } from 'react'
 
 import {
 
-  Loader2,
-
   Image as ImageIcon,
 
-  X
+  Loader2,
+
+  X,
 
 } from 'lucide-react'
 
@@ -38,7 +38,7 @@ export default function ImageUploader({
 
 }: Props) {
 
-  const fileInputRef =
+  const inputRef =
 
     useRef<HTMLInputElement>(null)
 
@@ -46,19 +46,15 @@ export default function ImageUploader({
 
     useState(false)
 
-  async function upload(
+  async function handleUpload(
 
     e: React.ChangeEvent<HTMLInputElement>
 
   ) {
 
-    const file =
+    const file = e.target.files?.[0]
 
-      e.target.files?.[0]
-
-    if (!file)
-
-      return
+    if (!file) return
 
     const validate =
 
@@ -88,7 +84,11 @@ export default function ImageUploader({
 
     if (!image) {
 
-      toast.error('Upload failed')
+      toast.error(
+
+        'Upload failed.'
+
+      )
 
       return
 
@@ -102,21 +102,15 @@ export default function ImageUploader({
 
     )
 
-    if (fileInputRef.current)
+    if (inputRef.current)
 
-      fileInputRef.current.value = ''
-
-  }
-
-  function remove() {
-
-    onChange('')
+      inputRef.current.value = ''
 
   }
 
   return (
 
-    <div className="space-y-3">
+    <div className="space-y-2">
 
       {
 
@@ -130,9 +124,7 @@ export default function ImageUploader({
 
             src={value}
 
-            alt="Banner"
-
-            className="h-52 w-full rounded-xl border object-cover"
+            className="h-56 w-full rounded-lg border object-cover"
 
           />
 
@@ -140,9 +132,13 @@ export default function ImageUploader({
 
             type="button"
 
-            onClick={remove}
+            className="absolute right-2 top-2 rounded-full bg-black/60 p-2 text-white"
 
-            className="absolute right-3 top-3 rounded-full bg-black/70 p-2 text-white"
+            onClick={()=>
+
+              onChange('')
+
+            }
 
           >
 
@@ -154,11 +150,7 @@ export default function ImageUploader({
 
         :
 
-        <label
-
-          className="flex h-52 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed"
-
-        >
+        <label className="flex h-56 cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed">
 
           {
 
@@ -174,7 +166,7 @@ export default function ImageUploader({
 
           }
 
-          <div className="mt-4 text-sm">
+          <span className="mt-3 text-sm">
 
             {
 
@@ -182,27 +174,27 @@ export default function ImageUploader({
 
               ?
 
-              'Uploading image...'
+              'Uploading...'
 
               :
 
-              'Click to upload campaign banner'
+              'Click to upload banner'
 
             }
 
-          </div>
+          </span>
 
           <input
 
-            ref={fileInputRef}
+            ref={inputRef}
 
             type="file"
 
-            accept="image/jpeg,image/png,image/webp"
+            accept="image/*"
 
             className="hidden"
 
-            onChange={upload}
+            onChange={handleUpload}
 
           />
 
