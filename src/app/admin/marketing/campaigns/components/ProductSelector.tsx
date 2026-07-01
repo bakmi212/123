@@ -42,9 +42,13 @@ export default function ProductSelector({
 
   const supabase = createBrowserClient()
 
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] =
 
-  const [products, setProducts] = useState<Product[]>([])
+    useState(true)
+
+  const [products, setProducts] =
+
+    useState<Product[]>([])
 
   useEffect(() => {
 
@@ -62,7 +66,7 @@ export default function ProductSelector({
 
       .eq('is_active', true)
 
-      .order('sort_order')
+      .order('name')
 
     setProducts(data ?? [])
 
@@ -76,7 +80,11 @@ export default function ProductSelector({
 
       onChange(
 
-        selected.filter(x => x !== id)
+        selected.filter(
+
+          x => x !== id
+
+        )
 
       )
 
@@ -88,7 +96,7 @@ export default function ProductSelector({
 
       ...selected,
 
-      id
+      id,
 
     ])
 
@@ -108,7 +116,7 @@ export default function ProductSelector({
 
           checked={allProducts}
 
-          onChange={(e)=>
+          onChange={(e) =>
 
             onAllChange(
 
@@ -144,83 +152,87 @@ export default function ProductSelector({
 
               loading
 
-              ?
+                ?
 
-              <div className="p-4 text-sm text-muted-foreground">
+                <div className="p-4 text-sm text-muted-foreground">
 
-                Loading products...
+                  Loading products...
 
-              </div>
+                </div>
 
-              :
+                :
 
-              products.map(product => (
+                products.map(product => (
 
-                <label
+                  <label
 
-                  key={product.id}
+                    key={product.id}
 
-                  className="flex cursor-pointer items-center gap-3 border-b px-4 py-3 last:border-0"
+                    className="flex cursor-pointer items-center gap-3 border-b px-4 py-3 last:border-0"
 
-                >
+                  >
 
-                  <input
+                    <input
 
-                    type="checkbox"
+                      type="checkbox"
 
-                    checked={
+                      checked={
 
-                      selected.includes(product.id)
+                        selected.includes(
 
-                    }
+                          product.id
 
-                    onChange={()=>
+                        )
 
-                      toggleProduct(
+                      }
 
-                        product.id
+                      onChange={() =>
+
+                        toggleProduct(
+
+                          product.id
+
+                        )
+
+                      }
+
+                    />
+
+                    {
+
+                      product.image_url && (
+
+                        <img
+
+                          src={product.image_url}
+
+                          className="h-8 w-8 rounded object-cover"
+
+                        />
 
                       )
 
                     }
 
-                  />
+                    <div>
 
-                  {
+                      <div className="font-medium">
 
-                    product.image_url && (
+                        {product.name}
 
-                      <img
+                      </div>
 
-                        src={product.image_url}
+                      <div className="text-xs text-muted-foreground">
 
-                        className="h-8 w-8 rounded object-cover"
+                        {product.slug}
 
-                      />
-
-                    )
-
-                  }
-
-                  <div>
-
-                    <div className="font-medium">
-
-                      {product.name}
+                      </div>
 
                     </div>
 
-                    <div className="text-xs text-muted-foreground">
+                  </label>
 
-                      {product.slug}
-
-                    </div>
-
-                  </div>
-
-                </label>
-
-              ))
+                ))
 
             }
 
