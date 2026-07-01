@@ -4,7 +4,7 @@ export interface ManifestFile {
   name: string;
   size: number;
   url?: string;
-  sha256: string;
+  sha256?: string;
 }
 
 export interface Manifest {
@@ -18,31 +18,24 @@ export async function createManifest(
   assets: any[]
 ): Promise<Manifest> {
 
-  const files: ManifestFile[] = [];
-
-  for (const asset of assets) {
-
-    const hash = crypto
-      .createHash("sha256")
-      .update(
-        `${asset.name}${asset.size}${version}`
-      )
-      .digest("hex");
-
-    files.push({
-      name: asset.name,
-      size: asset.size,
-      url: asset.browser_download_url,
-      sha256: hash,
-    });
-
-  }
-
   return {
+
     version,
-    generated_at:
-      new Date().toISOString(),
-    files,
+
+    generated_at: new Date().toISOString(),
+
+    files: assets.map(asset => ({
+
+      name: asset.name,
+
+      size: asset.size,
+
+      url: asset.browser_download_url,
+
+      sha256: asset.digest ?? "",
+
+    })),
+
   };
 
 }
