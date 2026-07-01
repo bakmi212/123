@@ -6,13 +6,19 @@ import {
 
   Trash2,
 
-  ImageOff
-
 } from 'lucide-react'
 
-import { Badge } from '@/components/ui/badge'
+import {
 
-import { Button } from '@/components/ui/button'
+  Badge,
+
+} from '@/components/ui/badge'
+
+import {
+
+  Button,
+
+} from '@/components/ui/button'
 
 export interface CampaignRow {
 
@@ -22,13 +28,11 @@ export interface CampaignRow {
 
   campaign_type: string
 
-  image_url: string | null
+  image_url: string
 
-  button_text: string | null
+  button_text: string
 
-  button_url: string | null
-  
-  product_ids: string[]
+  button_url: string
 
   priority: number
 
@@ -39,6 +43,8 @@ export interface CampaignRow {
   all_products: boolean
 
   products: string[]
+
+  product_ids: string[]
 
 }
 
@@ -62,19 +68,33 @@ export default function CampaignTable({
 
 }: Props) {
 
+  if (campaigns.length === 0) {
+
+    return (
+
+      <div className="rounded-lg border py-12 text-center text-muted-foreground">
+
+        No campaigns found.
+
+      </div>
+
+    )
+
+  }
+
   return (
 
-    <div className="overflow-x-auto rounded-xl border">
+    <div className="overflow-hidden rounded-lg border">
 
       <table className="w-full">
 
-        <thead>
+        <thead className="bg-muted/50">
 
-          <tr className="border-b bg-muted/40">
+          <tr>
 
             <th className="px-4 py-3 text-left">
 
-              Preview
+              Banner
 
             </th>
 
@@ -86,7 +106,7 @@ export default function CampaignTable({
 
             <th className="px-4 py-3 text-left">
 
-              Products
+              Distribution
 
             </th>
 
@@ -98,13 +118,19 @@ export default function CampaignTable({
 
             <th className="px-4 py-3 text-center">
 
+              Duration
+
+            </th>
+
+            <th className="px-4 py-3 text-center">
+
               Status
 
             </th>
 
             <th className="px-4 py-3 text-center">
 
-              Action
+              Actions
 
             </th>
 
@@ -116,37 +142,13 @@ export default function CampaignTable({
 
           {
 
-            campaigns.length === 0 && (
-
-              <tr>
-
-                <td
-
-                  colSpan={6}
-
-                  className="py-16 text-center text-muted-foreground"
-
-                >
-
-                  No campaigns yet.
-
-                </td>
-
-              </tr>
-
-            )
-
-          }
-
-          {
-
-            campaigns.map(campaign => (
+            campaigns.map(row => (
 
               <tr
 
-                key={campaign.id}
+                key={row.id}
 
-                className="border-b hover:bg-muted/30"
+                className="border-t"
 
               >
 
@@ -154,51 +156,51 @@ export default function CampaignTable({
 
                   {
 
-                    campaign.image_url
+                    row.image_url
 
-                    ?
+                    &&
 
                     <img
 
-                      src={campaign.image_url}
+                      src={row.image_url}
 
-                      className="h-20 w-36 rounded-lg border object-cover"
+                      className="h-20 w-36 rounded border object-cover"
 
                     />
-
-                    :
-
-                    <div className="flex h-20 w-36 items-center justify-center rounded-lg border">
-
-                      <ImageOff className="h-6 w-6"/>
-
-                    </div>
 
                   }
 
                 </td>
 
-                <td className="px-4">
+                <td className="px-4 py-4">
 
-                  <div className="font-semibold">
+                  <div className="font-medium">
 
-                    {campaign.campaign_name}
-
-                  </div>
-
-                  <div className="text-xs text-muted-foreground">
-
-                    {campaign.button_text || '-'}
+                    {row.campaign_name}
 
                   </div>
-
-                </td>
-
-                <td className="px-4">
 
                   {
 
-                    campaign.all_products
+                    row.button_text && (
+
+                      <div className="text-xs text-muted-foreground">
+
+                        {row.button_text}
+
+                      </div>
+
+                    )
+
+                  }
+
+                </td>
+
+                <td className="px-4 py-4">
+
+                  {
+
+                    row.all_products
 
                     ?
 
@@ -210,25 +212,31 @@ export default function CampaignTable({
 
                     :
 
-                    <div className="flex flex-wrap gap-1">
+                    <div className="space-y-1">
 
                       {
 
-                        campaign.products.map(name=>(
+                        row.products.map(
 
-                          <Badge
+                          product => (
 
-                            key={name}
+                            <Badge
 
-                            variant="secondary"
+                              key={product}
 
-                          >
+                              variant="secondary"
 
-                            {name}
+                              className="mr-1"
 
-                          </Badge>
+                            >
 
-                        ))
+                              {product}
+
+                            </Badge>
+
+                          )
+
+                        )
 
                       }
 
@@ -238,17 +246,23 @@ export default function CampaignTable({
 
                 </td>
 
-                <td className="text-center">
+                <td className="px-4 py-4 text-center">
 
-                  {campaign.priority}
+                  {row.priority}
 
                 </td>
 
-                <td className="text-center">
+                <td className="px-4 py-4 text-center">
+
+                  {row.duration}s
+
+                </td>
+
+                <td className="px-4 py-4 text-center">
 
                   {
 
-                    campaign.is_active
+                    row.is_active
 
                     ?
 
@@ -260,7 +274,11 @@ export default function CampaignTable({
 
                     :
 
-                    <Badge variant="secondary">
+                    <Badge
+
+                      variant="secondary"
+
+                    >
 
                       Disabled
 
@@ -270,7 +288,7 @@ export default function CampaignTable({
 
                 </td>
 
-                <td>
+                <td className="px-4 py-4">
 
                   <div className="flex justify-center gap-2">
 
@@ -282,13 +300,13 @@ export default function CampaignTable({
 
                       onClick={()=>
 
-                        onEdit(campaign)
+                        onEdit(row)
 
                       }
 
                     >
 
-                      <Edit className="mr-1 h-4 w-4"/>
+                      <Edit className="mr-1 h-3 w-3"/>
 
                       Edit
 
@@ -302,13 +320,13 @@ export default function CampaignTable({
 
                       onClick={()=>
 
-                        onDelete(campaign)
+                        onDelete(row)
 
                       }
 
                     >
 
-                      <Trash2 className="mr-1 h-4 w-4"/>
+                      <Trash2 className="mr-1 h-3 w-3"/>
 
                       Delete
 
