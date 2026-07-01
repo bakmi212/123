@@ -61,9 +61,8 @@ export async function GET(req: NextRequest) {
     }
 
     const hasUpdate =
-      currentVersion
-        ? currentVersion !== data.version
-        : true;
+      !currentVersion ||
+      currentVersion < data.version;
 
     return NextResponse.json({
       success: true,
