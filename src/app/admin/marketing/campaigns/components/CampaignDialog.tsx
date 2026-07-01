@@ -17,9 +17,9 @@ import { Input } from '@/components/ui/input'
 
 import { Label } from '@/components/ui/label'
 
-import ProductSelector from './ProductSelector'
-
 import ImageUploader from './ImageUploader'
+
+import ProductSelector from './ProductSelector'
 
 export interface CampaignForm {
 
@@ -103,7 +103,7 @@ export default function CampaignDialog({
 
           <DialogDescription>
 
-            Create marketing campaign.
+            Create or update desktop campaign.
 
           </DialogDescription>
 
@@ -253,13 +253,15 @@ export default function CampaignDialog({
 
               <Label>
 
-                Duration
+                Duration (seconds)
 
               </Label>
 
               <Input
 
                 type="number"
+
+                min={1}
 
                 value={value.duration}
 
@@ -287,15 +289,25 @@ export default function CampaignDialog({
 
             selected={value.product_ids}
 
-            onAllChange={(v)=>
+            onAllChange={(checked)=>
 
               onChange({
 
                 ...value,
 
-                all_products:v,
+                all_products:checked,
 
-                product_ids:v?[]:value.product_ids
+                product_ids:
+
+                  checked
+
+                  ?
+
+                  []
+
+                  :
+
+                  value.product_ids
 
               })
 
