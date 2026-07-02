@@ -10,11 +10,12 @@ export async function GET() {
 
     const { data, error } = await supabase
         .from("app_config")
-        .select("*")
-        .eq("id", 1)
+        .select("config, updated_at")
+        .eq("id", true)
         .single();
 
     if (error) {
+
         return NextResponse.json(
             {
                 success: false,
@@ -24,19 +25,17 @@ export async function GET() {
                 status: 500
             }
         );
+
     }
 
     return NextResponse.json({
+
         success: true,
-        banner_url: data.banner_url,
-        banner_updated_at: data.banner_updated_at,
-        maintenance: data.maintenance,
-        minimum_version: data.minimum_version,
-        popup: {
-            enabled: !!data.popup_title,
-            title: data.popup_title ?? "",
-            message: data.popup_message ?? ""
-        },
-        updated_at: data.updated_at
+
+        updated_at: data.updated_at,
+
+        ...data.config
+
     });
+
 }
