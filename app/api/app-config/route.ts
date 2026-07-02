@@ -39,3 +39,40 @@ export async function GET() {
     });
 
 }
+export async function POST(req:Request){
+
+    const body = await req.json();
+
+    const { error } = await supabase
+
+        .from("app_config")
+
+        .update({
+
+            config:body,
+
+            updated_at:new Date()
+
+        })
+
+        .eq("id",true);
+
+    if(error){
+
+        return NextResponse.json({
+
+            success:false,
+
+            message:error.message
+
+        });
+
+    }
+
+    return NextResponse.json({
+
+        success:true
+
+    });
+
+}
